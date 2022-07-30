@@ -1,0 +1,15 @@
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+
+
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
+
+./env/Scripts/activate.ps1
+
+
+
+Forma correcta::
+venv/Scripts/Activate.ps1
+
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
+
+Adicionar o gitignore
