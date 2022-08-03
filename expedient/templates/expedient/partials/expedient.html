@@ -1,3 +1,44 @@
 <table class="table table-striped">
-    ...
+    <thead>
+        <tr>
+          <th scope="col">Número de Expediente</th>
+          <th scope="col">Assunto</th>
+          <th scope="col">Categoria</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Destino</th>
+          <th scope="col">Data de Emissão</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">
+            <a href="#">
+                {{ expedient.numero_Ex }}
+            </a>
+          </th>
+          <td> {{ expedient.assunto }}</td>
+          <td>{{ expedient.categoria }}</td>
+          <td>{{ expedient.estado }}</td>
+          <td>{{ expedient.departamento }}</td>
+          <td>{{ expedient.data_emissao }}</td>
+        </tr>
+        <tr>
+          <th scope="row">2</th>
+          <td>Jacob</td>
+          <td>Thornton</td>
+          <td>@fat</td>
+          <td>Otto</td>
+          <td>@mdo</td>
+        </tr>
+        <tr>
+          <th scope="row">3</th>
+          <td>Larry</td>
+          <td>the Bird</td>
+          <td>@twitter</td>
+          <td>Otto</td>
+          <td>@mdo</td>
+        </tr>
+      </tbody>
+
+
   </table>

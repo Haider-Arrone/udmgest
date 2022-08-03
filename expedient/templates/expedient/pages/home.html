@@ -4,8 +4,24 @@
 
 {% block content %}
 <div class="main-content main-content-list container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+              <th scope="col">Número de Expediente</th>
+              <th scope="col">Assunto</th>
+              <th scope="col">Categoria</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Destino</th>
+              <th scope="col">Data de Emissão</th>
+            </tr>
+          </thead>
+          <tbody>
     {% for expedient in expedients %}
-        {% include 'expedient/partials/expedient.html' %}
+        {% include 'expedient/partials/expedients-table.html' %}
     {% endfor %}
+</tbody>
+
+
+</table>
 </div>
 {% endblock content %}
