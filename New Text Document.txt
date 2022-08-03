@@ -13,3 +13,8 @@ venv/Scripts/Activate.ps1
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 
 Adicionar o gitignore
+
+
+SuperUser
+user: haider
+senha: haidered22

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    {% include 'expedient/partials/head.html' %}
+   <!--<title>{% block title %}{% endblock title %} expedient</title>--> 
+</head>
+
+<body>
+    {% include 'expedient/partials/header.html' %}
+    
+
+    <main class="main-content-container">
+        {% block content %}{% endblock content %}
+        
+       
+    </main>
+
+    {% include 'expedient/partials/footer.html' %}
+</body>
+
+</html>
