@@ -1,74 +1,73 @@
+from xml.dom.minidom import Attr
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from authors.models import Profile
 from utils.django_forms import add_placeholder, strong_password
 
 
 class RegisterForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        add_placeholder(self.fields['username'], 'Your username')
-        add_placeholder(self.fields['email'], 'Your e-mail')
-        add_placeholder(self.fields['first_name'], 'Ex.: John')
-        add_placeholder(self.fields['last_name'], 'Ex.: Doe')
-        add_placeholder(self.fields['password'], 'Type your password')
-        add_placeholder(self.fields['password2'], 'Repeat your password')
+        add_placeholder(self.fields['username'], 'Digite o nome de usuário')
+        add_placeholder(self.fields['email'], 'Digite o teu e-mail')
+        #add_placeholder(self.fields['first_name'], 'Ex.: John')
+        #add_placeholder(self.fields['last_name'], 'Ex.: Doe')
+        add_placeholder(self.fields['password'], 'Digite a senha')
+        add_placeholder(self.fields['password2'], 'Confirme a senha')
+        
 
     username = forms.CharField(
         label='Username',
         help_text=(
-            'Username must have letters, numbers or one of those @.+-_. '
-            'The length should be between 4 and 150 characters.'
+            'O nome de usuário deve ter letras, números ou um desses @.+-_. '
+            'O comprimento deve estar entre 4 e 150 caracteres.'
         ),
         error_messages={
-            'required': 'This field must not be empty',
-            'min_length': 'Username must have at least 4 characters',
-            'max_length': 'Username must have less than 150 characters',
+            'required': 'Este campo não deve estar vazio',
+            'min_length': 'O nome de usuário deve ter pelo menos 4 caracteres',
+            'max_length': 'O nome de usuário deve ter menos de 150 caracteres',
         },
         min_length=4, max_length=150,
     )
-    first_name = forms.CharField(
-        error_messages={'required': 'Write your first name'},
-        label='First name'
-    )
-    last_name = forms.CharField(
-        error_messages={'required': 'Write your last name'},
-        label='Last name'
-    )
+    
     email = forms.EmailField(
-        error_messages={'required': 'E-mail is required'},
+        error_messages={'required': 'E-mail é obrigatório'},
         label='E-mail',
-        help_text='The e-mail must be valid.',
+        help_text='O e-mail deve ser válido.',
     )
     password = forms.CharField(
         widget=forms.PasswordInput(),
         error_messages={
-            'required': 'Password must not be empty'
+            'required': 'A senha não deve ser vazia'
         },
         help_text=(
-            'Password must have at least one uppercase letter, '
-            'one lowercase letter and one number. The length should be '
-            'at least 8 characters.'
+            'A senha deve ter pelo menos uma letra maiúscula, '
+            'uma letra minúscula e um número. O comprimento deve ser '
+            'pelo menos 8 caracteres.'
         ),
         validators=[strong_password],
-        label='Password'
+        label='Senha'
     )
     password2 = forms.CharField(
         widget=forms.PasswordInput(),
-        label='Password2',
+        label='Confirme a senha',
         error_messages={
-            'required': 'Please, repeat your password'
+            'required': 'Por favor, digite novamente a senha'
         },
     )
+    
 
     class Meta:
         model = User
         fields = [
-            'first_name',
-            'last_name',
-            'username',
+            
             'email',
+            
+            'username',
+            
             'password',
+            
         ]
 
     def clean_email(self):
@@ -77,7 +76,7 @@ class RegisterForm(forms.ModelForm):
 
         if exists:
             raise ValidationError(
-                'User e-mail is already in use', code='invalid',
+                'O e-mail já está em uso', code='invalid',
             )
 
         return email
@@ -90,7 +89,7 @@ class RegisterForm(forms.ModelForm):
 
         if password != password2:
             password_confirmation_error = ValidationError(
-                'Password and password2 must be equal',
+                'As senhas devem ser iguais',
                 code='invalid'
             )
             raise ValidationError({
@@ -99,3 +98,53 @@ class RegisterForm(forms.ModelForm):
                     password_confirmation_error,
                 ],
             })
+            
+            
+            
+
+class RegisterFormProfile(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        add_placeholder(self.fields['estudante_interno'], 'estudante')
+        add_placeholder(self.fields['numero_telefone'], 'Digite o numero de telefone')
+        add_placeholder(self.fields['instituicao'], 'Digite o nome da tua instituição')
+        add_placeholder(self.fields['nome_completo'], 'Digite o teu nome completo')
+
+    
+    nome_completo = forms.CharField(
+        error_messages={'required': 'Digite teu nome completo'},
+        label='Nome Completo',
+    )
+    numero_telefone = forms.CharField(
+        error_messages={'required': 'Digite teu número de telefone'},
+        label='Número de telefone'
+    )
+    estudante_interno = forms.CharField(
+        widget=forms.CheckboxInput(),
+       # error_messages={'required': ''},
+        label='É estudante interno?',
+    )
+    instituicao = forms.CharField(required=False,
+        #error_messages={'required': 'Digite o nome da tua instituição'},
+        label='Qual é a tua instituição?'
+    )
+    codigo_estudante = forms.IntegerField(required=False,
+        error_messages={'required': 'Digite o teu código de estudante'},
+        label='Código de Estudante'
+    )
+    
+    
+    class Meta:
+        model = Profile
+        fields = [
+            'nome_completo',
+            'numero_telefone',
+            'estudante_interno',
+            'codigo_estudante',
+            'instituicao',
+            
+            
+        ]
+
+    
