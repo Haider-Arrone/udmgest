@@ -1,0 +1,13 @@
+{% if request.user.is_authenticated %}
+<div>You are logged in with
+    {{ request.user.username }}
+   <a href="{% url 'authors:dashbord' %}">Veja seus expedientes </a> 
+   <a href="{% url 'authors:dashbord_expedient_new' %}">Cria novos expedientes </a> 
+    <form action="{% url 'authors:logout' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="username" value="{{request.user.username }}">
+        <button type="submit"> Clique aqui</button>
+    </form>
+    para sair
+</div>
+{% endif %}

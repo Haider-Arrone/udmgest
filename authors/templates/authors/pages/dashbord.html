@@ -1,0 +1,28 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Dashbord ({{ user }}) | {% endblock title %}
+
+{% block content %}
+<h2>Dashbord  ({{ user }}) </h2>
+{% include 'authors/partials/login_messages.html' %}
+{% include 'global/partials/messages.html' %}
+
+<div>
+
+  <H3>Teus expedientes</H3>
+
+  <ul>
+    {% for expedient in expedients %}
+      <li>
+       
+    <a href="{% url 'authors:dashbord_expedient_edit' expedient.id %}">{{ expedient.tipo }}</a> 
+      
+    {% empty %}
+      <li>
+        <p>You do not have recipes, please create one.</p>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock content %}

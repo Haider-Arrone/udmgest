@@ -1,0 +1,39 @@
+{% extends 'global/base_login.html' %}
+
+{% block title %}Login | {% endblock title %}
+
+{% block content %}
+{% include 'authors/partials/login_messages.html' %}
+<form class="form-signin" method="POST" action="{{ form_action }}">
+    {% csrf_token %}
+    
+    
+    
+
+  {% for field in form %}
+        <div class="form-group {{ field.field.widget.attrs.class }}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{field}}
+
+          {% if field.help_text %}
+            <p class="help-text">{{ field.help_text }}</p>
+          {% endif %}
+
+          {{ field.errors }}
+        </div>
+
+        
+      {% endfor %}
+
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      <p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p>
+    
+    </form>
+
+  {% include 'global/partials/messages.html' %}
+<!--
+  {% if not user.is_authenticated %}
+    {% include 'global/partials/form.html' %}
+  {% endif %}
+-->
+{% endblock content %}
