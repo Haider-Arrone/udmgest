@@ -6,7 +6,12 @@
     <input class="form-control form-control-dark w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search">
     <div class="navbar-nav">
       <div class="nav-item text-nowrap">
-        <a class="nav-link px-3" href="#">Sign out</a>
+        <form action="{% url 'authors:logout' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="username" value="{{request.user.username }}">
+          <button class="btn btn-outline-secondary" type="submit"> Sair</button>
+      </form>
+       <!--<a class="nav-link px-3" href="{% url 'authors:logout' %}">Sign out</a>--> 
       </div>
     </div>
   </header>
@@ -24,27 +29,27 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">
+              <a class="nav-link" href="{% url 'authors:dashbord_expedient_new' %}">
                 <span data-feather="file" class="align-text-bottom"></span>
-                Orders
+                Novo Expediente
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">
                 <span data-feather="shopping-cart" class="align-text-bottom"></span>
-                Products
+                Recebidos
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">
+              <a class="nav-link" href="{% url 'authors:dashbord_expedient_emitidos' %}">
                 <span data-feather="users" class="align-text-bottom"></span>
-                Customers
+                Emitidos
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">
                 <span data-feather="bar-chart-2" class="align-text-bottom"></span>
-                Reports
+                Relatórios
               </a>
             </li>
             <li class="nav-item">

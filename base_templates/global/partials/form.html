@@ -1,4 +1,5 @@
-<div class="main-content container">
+{% load crispy_forms_tags %}
+<div class="container">
   <form 
     class="main-form"
     action="{{ form_action }}" 
@@ -8,11 +9,13 @@
   >
     {% csrf_token %}
 
-    <div class="form-content form-content-grid">
+    <div class="form-group">
       {% for field in form %}
+        
+        
         <div class="form-group {{ field.field.widget.attrs.class }}">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{field}}
+          
+          {{field |as_crispy_field}}
 
           {% if field.help_text %}
             <p class="help-text">{{ field.help_text }}</p>
@@ -57,10 +60,11 @@
     </div>
     {% endif %}
 
-    <div class="form-content form-content-grid">
+   <br>  
       <div class="form-group">
-        <button type="submit">Send</button>
+        <button class="btn btn-success" type="submit">Submeter</button>
       </div>
-    </div>
+   
   </form>
 </div>
+

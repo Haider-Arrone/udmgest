@@ -10,8 +10,10 @@ from django.http import Http404
 from django.contrib import messages
 from authors.models import Profile
 from django.contrib.auth import authenticate, login, logout
+from utils.expedient.pagination import make_pagination
 
 # Create your views here.
+PER_PAGES = 20
 def register_view(request):
     register_form_data = request.session.get('register_form_data', None)
     form = RegisterForm(register_form_data) 
@@ -69,6 +71,7 @@ def login_create(request):
         if authenticated_user is not None:
             messages.success(request, 'Estás logado no sistema')
             login(request, authenticated_user)
+            return redirect(reverse('authors:dashbord'))
         else:    
             messages.error(request, 'Credencial inválida')
         
@@ -148,11 +151,11 @@ def dashbord_expedient_new(request,):
         expedient.usuario = request.user
         expedient.estado = 'Novo'
         #expedient.data_emissao = auto_now
-        
+        expedient.numero_Ex = 123
         expedient.save()
         
         messages.success(request, 'Expediente salvo com sucesso!')
-        return redirect(reverse('authors:dashbord_expedient_edit',args=(id,)))
+        return redirect(reverse('authors:dashbord'))
     
     return render(request,
                   'authors/pages/dashbord_expedient.html',
@@ -163,3 +166,18 @@ def dashbord_expedient_new(request,):
                   )
 
 
+@login_required(login_url='authors:login', redirect_field_name='next')    
+def dashbord_expedient_emitidos(request):
+    expedients = Expedient.objects.filter(recebido=False, 
+                                         usuario=request.user,
+                                        
+                                         )
+    page_obj, pagination_range = make_pagination(request, expedients, PER_PAGES)
+    
+    return render(request,
+                  'authors/pages/dashbord_emitidos.html',context={
+        'expedients': page_obj,
+        'pagination_range': pagination_range,
+       
+    }
+                  )

@@ -17,13 +17,13 @@ class Expedient(models.Model):
     assunto = models.CharField(max_length=65, null=True, blank=True, default='Sem Assunto')
     prioridade = models.CharField(max_length=20)
     confidencial = models.BooleanField(default=False)
+    descricao = models.TextField(null=True, )
     estado = models.CharField(max_length=20)
-    anexo = models.FileField(upload_to ='expedient/uploads/%Y/%m/%d/') 
+    anexo = models.FileField(upload_to ='expedient/uploads/%Y/%m/%d/', null=True) 
     data_emissao = models.DateTimeField(auto_now_add=True)
     data_recepcao = models.DateTimeField(auto_now=True)
     recebido = models.BooleanField(default=False)
     slug = models.SlugField()
-    
     departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, blank=True, default=None)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 

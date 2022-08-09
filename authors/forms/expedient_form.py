@@ -14,7 +14,7 @@ class AuthorExpedientForm(forms.ModelForm):
         
     class Meta:
         model = Expedient
-        fields = 'tipo', 'departamento', 'categoria', 'assunto', 'prioridade', 'confidencial', 'anexo', 
+        fields = 'tipo', 'departamento', 'categoria', 'assunto','descricao', 'prioridade', 'confidencial', 'anexo', 
         widgets = {
             'cover': forms.FileInput(
                 attrs={
@@ -41,7 +41,9 @@ class AuthorExpedientForm(forms.ModelForm):
                     ('Urgente', 'Urgente'),
                 ),
             ),
+           
         }
+
         
         
 

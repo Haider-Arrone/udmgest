@@ -14,5 +14,6 @@ urlpatterns = [
          views.dashbord_expedient_edit,
          name='dashbord_expedient_edit'),
     path('dashbord/expedient/new', views.dashbord_expedient_new, name='dashbord_expedient_new'),
+    path('dashbord/expedient/emitidos', views.dashbord_expedient_emitidos, name='dashbord_expedient_emitidos'),
 ]
 
