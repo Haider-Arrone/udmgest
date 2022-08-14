@@ -42,18 +42,21 @@ def register_create(request):
         profile.author = user
         profile.save()
         
-        messages.success(request, 'Usuário criado com sucesso, faça o log in') 
+        messages.success(request, 'Usuário criado com sucesso, faça o Login') 
         
         del(request.session['register_form_data'])
         return redirect(reverse('authors:login'))
     return redirect('authors:register')
 
 def login_view(request):
-    form = LoginForm()
-    return render(request, 'authors/pages/login.html',{
-        'form': form,
-        'form_action': reverse('authors:login_create')
-    })
+    if request.user.is_authenticated:
+        return redirect(reverse('authors:dashbord'))
+    else:
+        form = LoginForm()
+        return render(request, 'authors/pages/login.html',{
+            'form': form,
+            'form_action': reverse('authors:login_create')
+        })
 
 
 def login_create(request):

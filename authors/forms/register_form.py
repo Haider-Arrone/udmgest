@@ -120,8 +120,8 @@ class RegisterFormProfile(forms.ModelForm):
         error_messages={'required': 'Digite teu número de telefone'},
         label='Número de telefone'
     )
-    estudante_interno = forms.CharField(
-        widget=forms.CheckboxInput(),
+    estudante_interno = forms.CharField(required = False,
+        widget=forms.CheckboxInput(), 
        # error_messages={'required': ''},
         label='É estudante interno?',
     )
@@ -144,7 +144,32 @@ class RegisterFormProfile(forms.ModelForm):
             'codigo_estudante',
             'instituicao',
             
-            
         ]
 
+    def clean_codigo_estudante(self):
+        estudante_interno = self.cleaned_data.get('estudante_interno', '')
+        codigo_estudante = self.cleaned_data.get('codigo_estudante', '')
+        #exists = User.objects.filter(email=email).exists()
+        #print(codigo_estudante)
+        if estudante_interno =='True':
+            
+            if codigo_estudante is None:
+                raise ValidationError(
+                'Digite o código de estudante', code='invalid',
+                )
+        
+        return codigo_estudante
     
+    
+    def clean_instituicao(self):
+        estudante_interno = self.cleaned_data.get('estudante_interno', '')
+        instituicao = self.cleaned_data.get('instituicao', '')
+        #exists = User.objects.filter(email=email).exists()
+        #print(codigo_estudante)
+        if estudante_interno =='False':
+            if instituicao is None:
+                raise ValidationError(
+                'Digite o nome da instituição', code='invalid',
+                )
+        
+        return instituicao

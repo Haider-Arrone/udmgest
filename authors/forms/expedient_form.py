@@ -11,7 +11,21 @@ class AuthorExpedientForm(forms.ModelForm):
         self._my_errors = defaultdict(list)
 
         #add_attr(self.fields.get('preparation_steps'), 'class', 'span-2')
-        
+    
+    assunto = forms.CharField(
+        error_messages={'required': 'Digite o assunto'},
+        label='Assunto',
+    ) 
+    
+    descricao = forms.CharField(
+        error_messages={'required': 'Digite a descrição'},
+        label='Descrição',
+    )    
+    anexo = forms.FileField(
+        required=False,
+        label='Anexo',
+    ) 
+    
     class Meta:
         model = Expedient
         fields = 'tipo', 'departamento', 'categoria', 'assunto','descricao', 'prioridade', 'confidencial', 'anexo', 
@@ -41,7 +55,7 @@ class AuthorExpedientForm(forms.ModelForm):
                     ('Urgente', 'Urgente'),
                 ),
             ),
-           
+            
         }
 
         

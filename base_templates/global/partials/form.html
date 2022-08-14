@@ -17,11 +17,9 @@
           
           {{field |as_crispy_field}}
 
-          {% if field.help_text %}
-            <p class="help-text">{{ field.help_text }}</p>
-          {% endif %}
+          
 
-          {{ field.errors }}
+        
         </div>
 
         {% if field.name == 'cover' and field.value.url %}
@@ -32,14 +30,14 @@
       {% endfor %}
       {% for field in form_profile %}
         <div class="form-group {{ field.field.widget.attrs.class }}">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{field}}
+          
+          
 
-          {% if field.help_text %}
-            <p class="help-text">{{ field.help_text }}</p>
-          {% endif %}
+          {{field |as_crispy_field}}
 
-          {{ field.errors }}
+        
+
+       
         </div>
 
         {% if field.name == 'cover' and field.value.url %}
@@ -51,14 +49,17 @@
     </div>
 
     {% if form.errors %}
+    <br>
     <div class="form-content form-content-grid">
       <div class="form-group">
-        <div class="message message-error">
-          There are errors in the form, please fix them and send again.
+        <div class="alert alert-danger" role="alert">
+          Há erros no formulário, corrija-os e envie novamente!
         </div>
       </div>
     </div>
     {% endif %}
+
+
 
    <br>  
       <div class="form-group">
