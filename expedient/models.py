@@ -1,5 +1,7 @@
+from audioop import reverse
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 
 # Create your models here.
 class Departamento(models.Model):
@@ -29,3 +31,23 @@ class Expedient(models.Model):
 
     def __str__(self):
         return self.assunto
+    
+    def get_absolute_url(self):
+        return reverse('expedients:expedient', args=(self.id,))
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            slug = f'{slugify(self.assunto)}'
+            self.slug = slug
+            
+        return super().save(*args, **kwargs)
+    
+class Funcionario(models.Model):
+    nome_completo = models.CharField(max_length=95)
+    numero_telefone = models.CharField(max_length=65)
+    estado = models.CharField(max_length=50)
+    author = models.OneToOneField(User, on_delete=models.CASCADE)
+    departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, default=None)
+    
+    def __str__(self):
+        return self.nome_completo

@@ -1,12 +1,17 @@
 from django.contrib import admin
 
-from expedient.models import Departamento, Expedient
+from expedient.models import Departamento, Expedient, Funcionario
 
 # Register your models here.
 class DepartamentoAdmin(admin.ModelAdmin):
     ...
  
 admin.site.register(Departamento, DepartamentoAdmin)
+
+class FuncionarioAdmin(admin.ModelAdmin):
+    ...
+ 
+admin.site.register(Funcionario, FuncionarioAdmin)
 
 @admin.register(Expedient)
 class ExpedientAdmin(admin.ModelAdmin):

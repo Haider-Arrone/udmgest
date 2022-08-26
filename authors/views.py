@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from authors.forms.expedient_form import AuthorExpedientForm
-from expedient.models import Expedient
+from expedient.models import Expedient, Funcionario
 from authors.forms.register_form import RegisterFormProfile
 from expedient.views import expedient
 from .forms import RegisterForm, LoginForm
@@ -179,6 +179,64 @@ def dashbord_expedient_emitidos(request):
     
     return render(request,
                   'authors/pages/dashbord_emitidos.html',context={
+        'expedients': page_obj,
+        'pagination_range': pagination_range,
+       
+    }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')    
+def dashbord_expedient_recebidos(request):
+    expedients = Expedient.objects.filter(recebido=True, estado='Respondido',
+                                         usuario=request.user,
+                                        
+                                         )
+    page_obj, pagination_range = make_pagination(request, expedients, PER_PAGES)
+    
+    return render(request,
+                  'authors/pages/dashbord_recebidos.html',context={
+        'expedients': page_obj,
+        'pagination_range': pagination_range,
+       
+    }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')    
+def dashbord_expedient_see(request, id):
+    expedient = Expedient.objects.filter(
+                                         usuario=request.user,
+                                         pk=id
+                                         ).first()
+    if not expedient:
+        raise Http404()
+    
+    form = AuthorExpedientForm(data=request.POST or None,
+                               files=request.FILES or None,
+                               instance=expedient)
+
+    
+    return render(request,
+                  'authors/pages/dashbord_expedient.html',
+                  {
+                  'form': form    
+                  }
+                  )
+
+@login_required(login_url='authors:login', redirect_field_name='next')    
+def dashbord_expedient_recebidos_funcionario(request):
+    id_departamento = Funcionario.objects.get(author=request.user)
+    departamento1 = id_departamento.departamento
+    print(departamento1)
+    expedients = Expedient.objects.filter(departamento=departamento1, recebido=False, estado='Novo',
+                                         
+                                        
+                                         )
+    page_obj, pagination_range = make_pagination(request, expedients, PER_PAGES)
+    
+    return render(request,
+                  'authors/pages/dashbord_recebidos_funcionario.html',context={
         'expedients': page_obj,
         'pagination_range': pagination_range,
        
