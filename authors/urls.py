@@ -1,6 +1,7 @@
-from . import views
 from django.urls import path
- 
+
+from . import views
+
 app_name = 'authors' 
  
 urlpatterns = [
@@ -20,5 +21,9 @@ urlpatterns = [
     path('dashbord/expedient/emitidos', views.dashbord_expedient_emitidos, name='dashbord_expedient_emitidos'),
     path('dashbord/expedient/recebidos', views.dashbord_expedient_recebidos, name='dashbord_expedient_recebidos'),
     path('dashbord/expedient/recebidos_funcionario', views.dashbord_expedient_recebidos_funcionario, name='dashbord_expedient_recebidos_funcionario'),
+    path('dashbord/expedient/<int:id>/detail/',
+         views.dashbord_expedient_detail,
+         name='dashbord_expedient_detail'),
+    path('dashbord/expedient/<int:id>/parecer', views.dashbord_expedient_parecer, name='dashbord_expedient_parecer'),
 ]
 

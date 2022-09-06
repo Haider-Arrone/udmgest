@@ -28,7 +28,7 @@
  
     {% for expedient in expedients %}
     <tr>
-        <td> <a href="{% url 'authors:dashbord_expedient_see' expedient.id %}">{{ expedient.id }}</a> </td>
+        <td> <a href="{% url 'authors:dashbord_expedient_detail' expedient.id %}">{{ expedient.id }}</a> </td>
         <td>{{ expedient.tipo }}</td>
         <td>{{ expedient.categoria }}</td>
         <td>{{ expedient.assunto }}</td>
@@ -36,7 +36,7 @@
         <td>{{ expedient.prioridade }}</td>
         <td>{{ expedient.recebido }}</td>
         <td>{{ expedient.data_emissao }}</td>
-        <td> <a href="{% url 'authors:dashbord_expedient_see' expedient.id %}">Ver</a> <a href="{% url 'authors:dashbord_expedient_see' expedient.id %}">Processar</a></td>
+        <td> <a href="{% url 'authors:dashbord_expedient_detail' expedient.id %}">Ver</a> <a href="{% url 'authors:dashbord_expedient_detail' expedient.id %}">Processar</a></td>
      </tr>
        
    

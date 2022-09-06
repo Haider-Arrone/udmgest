@@ -1,16 +1,20 @@
-from django.urls import reverse
-from django.shortcuts import render, redirect
-from authors.forms.expedient_form import AuthorExpedientForm
-from expedient.models import Expedient, Funcionario
-from authors.forms.register_form import RegisterFormProfile
-from expedient.views import expedient
-from .forms import RegisterForm, LoginForm
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from django.contrib import messages
-from authors.models import Profile
-from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from expedient.models import Expedient, Funcionario, Parecer
+from expedient.views import expedient
 from utils.expedient.pagination import make_pagination
+
+from authors.forms.expedient_form import AuthorExpedientForm
+from authors.forms.parecer_form import ParecerForm
+from authors.forms.register_form import RegisterFormProfile
+from authors.models import Profile
+
+from .forms import LoginForm, RegisterForm
 
 # Create your views here.
 PER_PAGES = 20
@@ -241,4 +245,66 @@ def dashbord_expedient_recebidos_funcionario(request):
         'pagination_range': pagination_range,
        
     }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')    
+def dashbord_expedient_detail(request, id):
+    expedient = Expedient.objects.filter(
+                                         pk=id
+                                         ).first()
+    if not expedient:
+        raise Http404()
+    
+    
+    form = AuthorExpedientForm(data=request.POST or None,
+                               files=request.FILES or None,
+                               instance=expedient)
+    parecer = Parecer.objects.filter(id_expedient=id)
+    
+    
+    if form.is_valid():
+        expedient = form.save(commit=False)
+        
+        expedient.usuario = request.user
+        expedient.estado = 'Novo'
+        #expedient.data_emissao = auto_now
+        
+        expedient.save()
+        
+        messages.success(request, 'Expediente salvo com sucesso!')
+        return redirect(reverse('authors:dashbord_expedient_edit',args=(id,)))                         
+    return render(request,
+                  'authors/pages/expedient-detail.html',
+                  context={'expedient': expedient, 'parecer': parecer,}
+                  )
+
+@login_required(login_url='authors:login', redirect_field_name='next')    
+def dashbord_expedient_parecer(request, id):
+    
+    expedients = Expedient.objects.filter(pk=id).first()
+                                                                           
+    form = ParecerForm(data=request.POST or None,
+                               files=request.FILES or None,
+                               )
+    
+    if form.is_valid():
+        parecer = form.save(commit=False)
+        print(id)
+        parecer.id_expedient = expedients
+        
+        #expedient.estado = 'Novo'
+        #expedient.data_emissao = auto_now
+       # expedient.numero_Ex = 123
+        parecer.save()
+        
+        messages.success(request, 'Parecer submetido com sucesso!')
+        return redirect(reverse('authors:dashbord_expedient_recebidos_funcionario'))
+    
+    return render(request,
+                   'authors/pages/expedient-parecer.html',
+                  {
+                  'form': form,
+                  'form_action':reverse('authors:dashbord_expedient_parecer', args=(id,))    
+                  }
                   )

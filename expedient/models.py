@@ -1,7 +1,9 @@
 from audioop import reverse
-from django.db import models
+
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils.text import slugify
+
 
 # Create your models here.
 class Departamento(models.Model):
@@ -51,3 +53,14 @@ class Funcionario(models.Model):
     
     def __str__(self):
         return self.nome_completo
+
+class Parecer(models.Model):
+    id_expedient = models.ForeignKey(Expedient, on_delete=models.SET_NULL, null=True, default=None)
+    descricao = models.TextField()
+    id_receptor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None)
+    
+    data_envio = models.DateTimeField(auto_now=True)
+    anexo = models.FileField(upload_to ='expedient/parecer/%Y/%m/%d/', null=True,) 
+    
+    def __str__(self):
+        return self.descricao
