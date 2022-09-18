@@ -19,9 +19,11 @@
         <th>Categoria</th>
         <th>Assunto</th>
         <th>Estado</th>
-        <th>Departamento</th>
+        <th>Prioridade</th>
         <th>Entrega do expediente?</th>
         <th>Data de Emissão</th>
+        <th>Data da Resposta</th>
+        <th>Acções</th>
      </tr>
       </thead>
  
@@ -32,16 +34,18 @@
         <td>{{ expedient.categoria }}</td>
         <td>{{ expedient.assunto }}</td>
         <td>{{ expedient.estado }}</td>
-        <td>{{ expedient.departamento }}</td>
+        <td>{{ expedient.prioridade }}</td>
         <td>{{ expedient.recebido }}</td>
         <td>{{ expedient.data_emissao }}</td>
+        <td>{{ expedient.data_recepcao }}</td>
+        <td> <a href="{% url 'authors:dashbord_expedient_detail' expedient.id %}">Ver</a> <a href="{% url 'authors:dashbord_expedient_detail' expedient.id %}">Processar</a></td>
      </tr>
        
    
       
     {% empty %}
       <li>
-        <p>Não tens nenhum expediente emitido, crie um.</p>
+        <p>Não tens nenhum expediente.</p>
       </li>
     {% endfor %}
 </table>

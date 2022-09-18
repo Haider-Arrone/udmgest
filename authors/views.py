@@ -162,7 +162,7 @@ def dashbord_expedient_new(request,):
         expedient.save()
         
         messages.success(request, 'Expediente salvo com sucesso!')
-        return redirect(reverse('authors:dashbord'))
+        return redirect(reverse('authors:dashbord_expedient_emitidos'))
     
     return render(request,
                   'authors/pages/dashbord_expedient.html',
@@ -261,19 +261,7 @@ def dashbord_expedient_detail(request, id):
                                files=request.FILES or None,
                                instance=expedient)
     parecer = Parecer.objects.filter(id_expedient=id)
-    
-    
-    if form.is_valid():
-        expedient = form.save(commit=False)
-        
-        expedient.usuario = request.user
-        expedient.estado = 'Novo'
-        #expedient.data_emissao = auto_now
-        
-        expedient.save()
-        
-        messages.success(request, 'Expediente salvo com sucesso!')
-        return redirect(reverse('authors:dashbord_expedient_edit',args=(id,)))                         
+                       
     return render(request,
                   'authors/pages/expedient-detail.html',
                   context={'expedient': expedient, 'parecer': parecer,}
@@ -292,7 +280,9 @@ def dashbord_expedient_parecer(request, id):
         parecer = form.save(commit=False)
         print(id)
         parecer.id_expedient = expedients
-        
+        expedients.estado = 'Respondido'
+        expedients.recebido = True
+        expedients.save()
         #expedient.estado = 'Novo'
         #expedient.data_emissao = auto_now
        # expedient.numero_Ex = 123
@@ -307,4 +297,24 @@ def dashbord_expedient_parecer(request, id):
                   'form': form,
                   'form_action':reverse('authors:dashbord_expedient_parecer', args=(id,))    
                   }
+                  )
+
+#Respondidos Funcionarios
+@login_required(login_url='authors:login', redirect_field_name='next')    
+def dashbord_expedient_respondidos_funcionario(request):
+    id_departamento = Funcionario.objects.get(author=request.user)
+    departamento1 = id_departamento.departamento
+    print(departamento1)
+    expedients = Expedient.objects.filter(departamento=departamento1, recebido=False, estado='Respondido',
+                                         
+                                        
+                                         )
+    page_obj, pagination_range = make_pagination(request, expedients, PER_PAGES)
+    
+    return render(request,
+                  'authors/pages/dashbord_respondidos_funcionario.html',context={
+        'expedients': page_obj,
+        'pagination_range': pagination_range,
+       
+    }
                   )

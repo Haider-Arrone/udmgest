@@ -25,5 +25,7 @@ urlpatterns = [
          views.dashbord_expedient_detail,
          name='dashbord_expedient_detail'),
     path('dashbord/expedient/<int:id>/parecer', views.dashbord_expedient_parecer, name='dashbord_expedient_parecer'),
+    path('dashbord/expedient/respondidos_funcionario', views.dashbord_expedient_respondidos_funcionario, name='dashbord_expedient_respondidos_funcionario'),
+    
 ]
 

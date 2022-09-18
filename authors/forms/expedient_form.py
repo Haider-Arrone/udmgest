@@ -1,7 +1,8 @@
+from collections import defaultdict
 from dataclasses import fields
+
 from django import forms
 from expedient.models import Departamento, Expedient
-from collections import defaultdict
 
 
 class AuthorExpedientForm(forms.ModelForm):
@@ -16,11 +17,6 @@ class AuthorExpedientForm(forms.ModelForm):
         error_messages={'required': 'Digite o assunto'},
         label='Assunto',
     ) 
-    
-    descricao = forms.CharField(
-        error_messages={'required': 'Digite a descrição'},
-        label='Descrição',
-    )    
     anexo = forms.FileField(
         required=False,
         label='Anexo',
@@ -47,6 +43,7 @@ class AuthorExpedientForm(forms.ModelForm):
                     ('Pedido de Credencial', 'Pedido de Credencial'),
                     ('Carta de Estágio', 'Carta de Estágio'),
                     ('Declaração', 'Declaração'),
+                     ('Outro', 'Outro'),
                 ),
             ),
             'prioridade': forms.Select(

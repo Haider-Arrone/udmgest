@@ -22,7 +22,7 @@ admin.site.register(Funcionario, FuncionarioAdmin)
 @admin.register(Expedient)
 class ExpedientAdmin(admin.ModelAdmin):
     list_display = ['id', 'numero_Ex', 'departamento', 'categoria',
-                    'assunto', 'estado', 'data_emissao','confidencial', 'usuario']
+                    'assunto', 'estado', 'data_emissao','data_recepcao','confidencial', 'usuario']
     list_display_links = 'numero_Ex', 'id', 
     search_fields = 'id', 'numero_Ex', 'departamento', 'assunto',
     'estado', 'prioridade', 'slug',

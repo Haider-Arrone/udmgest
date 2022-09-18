@@ -22,12 +22,13 @@
         <th>Departamento</th>
         <th>Entrega do expediente?</th>
         <th>Data de Emissão</th>
+        <th>Acção</th>
      </tr>
       </thead>
  
     {% for expedient in expedients %}
     <tr>
-        <td> <a href="{% url 'authors:dashbord_expedient_see' expedient.id %}">{{ expedient.id }}</a> </td>
+        <td> {{ expedient.id }} </td>
         <td>{{ expedient.tipo }}</td>
         <td>{{ expedient.categoria }}</td>
         <td>{{ expedient.assunto }}</td>
@@ -35,6 +36,7 @@
         <td>{{ expedient.departamento }}</td>
         <td>{{ expedient.recebido }}</td>
         <td>{{ expedient.data_emissao }}</td>
+        <td> <a href="{% url 'authors:dashbord_expedient_detail' expedient.id %}">consultar</a> </td>
      </tr>
        
    

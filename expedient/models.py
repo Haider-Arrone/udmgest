@@ -58,7 +58,7 @@ class Parecer(models.Model):
     id_expedient = models.ForeignKey(Expedient, on_delete=models.SET_NULL, null=True, default=None)
     descricao = models.TextField()
     id_receptor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None)
-    
+    parecer_tipo = models.CharField(max_length=50)
     data_envio = models.DateTimeField(auto_now=True)
     anexo = models.FileField(upload_to ='expedient/parecer/%Y/%m/%d/', null=True,) 
     

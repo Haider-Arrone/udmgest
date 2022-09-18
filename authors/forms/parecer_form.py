@@ -40,21 +40,10 @@ class ParecerForm(forms.ModelForm):
                     ('Externo-Entrada', 'Externo-Entrada'),
                 ),
             ),
-            'categoria': forms.Select(
-                choices=(
-                    ('Pedido de Credencial', 'Pedido de Credencial'),
-                    ('Carta de Estágio', 'Carta de Estágio'),
-                    ('Declaração', 'Declaração'),
-                ),
-            ),
-            'prioridade': forms.Select(
-                choices=(
-                    ('Normal', 'Normal'),
-                    ('Urgente', 'Urgente'),
-                ),
-            ),
+           
             
         }
+        
 
-        
-        
+
+
