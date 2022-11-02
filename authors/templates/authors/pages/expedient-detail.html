@@ -48,9 +48,16 @@
 
 <hr>
 {% for pareceres in parecer %}
+
+{% if not funcionario.nome_completo %}
+
+
+{% if expedient.estado == 'Respondido' %}
+{% if pareceres.tipo == 'Resposta' %}
+    
   <br><br>
       <h3>RE: {{expedient.assunto}}</h3>
-      <p><strong>Respondido por: {{expedient.departamento}}</strong></p>
+      <p><strong>Respondido por: {{pareceres.id_emissor}}</strong></p>
         {{ pareceres.descricao|safe}}
       <a href="#"></a> 
 
@@ -62,26 +69,72 @@
 {% endif %}
       <p align="right"><em>{{ pareceres.data_envio }}</em></p>
       
-        <hr>
+        <hr> 
+        {% endif %}
+        {% else %}
+        {% endif %}
+       {% else %}
+       <br><br>
+       <h3>RE: {{expedient.assunto}}</h3>
+       <p><strong>Respondido por: {{pareceres.id_emissor}}</strong></p>
+         {{ pareceres.descricao|safe}}
+       <a href="#"></a> 
+ 
+      
+ {% if pareceres.anexo == "" %}
+ <p  style =" color : green">Sem Anexo!</p>
+ {% else %}
+ <a href="{{ pareceres.anexo.url }}" target="_blank">Anexo</a>
+ {% endif %}
+       <p align="right"><em>{{ pareceres.data_envio }}</em></p>
+       
+         <hr> 
+        {% endif %}
       {% empty %}
         
         <p>Nao há pareceres.</p>
         
+
+
     {% endfor %}
-    <a class="btn btn-success" href="{% url 'authors:dashbord_expedient_parecer' expedient.id  %}">Responder</a>
+
+
+    {% if not profile.nome_completo %}
+
+    {% else %}
+
+      {% endif %} 
+      {% if not funcionario.nome_completo %}
+       
+    {% else %}
+    {% if expedient.estado == 'Respondido' %}
+
+    {% else %}
+
+
+
+
+    
+      <a class="btn btn-success" href="{% url 'authors:dashbord_expedient_parecer_responder' expedient.id %}">Responder</a>
     &nbsp;&nbsp;
     
-    <a class="btn btn-primary" href="{% url 'authors:dashbord_expedient_parecer' expedient.id %}">Encaminhar</a> 
+    <a class="btn btn-primary" href="{% url 'authors:dashbord_expedient_parecer_encaminhar' expedient.id %}">Encaminhar</a> 
     <br>
     <br>
     <br>
+{% endif %}
+    {% endif %}
+      
+ 
+
+    
     {% block parecer %}
 
 
     {% endblock parecer%}
 
 
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#encaminhar" data-whatever="@mdo">Teste Encaminhar</button>
+<!--<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#encaminhar" data-whatever="@mdo">Teste Encaminhar</button>-->
 
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

@@ -2,8 +2,8 @@ from django.urls import path
 
 from . import views
 
-app_name = 'authors' 
- 
+app_name = 'authors'
+
 urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('register/create/', views.register_create, name='create'),
@@ -17,15 +17,26 @@ urlpatterns = [
     path('dashbord/expedient/<int:id>/see/',
          views.dashbord_expedient_see,
          name='dashbord_expedient_see'),
-    path('dashbord/expedient/new', views.dashbord_expedient_new, name='dashbord_expedient_new'),
-    path('dashbord/expedient/emitidos', views.dashbord_expedient_emitidos, name='dashbord_expedient_emitidos'),
-    path('dashbord/expedient/recebidos', views.dashbord_expedient_recebidos, name='dashbord_expedient_recebidos'),
-    path('dashbord/expedient/recebidos_funcionario', views.dashbord_expedient_recebidos_funcionario, name='dashbord_expedient_recebidos_funcionario'),
+    path('dashbord/expedient/new', views.dashbord_expedient_new,
+         name='dashbord_expedient_new'),
+    path('dashbord/expedient/emitidos', views.dashbord_expedient_emitidos,
+         name='dashbord_expedient_emitidos'),
+    path('dashbord/expedient/recebidos', views.dashbord_expedient_recebidos,
+         name='dashbord_expedient_recebidos'),
+    path('dashbord/expedient/recebidos_funcionario', views.dashbord_expedient_recebidos_funcionario,
+         name='dashbord_expedient_recebidos_funcionario'),
+    path('dashbord/expedient/encaminhados_funcionario', views.dashbord_expedient_encaminhados_funcionario,
+         name='dashbord_expedient_encaminhados_funcionario'),
     path('dashbord/expedient/<int:id>/detail/',
          views.dashbord_expedient_detail,
          name='dashbord_expedient_detail'),
-    path('dashbord/expedient/<int:id>/parecer', views.dashbord_expedient_parecer, name='dashbord_expedient_parecer'),
-    path('dashbord/expedient/respondidos_funcionario', views.dashbord_expedient_respondidos_funcionario, name='dashbord_expedient_respondidos_funcionario'),
-    
-]
+    #path('dashbord/expedient/<int:id>/parecer/<str:tipo>', views.dashbord_expedient_parecer, name='dashbord_expedient_parecer'),
+    path('dashbord/expedient/<int:id>/parecer/responder',
+         views.dashbord_expedient_parecer_responder, name='dashbord_expedient_parecer_responder'),
+    path('dashbord/expedient/<int:id>/parecer/encaminhar',
+         views.dashbord_expedient_parecer_encaminhar, name='dashbord_expedient_parecer_encaminhar'),
+    path('dashbord/expedient/respondidos_funcionario', views.dashbord_expedient_respondidos_funcionario,
+         name='dashbord_expedient_respondidos_funcionario'),
+    path('dashboard/expedient/search/', views.search, name="search"),
 
+]
