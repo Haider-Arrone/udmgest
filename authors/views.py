@@ -110,6 +110,7 @@ def dashbord(request):
     expedients = Expedient.objects.filter(estado='Respondido',
                                           usuario=request.user
                                           )[:5]
+    funcionario = Funcionario.objects.filter(author=request.user).first()
     emitidos = Expedient.objects.filter(
         usuario=request.user
     ).exclude(estado='Respondido',)
@@ -132,6 +133,7 @@ def dashbord(request):
                   'authors/pages/dashbord.html',
                   {
                       'expedients': expedients,
+                      'funcionario': funcionario,
 
                       'dados': dados,
                       'des': dados_des,
@@ -139,6 +141,7 @@ def dashbord(request):
                   )
 
 
+'''
 @login_required(login_url='authors:login', redirect_field_name='next')
 def dashbord_expedient_edit(request, id):
     expedient = Expedient.objects.filter(recebido=False,
@@ -171,10 +174,12 @@ def dashbord_expedient_edit(request, id):
                   }
                   )
 
+'''
+
 
 @login_required(login_url='authors:login', redirect_field_name='next')
 def dashbord_expedient_new(request,):
-
+    funcionario = Funcionario.objects.filter(author=request.user).first()
     form = AuthorExpedientForm(data=request.POST or None,
                                files=request.FILES or None,
                                )
@@ -195,6 +200,7 @@ def dashbord_expedient_new(request,):
                   'authors/pages/dashbord_expedient.html',
                   {
                       'form': form,
+                      'funcionario': funcionario,
                       'form_action': reverse('authors:dashbord_expedient_new')
                   }
                   )
@@ -206,6 +212,7 @@ def dashbord_expedient_emitidos(request):
         usuario=request.user,
 
     ).exclude(estado='Respondido')
+    funcionario = Funcionario.objects.filter(author=request.user).first()
     page_obj, pagination_range = make_pagination(
         request, expedients, PER_PAGES)
 
@@ -213,6 +220,7 @@ def dashbord_expedient_emitidos(request):
                   'authors/pages/dashbord_emitidos.html', context={
                       'expedients': page_obj,
                       'pagination_range': pagination_range,
+                      'funcionario': funcionario,
 
                   }
                   )
@@ -224,6 +232,7 @@ def dashbord_expedient_recebidos(request):
                                           usuario=request.user,
 
                                           )
+    funcionario = Funcionario.objects.filter(author=request.user).first()
     page_obj, pagination_range = make_pagination(
         request, expedients, PER_PAGES)
 
@@ -231,11 +240,13 @@ def dashbord_expedient_recebidos(request):
                   'authors/pages/dashbord_recebidos.html', context={
                       'expedients': page_obj,
                       'pagination_range': pagination_range,
+                      'funcionario': funcionario,
 
                   }
                   )
 
 
+'''
 @login_required(login_url='authors:login', redirect_field_name='next')
 def dashbord_expedient_see(request, id):
     expedient = Expedient.objects.filter(
@@ -255,6 +266,7 @@ def dashbord_expedient_see(request, id):
                       'form': form
                   }
                   )
+'''
 
 
 @login_required(login_url='authors:login', redirect_field_name='next')
@@ -262,6 +274,7 @@ def dashbord_expedient_recebidos_funcionario(request):
     id_departamento = Funcionario.objects.get(author=request.user)
     departamento1 = id_departamento.departamento
     print(departamento1)
+    funcionario = Funcionario.objects.filter(author=request.user).first()
     expedients = Expedient.objects.filter(departamento=departamento1,
 
 
@@ -273,6 +286,7 @@ def dashbord_expedient_recebidos_funcionario(request):
                   'authors/pages/dashbord_recebidos_funcionario.html', context={
                       'expedients': page_obj,
                       'pagination_range': pagination_range,
+                      'funcionario': funcionario,
 
                   }
                   )
@@ -283,6 +297,7 @@ def dashbord_expedient_encaminhados_funcionario(request):
     id_departamento = Funcionario.objects.get(author=request.user)
     departamento1 = id_departamento.departamento
     print(id_departamento)
+    funcionario = Funcionario.objects.filter(author=request.user).first()
     #parecer = Parecer.objects.filter(id_expedient__expedients, id_receptor=id_departamento)
     expedients = Expedient.objects.filter(estado='Encaminhado', parecer__id_receptor=departamento1, parecer__tipo='Encaminhar',
 
@@ -295,6 +310,7 @@ def dashbord_expedient_encaminhados_funcionario(request):
                   'authors/pages/dashbord_encaminhados_funcionario.html', context={
                       'expedients': page_obj,
                       'pagination_range': pagination_range,
+                      'funcionario': funcionario,
 
                   }
                   )
@@ -365,6 +381,7 @@ def dashbord_expedient_respondidos_funcionario(request):
     id_departamento = Funcionario.objects.get(author=request.user)
     departamento1 = id_departamento.departamento
     print(departamento1)
+    funcionario = Funcionario.objects.filter(author=request.user).first()
     expedients = Expedient.objects.filter(departamento=departamento1, recebido=True, estado='Respondido',
 
 
@@ -376,6 +393,7 @@ def dashbord_expedient_respondidos_funcionario(request):
                   'authors/pages/dashbord_respondidos_funcionario.html', context={
                       'expedients': page_obj,
                       'pagination_range': pagination_range,
+                      'funcionario': funcionario
 
                   }
                   )
@@ -420,7 +438,8 @@ def dashbord_expedient_parecer_responder(request, id, ):
                   'authors/pages/expedient-parecer.html',
                   {
                       'form': form,
-                      'form_action': reverse('authors:dashbord_expedient_parecer_responder', args=(id,))
+                      'form_action': reverse('authors:dashbord_expedient_parecer_responder', args=(id,)),
+                      'funcionario': funcionario,
                   }
                   )
 
@@ -462,25 +481,44 @@ def dashbord_expedient_parecer_encaminhar(request, id, ):
                   'authors/pages/expedient-parecer.html',
                   {
                       'form': form,
-                      'form_action': reverse('authors:dashbord_expedient_parecer_encaminhar', args=(id,))
+                      'form_action': reverse('authors:dashbord_expedient_parecer_encaminhar', args=(id,)),
+                      'funcionario': funcionario,
                   }
                   )
 
 
+@login_required(login_url='authors:login', redirect_field_name='next')
 def search(request):
     search_term = request.GET.get('search', '').strip()
 
     if not search_term:
         raise Http404()
 
-    expedients = Expedient.objects.filter(
-        Q(
-            Q(assunto__contains=search_term) |
-            Q(descricao__icontains=search_term),
-        ),
-        usuario=request.user,
+    id_departamento = Funcionario.objects.filter(author=request.user).first()
 
-    ).order_by('-id')
+    #ver_funcionario = Funcionario.objects.filter(author=request.user).first()
+    print(id_departamento)
+    if id_departamento:
+        departamento1 = id_departamento.departamento
+        expedients = Expedient.objects.filter(
+            Q(
+
+                Q(assunto__contains=search_term) |
+                Q(descricao__icontains=search_term),
+
+            ),
+            departamento=departamento1,
+
+        ).order_by('-id')
+    else:
+        expedients = Expedient.objects.filter(
+            Q(
+                Q(assunto__contains=search_term) |
+                Q(descricao__icontains=search_term),
+            ),
+            usuario=request.user,
+
+        ).order_by('-id')
 
     page_obj, pagination_range = make_pagination(
         request, expedients, PER_PAGES)
@@ -494,4 +532,7 @@ def search(request):
                       'expedients': page_obj,
                       'pagination_range': pagination_range,
                       'additional_url_query': f'&search={search_term}',
+                      'funcionario': id_departamento,
                   })
+
+# adicionar o funcionario para todas as views!!!

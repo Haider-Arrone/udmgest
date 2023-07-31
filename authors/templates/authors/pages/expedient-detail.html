@@ -3,7 +3,7 @@
 {% block title %}Dashbord ({{ user }}) | {% endblock title %}
 
 {% block content %}
-<h2>Dashbord  ({{ user }}) </h2>
+
 
 {% include 'global/partials/messages.html' %}
 
@@ -11,7 +11,12 @@
 
 <h3>{{ expedient.assunto }}</h3>
 <br>
-<p><strong>Emitido por:</strong> {{ expedient.usuario}}</p>
+<p><strong>Emitido por:</strong> {% if not profile.nome_completo %}
+  {{ funcionario.nome_completo}}  
+  {% else %}
+  {{ profile.nome_completo}}  
+  {% endif %}
+</p>
 
 <p><strong>Enviado para:</strong> {{ expedient.departamento}}</p>
 <p><strong>Categoria:</strong> {{ expedient.categoria}}</p>
@@ -25,11 +30,17 @@
 {% if expedient.confidencial == True %}
 <p style =" color : red"> Expediente Confidencial</p>
 {% endif %}
+
+{% comment %}
+  
+
 {% if expedient.recebido == True %}
 <p  style =" color : green">Expediente recebido</p>
 {% else %}
 <p  style =" color : green">Expediente não recebido</p>
 {% endif %}
+{% endcomment %}
+
 
 
 {% if expedient.descricao == None %}
@@ -42,7 +53,7 @@
 {% if expedient.anexo == "" %}
 <p  style =" color : green">Sem Anexo!</p>
 {% else %}
-<p><a href="{{ expedient.anexo.url }}" target="_blank">Anexo</a></p>
+<p><a href="{{ expedient.anexo.url }}" target="_blank"><i class="fa-solid fa-circle-down"> </i></a></p>
 
 {% endif %}
 
@@ -92,7 +103,7 @@
         {% endif %}
       {% empty %}
         
-        <p>Nao há pareceres.</p>
+        <p>Não há pareceres.</p>
         
 
 

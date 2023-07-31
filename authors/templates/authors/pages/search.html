@@ -3,13 +3,12 @@
 {% block title %}Dashbord ({{ user }}) | {% endblock title %}
 
 {% block content %}
-<h2>Dashbord  ({{ user }}) </h2>
+
 
 {% include 'global/partials/messages.html' %}
 
 
-
-  <H3>Teus expedientes</H3>
+<h2>Pesquisou por: {{search_term}}</h2>
 
   <table class="table table-striped table-hover">
     <thead>
@@ -42,11 +41,11 @@
    
       
     {% empty %}
-      <li>
-        <p>Não tens nenhum expediente emitido, crie um.</p>
-      </li>
+
+        <p style="color:red">Não foi encontrado nenhum expediente com a seguinte palavra chave: <strong>{{ search_term }}</strong></p>
+
     {% endfor %}
-</table>
+  </table>
 
 
 {% endblock content %}
