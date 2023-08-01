@@ -1,0 +1,75 @@
+###############################################################################
+# Replace
+# udmgest to the name of the gunicorn file you want
+# haider to your user name
+# app_repo to the folder name of your project
+# project to the folder name where you find a file called wsgi.py
+#
+###############################################################################
+# Criando o arquivo udmgest.socket
+sudo nano /etc/systemd/system/udmgest.socket
+
+###############################################################################
+# Conteúdo do arquivo
+[Unit]
+Description=gunicorn blog socket
+
+[Socket]
+ListenStream=/run/udmgest.socket
+
+[Install]
+WantedBy=sockets.target
+
+###############################################################################
+# Criando o arquivo udmgest.service
+sudo nano /etc/systemd/system/udmgest.service
+
+###############################################################################
+# Conteúdo do arquivo
+[Unit]
+Description=Gunicorn daemon (You can change if you want)
+Requires=udmgest.socket
+After=network.target
+
+[Service]
+User=haider
+Group=www-data
+Restart=on-failure
+EnvironmentFile=/home/haider/app_repo/.env
+WorkingDirectory=/home/haider/app_repo
+# --error-logfile --enable-stdio-inheritance --log-level and --capture-output
+# are all for debugging purposes.
+ExecStart=/home/haider/app_repo/venv/bin/gunicorn \
+          --error-logfile /home/haider/app_repo/gunicorn-error-log \
+          --enable-stdio-inheritance \
+          --log-level "debug" \
+          --capture-output \
+          --access-logfile - \
+          --workers 6 \
+          --bind unix:/run/udmgest.socket \
+          project.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+###############################################################################
+# Ativando
+sudo systemctl start udmgest.socket
+sudo systemctl enable udmgest.socket
+
+# Checando
+sudo systemctl status udmgest.socket
+curl --unix-socket /run/udmgest.socket localhost
+sudo systemctl status udmgest
+
+# Restarting
+sudo systemctl restart udmgest.service
+sudo systemctl restart udmgest.socket
+sudo systemctl restart udmgest
+
+# After changing something
+sudo systemctl daemon-reload
+
+# Debugging
+sudo journalctl -u udmgest.service
+sudo journalctl -u udmgest.socket
