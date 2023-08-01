@@ -23,6 +23,8 @@ urlpatterns = [
          name='dashbord_expedient_recebidos_funcionario'),
     path('dashbord/expedient/encaminhados_funcionario', views.dashbord_expedient_encaminhados_funcionario,
          name='dashbord_expedient_encaminhados_funcionario'),
+    path('dashbord/expedient/encaminhados_submetidos_funcionario', views.dashbord_expedient_encaminhados_submetidos_funcionario,
+         name='dashbord_expedient_encaminhados_submetidos_funcionario'),
     path('dashbord/expedient/<int:id>/detail/',
          views.dashbord_expedient_detail,
          name='dashbord_expedient_detail'),

@@ -317,6 +317,30 @@ def dashbord_expedient_encaminhados_funcionario(request):
 
 
 @login_required(login_url='authors:login', redirect_field_name='next')
+def dashbord_expedient_encaminhados_submetidos_funcionario(request):
+    id_departamento = Funcionario.objects.get(author=request.user)
+    departamento1 = id_departamento.departamento
+    print(id_departamento)
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    #parecer = Parecer.objects.filter(id_expedient__expedients, id_receptor=id_departamento)
+    expedients = Expedient.objects.filter(estado='Encaminhado', parecer__id_emissor=departamento1, parecer__tipo='Encaminhar',
+
+
+                                          ).exclude(estado='Respondido')
+    page_obj, pagination_range = make_pagination(
+        request, expedients, PER_PAGES)
+
+    return render(request,
+                  'authors/pages/dashbord_encaminhados_submetidos_funcionario.html', context={
+                      'expedients': page_obj,
+                      'pagination_range': pagination_range,
+                      'funcionario': funcionario,
+
+                  }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
 def dashbord_expedient_detail(request, id):
     expedient = Expedient.objects.filter(
         pk=id
