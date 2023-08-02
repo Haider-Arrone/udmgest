@@ -1,3 +1,5 @@
+import os
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -20,7 +22,7 @@ from authors.models import Profile
 from .forms import LoginForm, RegisterForm
 
 # Create your views here.
-PER_PAGES = 20
+PER_PAGE = int(os.environ.get('PER_PAGE', 10))
 
 
 def register_view(request):
@@ -214,7 +216,7 @@ def dashbord_expedient_emitidos(request):
     ).exclude(estado='Respondido')
     funcionario = Funcionario.objects.filter(author=request.user).first()
     page_obj, pagination_range = make_pagination(
-        request, expedients, PER_PAGES)
+        request, expedients, PER_PAGE)
 
     return render(request,
                   'authors/pages/dashbord_emitidos.html', context={
@@ -234,7 +236,7 @@ def dashbord_expedient_recebidos(request):
                                           )
     funcionario = Funcionario.objects.filter(author=request.user).first()
     page_obj, pagination_range = make_pagination(
-        request, expedients, PER_PAGES)
+        request, expedients, PER_PAGE)
 
     return render(request,
                   'authors/pages/dashbord_recebidos.html', context={
@@ -280,7 +282,7 @@ def dashbord_expedient_recebidos_funcionario(request):
 
                                           ).exclude(estado='Respondido')
     page_obj, pagination_range = make_pagination(
-        request, expedients, PER_PAGES)
+        request, expedients, PER_PAGE)
 
     return render(request,
                   'authors/pages/dashbord_recebidos_funcionario.html', context={
@@ -304,7 +306,7 @@ def dashbord_expedient_encaminhados_funcionario(request):
 
                                           ).exclude(estado='Respondido')
     page_obj, pagination_range = make_pagination(
-        request, expedients, PER_PAGES)
+        request, expedients, PER_PAGE)
 
     return render(request,
                   'authors/pages/dashbord_encaminhados_funcionario.html', context={
@@ -328,7 +330,7 @@ def dashbord_expedient_encaminhados_submetidos_funcionario(request):
 
                                           ).exclude(estado='Respondido')
     page_obj, pagination_range = make_pagination(
-        request, expedients, PER_PAGES)
+        request, expedients, PER_PAGE)
 
     return render(request,
                   'authors/pages/dashbord_encaminhados_submetidos_funcionario.html', context={
@@ -411,7 +413,7 @@ def dashbord_expedient_respondidos_funcionario(request):
 
                                           )
     page_obj, pagination_range = make_pagination(
-        request, expedients, PER_PAGES)
+        request, expedients, PER_PAGE)
 
     return render(request,
                   'authors/pages/dashbord_respondidos_funcionario.html', context={
@@ -545,7 +547,7 @@ def search(request):
         ).order_by('-id')
 
     page_obj, pagination_range = make_pagination(
-        request, expedients, PER_PAGES)
+        request, expedients, PER_PAGE)
 
     #recipes = recipes.filter(is_published=True)
    # recipe = Recipe.objects.filter(id=id, is_published=True).order_by('-id').first
