@@ -2,7 +2,7 @@
 # Replace
 # udmgest to the name of the gunicorn file you want
 # haider to your user name
-# app_repo to the folder name of your project
+# app_rp to the folder name of your project
 # project to the folder name where you find a file called wsgi.py
 #
 ###############################################################################
@@ -35,12 +35,12 @@ After=network.target
 User=haider
 Group=www-data
 Restart=on-failure
-EnvironmentFile=/home/haider/app_repo/.env
-WorkingDirectory=/home/haider/app_repo
+EnvironmentFile=/home/haider/app_rp/.env
+WorkingDirectory=/home/haider/app_rp
 # --error-logfile --enable-stdio-inheritance --log-level and --capture-output
 # are all for debugging purposes.
-ExecStart=/home/haider/app_repo/venv/bin/gunicorn \
-          --error-logfile /home/haider/app_repo/gunicorn-error-log \
+ExecStart=/home/haider/app_rp/venv/bin/gunicorn \
+          --error-logfile /home/haider/app_rp/gunicorn-error-log \
           --enable-stdio-inheritance \
           --log-level "debug" \
           --capture-output \

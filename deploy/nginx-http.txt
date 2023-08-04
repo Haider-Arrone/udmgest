@@ -2,9 +2,9 @@
 #
 # REPLACES
 # 10.10.0.92 = Replace with your domain
-# /home/haider/app_repo = Replace with the path to the folder for the project
-# /home/haider/app_repo/static = Replace with the path to the folder for static files
-# /home/haider/app_repo/media = Replace with the path to the folder for media files
+# /home/haider/app_rp = Replace with the path to the folder for the project
+# /home/haider/app_rp/static = Replace with the path to the folder for static files
+# /home/haider/app_rp/media = Replace with the path to the folder for media files
 # udmgest.socket = Replace with your unix socket name
 # 
 # Set timezone
@@ -20,16 +20,16 @@ server {
   # Add index.php to the list if you are using PHP
   index index.html index.htm index.nginx-debian.html index.php;
   
-  # ATTENTION: /home/haider/app_repo/static
+  # ATTENTION: /home/haider/app_rp/static
   location /static {
     autoindex on;
-    alias /home/haider/app_repo/static;
+    alias /home/haider/app_rp/static;
   }
 
-  # ATTENTION: /home/haider/app_repo/media 
+  # ATTENTION: /home/haider/app_rp/media 
   location /media {
     autoindex on;
-    alias /home/haider/app_repo/media;
+    alias /home/haider/app_rp/media;
   }
 
   # ATTENTION: udmgest.socket

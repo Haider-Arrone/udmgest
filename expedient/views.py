@@ -1,7 +1,8 @@
 import os
 
 from django.core.paginator import Paginator
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from utils.expedient.pagination import make_pagination
 
 from .models import Expedient
@@ -10,15 +11,7 @@ PER_PAGE = int(os.environ.get('PER_PAGE', 10))
 
 
 def home(request):
-    expedients = Expedient.objects.filter(recebido=False).order_by('-id')
-
-    page_obj, pagination_range = make_pagination(request, expedients, PER_PAGE)
-
-    return render(request, 'expedient/pages/home.html', context={
-        'expedients': page_obj,
-        'pagination_range': pagination_range,
-
-    })
+    return redirect(reverse('authors:dashbord'))
 
 
 def expedient(request, id):
