@@ -29,14 +29,9 @@
       {% endfor %}
       {% for field in form_profile %}
         <div class="form-group {{ field.field.widget.attrs.class }}">
-          
-          
 
           {{field |as_crispy_field}}
 
-        
-
-       
         </div>
 
         {% if field.name == 'cover' and field.value.url %}

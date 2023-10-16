@@ -5,7 +5,15 @@
 
 {% block content %}
 {% include 'authors/partials/login_messages.html' %}
-
+<style>
+  #criaruser{
+    color: red;
+    
+  }
+  #criaruser:hover{
+    color: blue;
+  }
+</style>
 <main class="form-signin w-100 m-auto">
   
   {% include 'global/partials/messages.html' %}
@@ -19,10 +27,10 @@
       <label for="floatingInput">Username</label>
     </div>
     <div class="form-floating">
-      <input type="password" class="form-control" id="floatingPassword" placeholder="Senha" name="password">
-      <label for="floatingPassword">Senha</label>
+      <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password">
+      <label for="floatingPassword">Password</label>
     </div>
-    <div class="checkbox mb-3"><a href="{% url 'authors:register' %}" class="badge badge-primary">Criar Usuário</a></div>
+    <div class="checkbox mb-3"><a href="{% url 'authors:register' %}" class="badge badge-primary" id="criaruser">Criar Usuário</a></div>
     
       <button class="w-100 btn btn-lg btn-primary" type="submit">Login</button>
       <p class="mt-5 mb-3 text-muted">&copy; 2022</p>

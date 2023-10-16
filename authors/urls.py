@@ -29,6 +29,9 @@ urlpatterns = [
     path('dashbord/expedient/<int:id>/detail/',
          views.dashbord_expedient_detail,
          name='dashbord_expedient_detail'),
+    path('dashbord/expedient/<int:id>/user/',
+         views.dashbord_expedient_ver_user,
+         name='dashbord_expedient_ver_user'),
     #path('dashbord/expedient/<int:id>/parecer/<str:tipo>', views.dashbord_expedient_parecer, name='dashbord_expedient_parecer'),
     path('dashbord/expedient/<int:id>/parecer/responder',
          views.dashbord_expedient_parecer_responder, name='dashbord_expedient_parecer_responder'),
@@ -37,5 +40,7 @@ urlpatterns = [
     path('dashbord/expedient/respondidos_funcionario', views.dashbord_expedient_respondidos_funcionario,
          name='dashbord_expedient_respondidos_funcionario'),
     path('dashboard/expedient/search/', views.search, name="search"),
+    path('dashboard/expedient/secretaria/search/',
+         views.secretaria_search, name="secretaria_search"),
 
 ]

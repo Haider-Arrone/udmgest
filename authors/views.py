@@ -14,13 +14,14 @@ from utils.expedient.pagination import make_pagination
 
 import authors
 from authors.forms.expedient_form import AuthorExpedientForm
+
 from authors.forms.parecer_form import ParecerForm
 from authors.forms.parecer_responder_form import Parecer_Responder_Form
 from authors.forms.register_form import RegisterFormProfile
 from authors.models import Profile
 
 from .forms import LoginForm, RegisterForm
-
+from expedient.filters import Expedient_filter
 # Create your views here.
 PER_PAGE = int(os.environ.get('PER_PAGE', 10))
 
@@ -128,7 +129,6 @@ def dashbord(request):
     print(num_total)
     print(num_emit)
     print(num_recebidos)
-
     dados = [num_emit, num_recebidos, num_total]
     dados_des = ['emitidos', 'recebidos', 'num_total']
     return render(request,
@@ -162,7 +162,7 @@ def dashbord_expedient_edit(request, id):
 
         expedient.usuario = request.user
         expedient.estado = 'Novo'
-        #expedient.data_emissao = auto_now
+        # expedient.data_emissao = auto_now
 
         expedient.save()
 
@@ -191,7 +191,7 @@ def dashbord_expedient_new(request,):
 
         expedient.usuario = request.user
         expedient.estado = 'Novo'
-        #expedient.data_emissao = auto_now
+        # expedient.data_emissao = auto_now
         expedient.numero_Ex = 123
         expedient.save()
 
@@ -300,7 +300,7 @@ def dashbord_expedient_encaminhados_funcionario(request):
     departamento1 = id_departamento.departamento
     print(id_departamento)
     funcionario = Funcionario.objects.filter(author=request.user).first()
-    #parecer = Parecer.objects.filter(id_expedient__expedients, id_receptor=id_departamento)
+    # parecer = Parecer.objects.filter(id_expedient__expedients, id_receptor=id_departamento)
     expedients = Expedient.objects.filter(estado='Encaminhado', parecer__id_receptor=departamento1, parecer__tipo='Encaminhar',
 
 
@@ -324,7 +324,7 @@ def dashbord_expedient_encaminhados_submetidos_funcionario(request):
     departamento1 = id_departamento.departamento
     print(id_departamento)
     funcionario = Funcionario.objects.filter(author=request.user).first()
-    #parecer = Parecer.objects.filter(id_expedient__expedients, id_receptor=id_departamento)
+    # parecer = Parecer.objects.filter(id_expedient__expedients, id_receptor=id_departamento)
     expedients = Expedient.objects.filter(estado='Encaminhado', parecer__id_emissor=departamento1, parecer__tipo='Encaminhar',
 
 
@@ -353,13 +353,42 @@ def dashbord_expedient_detail(request, id):
     form = AuthorExpedientForm(data=request.POST or None,
                                files=request.FILES or None,
                                instance=expedient)
+    usuario = expedient.usuario
+    print(usuario)
     parecer = Parecer.objects.filter(id_expedient=id)
-    profile = Profile.objects.filter(author=request.user).first()
+    profile = Profile.objects.filter(author=usuario).first()
     funcionario = Funcionario.objects.filter(author=request.user).first()
+    funcionario_expedient = Funcionario.objects.filter(author=usuario).first()
     return render(request,
                   'authors/pages/expedient-detail.html',
                   context={'expedient': expedient, 'parecer': parecer,
-                           'profile': profile, 'funcionario': funcionario}
+                           'profile': profile, 'funcionario': funcionario,
+                           'funcionario_expedient': funcionario_expedient}
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashbord_expedient_ver_user(request, id):
+    expedient = Expedient.objects.filter(
+        pk=id
+    ).first()
+
+    if not expedient:
+        raise Http404()
+
+    form = AuthorExpedientForm(data=request.POST or None,
+                               files=request.FILES or None,
+                               instance=expedient)
+    usuario = expedient.usuario
+    print(usuario)
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    profile = Profile.objects.filter(author=usuario).first()
+    funcionario_expedient = Funcionario.objects.filter(author=usuario).first()
+    return render(request,
+                  'authors/pages/expedient-user.html',
+                  context={'expedient': expedient,
+                           'profile': profile, 'funcionario': funcionario,
+                           'funcionario_expedient': funcionario_expedient}
                   )
 
 
@@ -383,8 +412,8 @@ def dashbord_expedient_parecer(request, id, tipo):
         #   expedients.estado = 'Encaminhado'
         expedients.recebido = True
         expedients.save()
-        #expedient.estado = 'Novo'
-        #expedient.data_emissao = auto_now
+        # expedient.estado = 'Novo'
+        # expedient.data_emissao = auto_now
        # expedient.numero_Ex = 123
         parecer.save()
 
@@ -452,8 +481,8 @@ def dashbord_expedient_parecer_responder(request, id, ):
         #   expedients.estado = 'Encaminhado'
         expedients.recebido = True
         expedients.save()
-        #expedient.estado = 'Novo'
-        #expedient.data_emissao = auto_now
+        # expedient.estado = 'Novo'
+        # expedient.data_emissao = auto_now
        # expedient.numero_Ex = 123
         parecer.save()
 
@@ -495,8 +524,8 @@ def dashbord_expedient_parecer_encaminhar(request, id, ):
         #   expedients.estado = 'Encaminhado'
         expedients.recebido = True
         expedients.save()
-        #expedient.estado = 'Novo'
-        #expedient.data_emissao = auto_now
+        # expedient.estado = 'Novo'
+        # expedient.data_emissao = auto_now
        # expedient.numero_Ex = 123
         parecer.save()
 
@@ -522,7 +551,7 @@ def search(request):
 
     id_departamento = Funcionario.objects.filter(author=request.user).first()
 
-    #ver_funcionario = Funcionario.objects.filter(author=request.user).first()
+    # ver_funcionario = Funcionario.objects.filter(author=request.user).first()
     print(id_departamento)
     if id_departamento:
         departamento1 = id_departamento.departamento
@@ -549,7 +578,7 @@ def search(request):
     page_obj, pagination_range = make_pagination(
         request, expedients, PER_PAGE)
 
-    #recipes = recipes.filter(is_published=True)
+    # recipes = recipes.filter(is_published=True)
    # recipe = Recipe.objects.filter(id=id, is_published=True).order_by('-id').first
     return render(request, 'authors/pages/search.html',
                   context={
@@ -562,3 +591,48 @@ def search(request):
                   })
 
 # adicionar o funcionario para todas as views!!!
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def secretaria_search(request):
+    search_term = request.GET.get('search', '').strip()
+    #form = AuthorExpedientFormFilter(request.GET)
+
+    id_departamento = Funcionario.objects.filter(author=request.user).first()
+
+    #ver_funcionario = Funcionario.objects.filter(author=request.user).first()
+    print(id_departamento.departamento.id)
+
+    if id_departamento.departamento.id == 2:
+        expedients = Expedient_filter(
+            request.GET, queryset=Expedient.objects.all())
+    else:
+        raise Http404()
+
+    # page_obj, pagination_range = make_pagination(
+    # request, expedients, PER_PAGE)
+    filtro = Expedient_filter(request.GET, queryset=Expedient.objects.all())
+    # recipes = recipes.filter(is_published=True)
+    #recipe = Recipe.objects.filter(id=id, is_published=True).order_by('-id').first
+    return render(request, 'authors/pages/secretaria_search.html',
+                  context={
+                      # 'page_title': f'Search for "{search_term}"',
+                      # 'search_term': search_term,
+                      # 'expedients': page_obj,
+                      # 'pagination_range': pagination_range,
+                      # 'additional_url_query': f'&search={search_term}',
+                      'funcionario': id_departamento,
+                      'filtro': filtro,
+                      # 'form': form,
+                      'expedients': expedients,
+
+                  })
+
+
+'''
+
+
+def secretaria_search(request):
+    filtro = Expedient_filter(request.GET, queryset=Expedient.objects.all())
+    return render(request, 'authors/pages/secretaria_search.html', {'filtro': filtro})
+'''
