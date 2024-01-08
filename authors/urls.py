@@ -43,4 +43,23 @@ urlpatterns = [
     path('dashboard/expedient/secretaria/search/',
          views.secretaria_search, name="secretaria_search"),
 
+    path('dashbord/protocol/new', views.dashbord_protocol_new,
+         name='dashbord_protocol_new'),
+    path('dashbord/protocol/emitidos', views.dashbord_protocol_emitidos,
+         name='dashbord_protocol_emitidos'),
+    path('dashbord/protocol/emitidos/pendente', views.dashbord_protocol_emitidos_pendente,
+         name='dashbord_protocol_emitidos_pendente'),
+    path('dashbord/protocol/emitidos/finalizado', views.dashbord_protocol_emitidos_finalizado,
+         name='dashbord_protocol_emitidos_finalizado'),
+    path('dashbord/protocol/recebidos', views.dashbord_protocol_recebidos,
+         name='dashbord_protocol_recebidos'),
+    path('dashbord/protocol/<int:id>/detail/',
+         views.dashbord_protocol_detail,
+         name='dashbord_protocol_detail'),
+    path('dashbord/protocol/<int:id>/confirmation/',
+         views.dashbord_protocol_confirmacao,
+         name='dashbord_protocol_confirmacao'),
+    path('dashboard/protocol/search/',
+         views.protocol_search, name="protocol_search"),
+
 ]

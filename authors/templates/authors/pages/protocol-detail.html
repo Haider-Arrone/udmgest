@@ -9,31 +9,43 @@
 
 {% load crispy_forms_tags %}
 
-<h3>{{ expedient.assunto }}</h3>
+<h3>{{ protocol.descricao|safe }}</h3>
 <br>
-<p><strong>Emitido por:</strong>  {% if not profile.nome_completo %}
-  {{ funcionario_expedient.nome_completo}}  
-  {% else %}
-  {{ profile.nome_completo}}  
-  {% endif %}
+<p><strong>Emitido por:</strong> 
+   
+
+  {{ protocol.remetente}}  
+ 
   &ensp;
-  <a href="{% url 'authors:dashbord_expedient_ver_user' expedient.id %}" > <i class="fa-solid fa-eye"></i></a> 
+ 
 </p>
 
-<p><strong>Enviado para:</strong> {{ expedient.departamento}}</p>
-<p><strong>Categoria:</strong> {{ expedient.categoria}}</p>
-<p><strong>Estado: </strong>{{ expedient.estado}}</p>
-<p><strong>Prioridade:</strong> {{ expedient.prioridade}}</p>
-<p align="right"><em>{{ expedient.data_emissao}}</em></p>
+<p><strong>Enviado para:</strong> {{ protocol.destinatario}}</p>
+<p><strong>Data de Emissão:</strong> {{ protocol.data_emissao}}</p>
+<p><strong>Estado: </strong>{{ protocol.estado}}</p>
+<p><strong>Observação:</strong> {{ protocol.observacao }}</p>
+<p><strong>Prazo:</strong> {{ protocol.prazo }}</p>
+
+
+<p align="right"><em>{{ protocol.data_emissao}}</em></p>
 <hr>
 
+{% if protocol.confirmacao_user_status == True %}
+<p  style =" color : green">O destinatário acusou a recepção</p>
+<p><strong>O destinatário que acusou a recepção:</strong> {{ protocol.confirmacao_user }}</p>
+<p><strong>Data que o destinatário acusou a recepção:</strong> {{ protocol.data_confirmacao_recepcao }}</p>
+{% else %}
+<p style =" color : red"> O destinatário não acusou a recepção</p>
+{% endif %}
 
 
+
+{% comment %}
 {% if expedient.confidencial == True %}
 <p style =" color : red"> Expediente Confidencial</p>
 {% endif %}
 
-{% comment %}
+
   
 
 {% if expedient.recebido == True %}
@@ -41,7 +53,7 @@
 {% else %}
 <p  style =" color : green">Expediente não recebido</p>
 {% endif %}
-{% endcomment %}
+
 
 
 
@@ -60,97 +72,35 @@
 {% endif %}
 
 <hr>
-{% for pareceres in parecer %}
-
-{% if not funcionario.nome_completo %}
 
 
-{% if expedient.estado == 'Respondido' %}
-{% if pareceres.tipo == 'Resposta' %}
+
     
-  <br><br>
-      <h3>RE: {{expedient.assunto}}</h3>
-      <p><strong>Respondido por: {{pareceres.id_emissor}}</strong></p>
-        {{ pareceres.descricao|safe}}
-      <a href="#"></a> 
 
-     
-{% if pareceres.anexo == "" %}
-<p  style =" color : green">Sem Anexo!</p>
-{% else %}
-<a href="{{ pareceres.anexo.url }}" target="_blank">Anexo</a>
-{% endif %}
-      <p align="right"><em>{{ pareceres.data_envio }}</em></p>
-      
-        <hr> 
-        {% endif %}
-        {% else %}
-        {% endif %}
-       {% else %}
-       <br><br>
-       <h3>RE: {{expedient.assunto}}</h3>
-       <p><strong>Respondido por: {{pareceres.id_emissor}}</strong></p>
-         {{ pareceres.descricao|safe}}
-       <a href="#"></a> 
+
  
-      
- {% if pareceres.anexo == "" %}
- <p  style =" color : green">Sem Anexo!</p>
- {% else %}
- <a href="{{ pareceres.anexo.url }}" target="_blank">Anexo</a>
- {% endif %}
-       <p align="right"><em>{{ pareceres.data_envio }}</em></p>
-       
-         <hr> 
-        {% endif %}
-      {% empty %}
-        
-        <p>Não há pareceres.</p>
-        
 
 
-    {% endfor %}
-
-
-    {% if not profile.nome_completo %}
-
-    {% else %}
-
-      {% endif %} 
-      {% if not funcionario.nome_completo %}
-       
-    {% else %}
-    {% if expedient.estado == 'Respondido' %}
-
-    {% else %}
-
-    {% if funcionario.departamento.nome == expedient.departamento.nome %}
-    
-    {% else %}
+ 
     <a class="btn btn-success" href="{% url 'authors:dashbord_expedient_parecer_responder' expedient.id %}">Responder</a>
     &nbsp;&nbsp;
     
     <a class="btn btn-primary" href="{% url 'authors:dashbord_expedient_parecer_encaminhar' expedient.id %}">Encaminhar</a> 
+    {% endcomment %}
     <br>
     <br>
     <br>
 
-    {% endif %}
+   
 
 
 
     
       
-{% endif %}
-    {% endif %}
+
       
  
 
-    
-    {% block parecer %}
-
-
-    {% endblock parecer%}
 
 
 <!--<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#encaminhar" data-whatever="@mdo">Teste Encaminhar</button>-->

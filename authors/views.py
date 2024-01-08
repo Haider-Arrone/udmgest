@@ -1,3 +1,4 @@
+
 import os
 
 from django.contrib import messages
@@ -8,20 +9,20 @@ from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from expedient.models import Expedient, Funcionario, Parecer
+from expedient.models import Expedient, Funcionario, Parecer, Protocolo
 from expedient.views import expedient
 from utils.expedient.pagination import make_pagination
-
+from django.utils import timezone
 import authors
 from authors.forms.expedient_form import AuthorExpedientForm
-
+from authors.forms.protocol_form import AuthorProtocolForm
 from authors.forms.parecer_form import ParecerForm
 from authors.forms.parecer_responder_form import Parecer_Responder_Form
 from authors.forms.register_form import RegisterFormProfile
 from authors.models import Profile
 
 from .forms import LoginForm, RegisterForm
-from expedient.filters import Expedient_filter
+from expedient.filters import Expedient_filter, Protocol_filter
 # Create your views here.
 PER_PAGE = int(os.environ.get('PER_PAGE', 10))
 
@@ -355,6 +356,9 @@ def dashbord_expedient_detail(request, id):
                                instance=expedient)
     usuario = expedient.usuario
     print(usuario)
+    #id_departamento = Funcionario.objects.filter(author=request.user).first()
+    # print(id_departamento.departamento)
+
     parecer = Parecer.objects.filter(id_expedient=id)
     profile = Profile.objects.filter(author=usuario).first()
     funcionario = Funcionario.objects.filter(author=request.user).first()
@@ -636,3 +640,229 @@ def secretaria_search(request):
     filtro = Expedient_filter(request.GET, queryset=Expedient.objects.all())
     return render(request, 'authors/pages/secretaria_search.html', {'filtro': filtro})
 '''
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashbord_protocol_new(request,):
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    if not funcionario:
+        raise Http404()
+    form = AuthorProtocolForm(data=request.POST or None,
+                              files=request.FILES or None,
+                              )
+
+    if form.is_valid():
+        protocol = form.save(commit=False)
+        protocol.estado = 'Pendente'
+        protocol.remetente = funcionario
+        protocol.save()
+        #expedient.usuario = request.user
+        #expedient.estado = 'Novo'
+        # expedient.data_emissao = auto_now
+        #expedient.numero_Ex = 123
+        # expedient.save()
+
+        messages.success(request, 'Protocolo salvo com sucesso!')
+        return redirect(reverse('authors:dashbord_protocol_emitidos'))
+
+    return render(request,
+                  'authors/pages/dashbord_protocol.html',
+                  {
+                      'form': form,
+                      'funcionario': funcionario,
+                      'form_action': reverse('authors:dashbord_protocol_new')
+                  }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashbord_protocol_emitidos(request):
+    id_departamento = Funcionario.objects.filter(author=request.user).first()
+    print(id_departamento.id)
+    protocols = Protocolo.objects.filter(remetente=id_departamento.id,
+                                         confirmacao_user_status=True,
+                                         )
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    if not funcionario:
+        raise Http404()
+    page_obj, pagination_range = make_pagination(
+        request, protocols, PER_PAGE)
+
+    return render(request,
+                  'authors/pages/dashbord_protocol_emitidos.html', context={
+                      'protocols': page_obj,
+                      'pagination_range': pagination_range,
+                      'funcionario': funcionario,
+
+                  }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashbord_protocol_emitidos_pendente(request):
+    id_departamento = Funcionario.objects.filter(author=request.user).first()
+    print(id_departamento.id)
+    protocols = Protocolo.objects.filter(estado='Pendente', remetente=id_departamento.id,
+                                         confirmacao_user_status=True,
+                                         )
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    if not funcionario:
+        raise Http404()
+    page_obj, pagination_range = make_pagination(
+        request, protocols, PER_PAGE)
+
+    return render(request,
+                  'authors/pages/dashbord_protocol_emitidos.html', context={
+                      'protocols': page_obj,
+                      'pagination_range': pagination_range,
+                      'funcionario': funcionario,
+
+                  }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashbord_protocol_emitidos_finalizado(request):
+    id_departamento = Funcionario.objects.filter(author=request.user).first()
+    print(id_departamento.id)
+    protocols = Protocolo.objects.filter(estado='Finalizado', remetente=id_departamento.id,
+                                         confirmacao_user_status=True,
+                                         )
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    if not funcionario:
+        raise Http404()
+    page_obj, pagination_range = make_pagination(
+        request, protocols, PER_PAGE)
+
+    return render(request,
+                  'authors/pages/dashbord_protocol_emitidos.html', context={
+                      'protocols': page_obj,
+                      'pagination_range': pagination_range,
+                      'funcionario': funcionario,
+
+                  }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashbord_protocol_recebidos(request):
+    id_departamento = Funcionario.objects.filter(author=request.user).first()
+    print(id_departamento.id)
+    protocols = Protocolo.objects.filter(estado='Pendente',
+                                         destinatario=id_departamento.id,
+                                         confirmacao_user_status=False,
+                                         )
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    if not funcionario:
+        raise Http404()
+    page_obj, pagination_range = make_pagination(
+        request, protocols, PER_PAGE)
+
+    return render(request,
+                  'authors/pages/dashbord_protocol_recebidos.html', context={
+                      'protocols': page_obj,
+                      'pagination_range': pagination_range,
+                      'funcionario': funcionario,
+
+                  }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashbord_protocol_detail(request, id):
+    protocol = Protocolo.objects.filter(
+        pk=id
+    ).first()
+    if not protocol:
+        raise Http404()
+
+    usuario = protocol.remetente
+    print(usuario)
+    #id_departamento = Funcionario.objects.filter(author=request.user).first()
+    if not protocol:
+        raise Http404()
+    # print(id_departamento.departamento)
+
+    #parecer = Parecer.objects.filter(id_expedient=id)
+    #profile = Profile.objects.filter(author=usuario).first()
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    if not funcionario:
+        raise Http404()
+    #funcionario_expedient = Funcionario.objects.filter(author=usuario).first()
+    return render(request,
+                  'authors/pages/protocol-detail.html',
+                  context={'protocol': protocol,
+                           'funcionario': funcionario, }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashbord_protocol_confirmacao(request, id):
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    if not funcionario:
+        raise Http404()
+    protocol = Protocolo.objects.filter(
+        pk=id
+    ).first()
+
+    if not protocol:
+        raise Http404()
+    print(funcionario.id)
+    #protocol = form.save(commit=False)
+    protocol.estado = 'Finalizado'
+    protocol.data_confirmacao_recepcao = timezone.now()
+    protocol.confirmacao_user_status = True
+    protocol.confirmacao_user = funcionario
+    protocol.save()
+    # if form.is_valid():
+
+    messages.success(request, 'Protocolo confirmado com sucesso!')
+    return redirect(reverse('authors:dashbord_protocol_recebidos'))
+    #usuario = expedient.usuario
+    # print(usuario)
+    #profile = Profile.objects.filter(author=usuario).first()
+    #funcionario_expedient = Funcionario.objects.filter(author=usuario).first()
+    return render(request,
+                  'authors/pages/dashbord_protocol_recebidos.html',
+                  {
+                      'funcionario': funcionario,
+                      'form_action': reverse('authors:dashbord_protocol_confirmacao',  args=(id,))
+                  }
+                  )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def protocol_search(request):
+    #search_term = request.GET.get('search', '').strip()
+    #form = AuthorExpedientFormFilter(request.GET)
+
+    id_departamento = Funcionario.objects.filter(author=request.user).first()
+    if not id_departamento:
+        raise Http404()
+    #ver_funcionario = Funcionario.objects.filter(author=request.user).first()
+    print(id_departamento.departamento.id)
+
+    if id_departamento:
+        protocols = Protocol_filter(
+            request.GET, queryset=Protocolo.objects.all())
+    else:
+        raise Http404()
+
+    # page_obj, pagination_range = make_pagination(
+    # request, expedients, PER_PAGE)
+    filtro = Protocol_filter(request.GET, queryset=Protocolo.objects.all())
+    # recipes = recipes.filter(is_published=True)
+    #recipe = Recipe.objects.filter(id=id, is_published=True).order_by('-id').first
+    return render(request, 'authors/pages/protocol_search.html',
+                  context={
+                      # 'page_title': f'Search for "{search_term}"',
+                      # 'search_term': search_term,
+                      # 'expedients': page_obj,
+                      # 'pagination_range': pagination_range,
+                      # 'additional_url_query': f'&search={search_term}',
+                      'funcionario': id_departamento,
+                      'filtro': filtro,
+                      # 'form': form,
+                      'protocols': protocols,
+
+                  })

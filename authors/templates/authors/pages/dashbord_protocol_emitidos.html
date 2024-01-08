@@ -1,0 +1,58 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Dashbord ({{ user }}) | {% endblock title %}
+
+{% block content %}
+
+
+{% include 'global/partials/messages.html' %}
+
+
+
+  <H2 align="center">Protocolos Emitidos</H2>
+  <br>
+  <h3>Estado do protocolo:
+    <a class="btn btn-success" href="{% url 'authors:dashbord_protocol_emitidos_pendente' %}">Pendente</a>
+    &nbsp;&nbsp;
+    
+    <a class="btn btn-primary" href="{% url 'authors:dashbord_protocol_emitidos_finalizado'%}">Finalizado</a>
+  </h3>
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th>ID </th>
+        <th>Descrição</th>
+        <th>Data de Emissão</th>
+        <th>Remetente</th>
+        <th>Destinatário</th>
+        <th>Estado</th>
+        <th>Prazo</th>
+      
+      
+     </tr>
+      </thead>
+ 
+    {% for protocol in protocols %}
+    <tr>
+        <td> <a href="{% url 'authors:dashbord_protocol_detail' protocol.id %}">{{ protocol.id }}</a> </td>
+        <td>{{ protocol.descricao|safe }}</td>
+        <td>{{ protocol.data_emissao }}</td>
+        <td>{{ protocol.remetente }}</td>
+       
+        <td>{{ protocol.destinatario}}</td>
+        <td>{{ protocol.estado }}</td>
+        <td>{{ protocol.prazo }}</td>
+      
+     </tr>
+       
+   
+      
+    {% empty %}
+     
+        <p style="color:red">Não tens nenhum protocolo emitido, crie um.</p>
+    
+    {% endfor %}
+</table>
+
+
+{% endblock content %}

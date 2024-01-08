@@ -1,5 +1,5 @@
 import django_filters
-from .models import Expedient, User
+from .models import Expedient, Protocolo, User
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
@@ -109,3 +109,56 @@ class Expedient_filter(django_filters.FilterSet):
 
         }
 '''
+
+
+class Protocol_filter(django_filters.FilterSet):
+
+    estado = django_filters.CharFilter(
+        field_name='estado',  # Nome do campo no modelo
+        lookup_expr='exact',
+        widget=forms.Select(
+            choices=[('Pendente', 'Pendente'),
+                     ('Finalizado', 'Finalizado'), ]),
+        label='Estado'  # Rótulo do campo no formulário
+    )
+
+    observacao = django_filters.CharFilter(
+        field_name='observacao',  # Nome do campo no modelo
+        lookup_expr='icontains',  # icontains faz a busca case-insensitive e parcial
+        label='Observação'  # Rótulo do campo no formulário
+    )
+    confirmacao_user_status = django_filters.BooleanFilter(
+        field_name='confirmacao_user_status',  # Nome do campo no modelo
+        # lookup_expr='icontains',  # icontains faz a busca case-insensitive e parcial
+        label='Estado da confirmação do protocolo'  # Rótulo do campo no formulário
+    )
+
+    descricao = django_filters.CharFilter(
+        field_name='descricao',  # Nome do campo no modelo
+        lookup_expr='icontains',  # icontains faz a busca case-insensitive e parcial
+        label='Descrição'  # Rótulo do campo no formulário
+    )
+
+    prazo = django_filters.DateTimeFilter(
+        field_name='prazo',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        lookup_expr='date__exact',  # Compara apenas as datas
+        label='Prazo'
+    )
+    data_emissao = django_filters.DateTimeFilter(
+        field_name='data_emissao',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        lookup_expr='date__exact',  # Compara apenas as datas
+        label='Data de Emissão'
+    )
+    data_confirmacao = django_filters.DateTimeFilter(
+        field_name='data_confirmacao',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        lookup_expr='date__exact',  # Compara apenas as datas
+        label='Data de Confirmação'
+    )
+
+    class Meta:
+        model = Protocolo
+        #exclude = ['anexo', 'slug']
+        fields = 'remetente', 'descricao', 'estado', 'destinatario', 'data_emissao', 'observacao', 'prazo', 'confirmacao_user', 'confirmacao_user_status', 'data_confirmacao',

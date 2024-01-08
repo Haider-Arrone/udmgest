@@ -75,3 +75,22 @@ class Parecer(models.Model):
 
     def __str__(self):
         return self.descricao
+
+
+class Protocolo(models.Model):
+    data_emissao = models.DateTimeField(auto_now=True)
+    descricao = models.TextField()
+    remetente = models.ForeignKey(
+        Funcionario, on_delete=models.SET_NULL, null=True, default=None,  related_name='remetente')
+    destinatario = models.ForeignKey(
+        Departamento, on_delete=models.SET_NULL, null=True, default=None, related_name='destinatario')
+    estado = models.CharField(max_length=50)
+    observacao = models.TextField()
+    prazo = models.DateField()
+    data_confirmacao_recepcao = models.DateTimeField(null=True)
+    confirmacao_user_status = models.BooleanField(default=False)
+    confirmacao_user = models.ForeignKey(
+        Funcionario, on_delete=models.SET_NULL, null=True, default=None, related_name='confirmacao_user')
+
+    def __str__(self):
+        return self.descricao
