@@ -680,7 +680,7 @@ def dashbord_protocol_emitidos(request):
     id_departamento = Funcionario.objects.filter(author=request.user).first()
     print(id_departamento.id)
     protocols = Protocolo.objects.filter(remetente=id_departamento.id,
-                                         confirmacao_user_status=True,
+
                                          )
     funcionario = Funcionario.objects.filter(author=request.user).first()
     if not funcionario:
@@ -703,7 +703,7 @@ def dashbord_protocol_emitidos_pendente(request):
     id_departamento = Funcionario.objects.filter(author=request.user).first()
     print(id_departamento.id)
     protocols = Protocolo.objects.filter(estado='Pendente', remetente=id_departamento.id,
-                                         confirmacao_user_status=True,
+
                                          )
     funcionario = Funcionario.objects.filter(author=request.user).first()
     if not funcionario:
