@@ -111,7 +111,7 @@
 
     {% endfor %}
 
-
+<!---->
     {% if not profile.nome_completo %}
 
     {% else %}
@@ -120,12 +120,13 @@
       {% if not funcionario.nome_completo %}
        
     {% else %}
+    
     {% if expedient.estado == 'Respondido' %}
 
     {% else %}
 
     {% if funcionario.departamento.nome == expedient.departamento.nome %}
-    
+    <!--red {{funcionario.departamento}} {{expedient.departamento}}-->
     {% else %}
     <a class="btn btn-success" href="{% url 'authors:dashbord_expedient_parecer_responder' expedient.id %}">Responder</a>
     &nbsp;&nbsp;

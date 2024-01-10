@@ -18,3 +18,9 @@ Adicionar o gitignore
 SuperUser
 user: haider
 senha: haidered22
+
+
+gits depois do pull:
+git merge origin/main
+git add .
+git commit -m""

@@ -78,7 +78,7 @@ class Parecer(models.Model):
 
 
 class Protocolo(models.Model):
-    data_emissao = models.DateTimeField(auto_now=True)
+    data_emissao = models.DateTimeField(auto_now_add=True)
     descricao = models.TextField()
     remetente = models.ForeignKey(
         Funcionario, on_delete=models.SET_NULL, null=True, default=None,  related_name='remetente')
