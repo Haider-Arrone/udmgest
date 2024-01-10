@@ -9,7 +9,7 @@ from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from expedient.models import Expedient, Funcionario, Parecer, Protocolo
+from expedient.models import Expedient, Funcionario, Parecer, Protocolo, Departamento
 from expedient.views import expedient
 from utils.expedient.pagination import make_pagination
 from django.utils import timezone
@@ -678,8 +678,9 @@ def dashbord_protocol_new(request,):
 @login_required(login_url='authors:login', redirect_field_name='next')
 def dashbord_protocol_emitidos(request):
     id_departamento = Funcionario.objects.filter(author=request.user).first()
-    print(id_departamento.id)
-    protocols = Protocolo.objects.filter(remetente=id_departamento.id,
+    departamento = id_departamento.departamento
+    print(departamento)
+    protocols = Protocolo.objects.filter(remetente=id_departamento,
 
                                          )
     funcionario = Funcionario.objects.filter(author=request.user).first()
@@ -701,8 +702,9 @@ def dashbord_protocol_emitidos(request):
 @login_required(login_url='authors:login', redirect_field_name='next')
 def dashbord_protocol_emitidos_pendente(request):
     id_departamento = Funcionario.objects.filter(author=request.user).first()
+    departamento = id_departamento.departamento
     print(id_departamento.id)
-    protocols = Protocolo.objects.filter(estado='Pendente', remetente=id_departamento.id,
+    protocols = Protocolo.objects.filter(estado='Pendente', remetente=id_departamento,
 
                                          )
     funcionario = Funcionario.objects.filter(author=request.user).first()
@@ -724,8 +726,9 @@ def dashbord_protocol_emitidos_pendente(request):
 @login_required(login_url='authors:login', redirect_field_name='next')
 def dashbord_protocol_emitidos_finalizado(request):
     id_departamento = Funcionario.objects.filter(author=request.user).first()
-    print(id_departamento.id)
-    protocols = Protocolo.objects.filter(estado='Finalizado', remetente=id_departamento.id,
+    departamento = id_departamento.departamento
+    print(departamento)
+    protocols = Protocolo.objects.filter(estado='Finalizado', remetente=id_departamento,
                                          confirmacao_user_status=True,
                                          )
     funcionario = Funcionario.objects.filter(author=request.user).first()
@@ -748,8 +751,10 @@ def dashbord_protocol_emitidos_finalizado(request):
 def dashbord_protocol_recebidos(request):
     id_departamento = Funcionario.objects.filter(author=request.user).first()
     print(id_departamento.id)
+    departamento = id_departamento.departamento
+    print(departamento)
     protocols = Protocolo.objects.filter(estado='Pendente',
-                                         destinatario=id_departamento.id,
+                                         destinatario=departamento,
                                          confirmacao_user_status=False,
                                          )
     funcionario = Funcionario.objects.filter(author=request.user).first()
