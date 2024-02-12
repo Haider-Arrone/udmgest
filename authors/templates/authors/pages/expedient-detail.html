@@ -103,6 +103,10 @@
        
          <hr> 
         {% endif %}
+
+
+        
+
       {% empty %}
         
         <p>Não há pareceres.</p>
@@ -125,9 +129,8 @@
 
     {% else %}
 
-    {% if funcionario.departamento.nome == expedient.departamento.nome %}
+    {% if funcionario.departamento == expedient.departamento %}
     <!--red {{funcionario.departamento}} {{expedient.departamento}}-->
-    {% else %}
     <a class="btn btn-success" href="{% url 'authors:dashbord_expedient_parecer_responder' expedient.id %}">Responder</a>
     &nbsp;&nbsp;
     
@@ -135,6 +138,31 @@
     <br>
     <br>
     <br>
+    {% else %}
+
+    
+    
+   
+
+    {% with stop_loop=False %}
+    {% for pareceres in parecer %}
+    {% if not stop_loop %}
+    {% if funcionario.departamento == pareceres.id_receptor %}
+    <a class="btn btn-success" href="{% url 'authors:dashbord_expedient_parecer_responder' expedient.id %}">Responder</a>
+    &nbsp;&nbsp;
+    
+    <a class="btn btn-primary" href="{% url 'authors:dashbord_expedient_parecer_encaminhar' expedient.id %}">Encaminhar</a> 
+    <br>
+    <br>
+    <br>
+   
+        
+            {% with stop_loop=True %}
+            {% endwith %}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+{% endwith %}
 
     {% endif %}
 

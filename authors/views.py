@@ -862,8 +862,8 @@ def protocol_search(request):
                   context={
                       # 'page_title': f'Search for "{search_term}"',
                       # 'search_term': search_term,
-                      # 'expedients': page_obj,
-                      # 'pagination_range': pagination_range,
+                       #'filtro': page_obj,
+                       #'pagination_range': pagination_range,
                       # 'additional_url_query': f'&search={search_term}',
                       'funcionario': id_departamento,
                       'filtro': filtro,
