@@ -140,7 +140,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 
-EMAIL_HOST = 'smtp.mailtrap.io'
-EMAIL_HOST_USER = '1284e277e22e5a'
-EMAIL_HOST_PASSWORD = '2d9b8899981981'
-EMAIL_PORT = '2525'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'suporte.it.udm@gmail.com'  # conta gmail remetente
+EMAIL_HOST_PASSWORD = 'bstt wunp yanx lnci'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587

@@ -23,6 +23,7 @@ from authors.models import Profile
 
 from .forms import LoginForm, RegisterForm
 from expedient.filters import Expedient_filter, Protocol_filter
+from utils.send_emails import enviar_email, enviar_email_novo_protocolo, enviar_email_protocolo_confirmado
 # Create your views here.
 PER_PAGE = int(os.environ.get('PER_PAGE', 10))
 
@@ -656,12 +657,28 @@ def dashbord_protocol_new(request,):
         protocol.estado = 'Pendente'
         protocol.remetente = funcionario
         protocol.save()
+        departamento = protocol.destinatario
         #expedient.usuario = request.user
         #expedient.estado = 'Novo'
         # expedient.data_emissao = auto_now
         #expedient.numero_Ex = 123
         # expedient.save()
+        # Obtendo todos os funcionários associados ao departamento
+        try:
+            funcionarios_departamento = Funcionario.objects.filter(departamento=departamento)
 
+                # Obtendo os endereços de e-mail dos funcionários
+            destinatarios_email = [funcionario.author.email for funcionario in funcionarios_departamento]
+
+                # Chamando a função para enviar e-mail
+            print(destinatarios_email, protocol.id)
+            enviar_email_novo_protocolo(protocol.id, destinatarios_email)
+            
+        except Exception as e:
+            # Lidar com outras exceções não tratadas
+            print(f"Erro ao enviar e-mail: {str(e)}")
+            messages.error(request, 'E-mail não enviado, verifique os dados!')
+        
         messages.success(request, 'Protocolo salvo com sucesso!')
         return redirect(reverse('authors:dashbord_protocol_emitidos'))
 
@@ -819,8 +836,24 @@ def dashbord_protocol_confirmacao(request, id):
     protocol.confirmacao_user_status = True
     protocol.confirmacao_user = funcionario
     protocol.save()
+    #remetente = protocol.remetente
+    try:
+        
+         # Obter o protocolo pelo ID
+        #protocolo = Protocolo.objects.get(pk=protocolo_id)
+        
+        # Endereço de e-mail do remetente
+        remetente_email = protocol.remetente.author.email
+        
+            # Chamando a função para enviar e-mail
+        print(remetente_email, protocol.id)
+        enviar_email_protocolo_confirmado(protocol.id, [remetente_email])
+        
+    except Exception as e:
+        # Lidar com outras exceções não tratadas
+        print(f"Erro ao enviar e-mail: {str(e)}")
+        messages.error(request, 'E-mail não enviado, verifique os dados!')
     # if form.is_valid():
-
     messages.success(request, 'Protocolo confirmado com sucesso!')
     return redirect(reverse('authors:dashbord_protocol_recebidos'))
     #usuario = expedient.usuario
