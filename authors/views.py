@@ -24,7 +24,8 @@ from authors.models import Profile
 from django.contrib.auth.models import User
 from .forms import LoginForm, RegisterForm
 from expedient.filters import Expedient_filter, Protocol_filter
-from utils.send_emails import enviar_email, enviar_email_novo_protocolo, enviar_email_protocolo_confirmado, enviar_email_resposta_expediente
+from utils.send_emails import enviar_email, enviar_email_novo_protocolo, enviar_email_protocolo_confirmado, enviar_email_resposta_expediente, enviar_email_parecer_confirmado
+
 # Create your views here.
 PER_PAGE = int(os.environ.get('PER_PAGE', 10))
 
@@ -540,8 +541,23 @@ def dashbord_expedient_parecer_encaminhar(request, id, ):
         # expedient.estado = 'Novo'
         # expedient.data_emissao = auto_now
        # expedient.numero_Ex = 123
-        parecer.save()
         
+        try:
+            funcionarios_departamento = Funcionario.objects.filter(departamento=parecer.id_receptor)
+            print(parecer.id_receptor)
+
+                # Obtendo os endereços de e-mail dos funcionários
+            destinatarios_email = [funcionario.author.email for funcionario in funcionarios_departamento]
+
+                # Chamando a função para enviar e-mail
+            print(destinatarios_email, expedients.id)
+            enviar_email_parecer_confirmado(expedients.id, destinatarios_email)
+            
+        except Exception as e:
+            # Lidar com outras exceções não tratadas
+            print(f"Erro ao enviar e-mail: {str(e)}")
+            messages.error(request, 'E-mail não enviado, verifique os dados!')
+        parecer.save()
         messages.success(request, 'Expediente encaminhado com sucesso!')
         return redirect(reverse('authors:dashbord_expedient_recebidos_funcionario'))
 

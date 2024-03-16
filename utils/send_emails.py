@@ -80,3 +80,26 @@ def remover_tags_html(texto):
     # Substituir as tags HTML por uma string vazia
     texto_sem_tags = padrao.sub('', texto)
     return texto_sem_tags
+
+def enviar_email_parecer_confirmado(expedient_id, destinatario_email):
+    subject = 'Parecer Confirmado'
+    message = f"""Prezado(a),
+
+Espero que esta mensagem o(a) encontre bem.
+
+Gostaríamos de informar que recebemos com sucesso o parecer do expediente com o ID {expedient_id} e ele foi confirmado em nossos registros.
+
+Por favor, esteja à vontade para nos contatar se precisar de mais informações ou assistência adicional.
+
+Agradecemos pela sua colaboração e confiança em nossa plataforma.
+
+Atenciosamente,"""
+    #destinatario_email.append('haider.arrone12@gmail.com')
+    sender_email = settings.EMAIL_HOST_USER
+
+    try:
+        # Tentar enviar o e-mail
+        send_mail(subject, message, sender_email, destinatario_email)
+    except Exception as e:
+        # Lidar com erros de envio de e-mail
+        print(f"Erro ao enviar e-mail de confirmação de protocolo: {str(e)}")
