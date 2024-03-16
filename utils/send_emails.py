@@ -1,3 +1,4 @@
+import re
 from django.conf import settings
 from django.core.mail import send_mail
 def enviar_email(subject, message, recipient_list):
@@ -47,3 +48,35 @@ UDMGest"""
     except Exception as e:
         # Lidar com erros de envio de e-mail
         print(f"Erro ao enviar e-mail de confirmação de protocolo: {str(e)}")
+        
+def enviar_email_resposta_expediente(expediente_id, destinatario_email, resposta):
+    # Assunto do e-mail
+    subject = f"Resposta ao Expediente {expediente_id}"
+    resposta_sem_tags = remover_tags_html(resposta)
+    # Corpo do e-mail
+    message = f"""Prezado(a),
+
+Gostaríamos de informar que o expediente com ID {expediente_id} recebeu a seguinte resposta:
+
+{resposta_sem_tags}
+
+Atenciosamente,
+UDMGest"""
+
+    # Remetente do e-mail (configurado nas configurações do Django)
+    sender_email = settings.EMAIL_HOST_USER
+
+    try:
+        # Enviar e-mail
+        send_mail(subject, message, sender_email, [destinatario_email])
+        print(f"E-mail de resposta do expediente enviado para {destinatario_email}")
+    except Exception as e:
+        # Lidar com erros de envio de e-mail
+        print(f"Erro ao enviar e-mail de resposta do expediente para {destinatario_email}: {str(e)}")
+        
+def remover_tags_html(texto):
+    # Expressão regular para encontrar tags HTML
+    padrao = re.compile(r'<[^>]+>')
+    # Substituir as tags HTML por uma string vazia
+    texto_sem_tags = padrao.sub('', texto)
+    return texto_sem_tags

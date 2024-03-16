@@ -21,9 +21,10 @@ from authors.forms.parecer_responder_form import Parecer_Responder_Form
 from authors.forms.register_form import RegisterFormProfile
 from authors.models import Profile
 
+from django.contrib.auth.models import User
 from .forms import LoginForm, RegisterForm
 from expedient.filters import Expedient_filter, Protocol_filter
-from utils.send_emails import enviar_email, enviar_email_novo_protocolo, enviar_email_protocolo_confirmado
+from utils.send_emails import enviar_email, enviar_email_novo_protocolo, enviar_email_protocolo_confirmado, enviar_email_resposta_expediente
 # Create your views here.
 PER_PAGE = int(os.environ.get('PER_PAGE', 10))
 
@@ -281,8 +282,8 @@ def dashbord_expedient_recebidos_funcionario(request):
     funcionario = Funcionario.objects.filter(author=request.user).first()
     expedients = Expedient.objects.filter(departamento=departamento1,
 
-
                                           ).exclude(estado='Respondido')
+    expedients = expedients.order_by('-id')  
     page_obj, pagination_range = make_pagination(
         request, expedients, PER_PAGE)
 
@@ -473,7 +474,6 @@ def dashbord_expedient_parecer_responder(request, id, ):
     if form.is_valid():
         parecer = form.save(commit=False)
         parecer.tipo = 'Resposta'
-
         parecer.id_expedient = expedients
         parecer.id_receptor = funcionario.departamento
         parecer.id_emissor = funcionario.departamento
@@ -490,8 +490,16 @@ def dashbord_expedient_parecer_responder(request, id, ):
         # expedient.data_emissao = auto_now
        # expedient.numero_Ex = 123
         parecer.save()
+        
+        try:
+            email_user = User.objects.filter(pk=expedients.usuario.id).first()
+            print(email_user.email)
+            # Enviar e-mail de resposta do expediente
+            enviar_email_resposta_expediente(expedients.id, email_user.email, parecer.descricao)
+            messages.success(request, 'Expediente respondido com sucesso e e-mail de notificação enviado com sucesso!')
+        except Exception as e:
+            messages.error(request, f'O expediente foi respondido com sucesso, mas houve um erro ao enviar o e-mail de notificação: {e}')
 
-        messages.success(request, 'Expediente respondido com sucesso!')
         return redirect(reverse('authors:dashbord_expedient_recebidos_funcionario'))
 
     return render(request,
@@ -533,7 +541,7 @@ def dashbord_expedient_parecer_encaminhar(request, id, ):
         # expedient.data_emissao = auto_now
        # expedient.numero_Ex = 123
         parecer.save()
-
+        
         messages.success(request, 'Expediente encaminhado com sucesso!')
         return redirect(reverse('authors:dashbord_expedient_recebidos_funcionario'))
 
@@ -596,8 +604,28 @@ def search(request):
                   })
 
 # adicionar o funcionario para todas as views!!!
+@login_required(login_url='authors:login', redirect_field_name='next')
+def secretaria_search(request):
+    search_term = request.GET.get('search', '').strip()
 
+    # Obtém o objeto Funcionario associado ao usuário logado
+    funcionario = Funcionario.objects.filter(author=request.user).first()
 
+    # Verifica se o Funcionario pertence ao Departamento com o nome "Secretaria"
+    if funcionario.departamento.nome == 'Secretaria':
+        # Filtra os expedientes com base no formulário de filtro
+        filtro = Expedient_filter(request.GET, queryset=Expedient.objects.all())
+        expedients = filtro.qs
+    else:
+        # Caso o Funcionario não pertença ao Departamento "Secretaria", exibe um erro 404
+        raise Http404()
+
+    return render(request, 'authors/pages/secretaria_search.html', {
+        'funcionario': funcionario,
+        'filtro': filtro,
+        'expedients': expedients,
+    })
+'''
 @login_required(login_url='authors:login', redirect_field_name='next')
 def secretaria_search(request):
     search_term = request.GET.get('search', '').strip()
@@ -632,7 +660,7 @@ def secretaria_search(request):
                       'expedients': expedients,
 
                   })
-
+'''
 
 '''
 
@@ -838,11 +866,6 @@ def dashbord_protocol_confirmacao(request, id):
     protocol.save()
     #remetente = protocol.remetente
     try:
-        
-         # Obter o protocolo pelo ID
-        #protocolo = Protocolo.objects.get(pk=protocolo_id)
-        
-        # Endereço de e-mail do remetente
         remetente_email = protocol.remetente.author.email
         
             # Chamando a função para enviar e-mail
