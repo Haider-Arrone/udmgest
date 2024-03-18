@@ -1,0 +1,166 @@
+{% extends 'global/base.html' %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% block title %}Dashbord ({{ user }}) | {% endblock title %}
+
+{% block content %}
+
+
+{% include 'global/partials/messages.html' %}
+
+
+
+  <H2 align="center">Protocolos Emitidos</H2>
+  <br>
+  <h3>Estado do protocolo:
+    <a class="btn btn-success" href="{% url 'authors:dashbord_protocol_emitidos_pendente' %}">Pendente</a>
+    &nbsp;&nbsp;
+    
+    <a class="btn btn-primary" href="{% url 'authors:dashbord_protocol_emitidos_finalizado'%}">Finalizado</a>
+  </h3>
+  <table class="table table-striped table-hover" style="table-layout: fixed;">
+    <thead>
+      <tr>
+        <th>ID </th>
+        <th>Descrição</th>
+        <th>Data de Emissão</th>
+        <th>Remetente</th>
+        <th>Destinatário</th>
+        <th>Estado</th>
+        <th>Prazo</th>
+      
+      
+     </tr>
+      </thead>
+ 
+    {% for protocol in protocols %}
+    <tr>
+        <td> <a href="{% url 'authors:dashbord_protocol_detail' protocol.id %}">{{ protocol.id }}</a> </td>
+        <td>{{ protocol.descricao|safe }}</td>
+        <td>{{ protocol.data_emissao }}</td>
+        <td>{{ protocol.remetente }}</td>
+       
+        <td>{{ protocol.destinatario}}</td>
+        <td>{{ protocol.estado }}</td>
+        <td>{{ protocol.prazo }}</td>
+      
+     </tr>
+       
+   
+      
+    {% empty %}
+     
+        <p style="color:red">Não tens nenhum protocolo emitido, crie um.</p>
+    
+    {% endfor %}
+</table>
+<div id="heatmap"></div>
+'
+{{ salas }}
+
+{{ ocupacoes }}
+{{ocupacoes.hora_inicio}}
+{{ dados_grafico }}
+<script>
+    // Dados de exemplo (substitua por seus dados reais)
+    const horasDoDia = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    const salas = ['Sala 1', 'Sala 2', 'Sala 3', 'Sala 4', 'Sala 5'];
+    const ocupacoes = [
+        [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],  // Ocupação da Sala 1 ao longo do tempo (0 para livre, 1 para ocupada)
+        [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],  // Ocupação da Sala 2 ao longo do tempo
+        [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],  // Ocupação da Sala 3 ao longo do tempo
+        [0, 0, 0, 1, 1, 1, 1, 1, 0, 0],  // Ocupação da Sala 4 ao longo do tempo
+        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Ocupação da Sala 5 ao longo do tempo
+    ];
+
+    // Configuração do heatmap
+    const data = [{
+        x: horasDoDia,
+        y: salas,
+        z: ocupacoes,
+        type: 'heatmap',
+        colorscale: 'Viridis'  // Esquema de cores (pode ser ajustado conforme necessário)
+    }];
+
+    // Layout do gráfico
+    const layout = {
+        title: 'Heatmap de Ocupação de Salas',
+        xaxis: { title: 'Horas do Dia' },
+        yaxis: { title: 'Salas' },
+        autosize: false,
+        width: 800,
+        height: 600
+    };
+
+    // Criação do heatmap
+    Plotly.newPlot('heatmap', data, layout);
+</script>
+<canvas id="myChart"></canvas>
+<script>
+    // Dados de exemplo (número de salas ocupadas por dia e hora)
+    const dados = {
+        labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'], // Dias da semana
+        datasets: [
+            
+        {% for ocupacao in ocupacoes %}
+    {
+        label: '{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}',
+        data: [{% if ocupacao.estado == 'Ocupada' %} {{ dados_grafico|safe|slice:":loop.counter" }}, {% else %} 1 {% endif %}], // 1 se ocupada, 0 se livre
+        backgroundColor: {% if ocupacao.estado == 'Ocupada' %} 'rgba(255, 99, 132, 0.2)' {% else %} 'rgba(75, 192, 192, 0.2)' {% endif %},
+        borderColor: '{% if ocupacao.estado == 'Ocupada' %} rgba(255, 99, 132, 1) {% else %} rgba(75, 192, 192, 1) {% endif %}',
+        borderWidth: 1
+    },
+{% endfor %}
+        /*
+            {
+                label: '6:00 - 12:00',
+                data: [3, 4, 5, 6, 7, 8, 9],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            },
+            {
+                label: '12:00 - 18:00',
+                data: [4, 5, 6, 7, 8, 9, 10],
+                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 1
+            },
+            {
+                label: '18:00 - 0:00',
+                data: [5, 6, 7, 8, 9, 10, 11],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }*/
+        ] 
+    };
+           
+    // Configurações do gráfico
+    const config = {
+        type: 'bar',
+        data: dados,
+        options: {
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Dia da Semana'
+                    }
+                },
+                y: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Número de Salas Ocupadas'
+                    }
+                }
+            }
+        }
+    };
+
+    // Renderizar o gráfico
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, config);
+</script>
+{% endblock content %}

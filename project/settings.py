@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'expedient',
     'authors',
     'crispy_forms',
+    'salas',
 ]
 
 MIDDLEWARE = [

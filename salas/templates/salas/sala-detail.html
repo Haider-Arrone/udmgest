@@ -1,0 +1,204 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Dashbord ({{ user }}) | {% endblock title %}
+
+{% block content %}
+
+
+{% include 'global/partials/messages.html' %}
+
+{% load crispy_forms_tags %}
+
+
+
+{% for dia, ocupacoes in ocupacoes_por_dia %}
+    Dia: {{ dia }}
+    {% for ocupacao in ocupacoes %}
+        {{ ocupacao.tempo}}
+    {% endfor %}
+{% endfor %}
+
+<br><br><br>
+{{ocupacoes_por_dia}}
+
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Segunda</th>
+        <th scope="col">Terça</th>
+        <th scope="col">Quarta</th>
+        <th scope="col">Quinta</th>
+        <th scope="col">Sexta</th>
+        <th scope="col">Sábado</th>
+        <th scope="col">Domingo</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{dias}}
+    {% for numero in numeros %}
+    <tr>
+        <td>{{ numero }}</td>
+        {% for dia_s in dias %} 
+        {% for dia, ocupacoes in ocupacoes_por_dia %}
+            {% if dia_s == 'segunda' %}
+        
+           
+            
+                {% for ocupacao in ocupacoes %}
+                {% if ocupacao.tempo == numero %}
+                      {% if ocupacao.dia_semana == dia_s %} 
+                    {% if ocupacao.estado == 'Ocupado' %}
+                        <td class="table-danger">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% else %}
+                        <td class="table-success">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% endif %}
+                   {% endif %}
+                    {% endif %}
+                    
+                {% endfor %}
+                
+   
+            {% else %}
+        
+                      {% if dia_s == 'terca' %}
+
+                {% for ocupacao in ocupacoes %}
+                {% if ocupacao.tempo == numero%}
+                {% if ocupacao.dia_semana == dia_s %}
+                <td>{{ocupacao.tempo}}</td>
+                    {% if ocupacao.estado == 'Ocupado' %}
+                        <td class="table-danger">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% else %}
+                        <td class="table-success">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% endif %}
+                    {% endif %}
+                    
+                    
+                    
+                    {% endif %}
+                   
+              
+                {% endfor %}
+                
+            {% else %}
+
+
+            {% if dia_s == 'quarta' %}
+            
+                {% for ocupacao in ocupacoes %}
+                {% if ocupacao.tempo == numero and ocupacao.dia_semana == dia_s%}
+                    {% if ocupacao.estado == 'Ocupado' %}
+                        <td class="table-danger">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% else %}
+                        <td class="table-success">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% endif %}
+                    {% endif %}
+                    
+                {% endfor %}
+            {% else %}
+            {% if dia_s == 'quinta' %}
+            
+            {% for ocupacao in ocupacoes %}
+            {% if ocupacao.tempo == numero and ocupacao.dia_semana == dia_s%}
+                {% if ocupacao.estado == 'Ocupado' %}
+                    <td class="table-danger">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                {% else %}
+                    <td class="table-success">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                {% endif %}
+                {% endif %}
+                
+            {% endfor %}
+        {% else %}
+        {% if dia_s == 'sexta' %}
+            
+        {% for ocupacao in ocupacoes %}
+        {% if ocupacao.tempo == numero and ocupacao.dia_semana == dia_s%}
+            {% if ocupacao.estado == 'Ocupado' %}
+                <td class="table-danger">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+            {% else %}
+                <td class="table-success">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+            {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+    {% if dia_s == 'sabado' %}
+            
+                {% for ocupacao in ocupacoes %}
+                {% if ocupacao.tempo == numero and ocupacao.dia_semana == dia_s%}
+                    {% if ocupacao.estado == 'Ocupado' %}
+                        <td class="table-danger">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% else %}
+                        <td class="table-success">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+            {% if dia_s == 'domingo' %}
+            
+                {% for ocupacao in ocupacoes %}
+                {% if ocupacao.tempo == numero and ocupacao.dia_semana == dia_s%}
+                    {% if ocupacao.estado == 'Ocupado' %}
+                        <td class="table-danger">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% else %}
+                        <td class="table-success">{{ ocupacao.hora_inicio }} - {{ ocupacao.hora_fim }}</td>
+                    {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {% endif %}
+                {% endif %}
+        {% endif %}
+            {% endif %}
+                {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="modal fade" id="encaminhar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Encaminhar</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form  action="{{ form_action }}" 
+        method="POST"
+        enctype="multipart/form-data">
+          {% csrf_token %}
+
+
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Destinatário:</label>
+            <input type="text" class="form-control" id="recipient-name">
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="col-form-label">Mensagem:</label>
+            <textarea class="form-control" id="message-text"></textarea><br>
+            <input type="file" name="anexo">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-primary">Enviar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+{% endblock content %}

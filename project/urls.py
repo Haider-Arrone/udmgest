@@ -23,6 +23,7 @@ urlpatterns = [
     path('', include('expedient.urls')),
     #path('', include('authors.urls')),
     path('authors/', include('authors.urls')),
+    path('salas/', include('salas.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
