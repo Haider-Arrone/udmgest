@@ -55,4 +55,45 @@
 </table>
 
 
+{% if protocols.has_other_pages %}
+
+
+<div class="container">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <!-- Link para a primeira página -->
+            
+            {% if pagination_range.first_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">Primeira</a>
+            </li>
+           {% endif %}
+            <!-- Links para as páginas -->
+            {% for page in pagination_range.pagination_range %}
+                {% if pagination_range.current_page == page %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">{{ page }}</span>
+                </li>
+                    
+                    
+                {% else %}
+                    <a class ="page-link page-item" href="?page={{ page }}{{ additional_url_query}}"> {{ page }} </a>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Link para a última página -->
+            {% if pagination_range.last_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ pagination_range.total_pages }}">Última</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+
+{% endif %}
+
+
+
 {% endblock content %}

@@ -19,6 +19,9 @@ SuperUser
 user: haider
 senha: haidered22
 
+Para fazer o git push para o servidor:
+ git push app_bare main
+
 
 gits depois do pull:
 git merge origin/main

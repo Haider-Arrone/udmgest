@@ -13,8 +13,8 @@ admin.site.register(Departamento, DepartamentoAdmin)
 
 class ProtocoloAdmin(admin.ModelAdmin):
     list_display = ('descricao', 'remetente', 'destinatario', 'estado', 'prazo', 'data_confirmacao_recepcao', 'confirmacao_user_status')
-    list_filter = ('estado', 'data_emissao', 'prazo')
-    search_fields = ('descricao', 'remetente__nome', 'destinatario__nome')
+    list_filter = ('estado', 'prazo', 'data_emissao', ('remetente', admin.RelatedOnlyFieldListFilter), ('destinatario', admin.RelatedOnlyFieldListFilter), 'confirmacao_user_status')
+    search_fields = ('descricao', 'remetente__nome', 'destinatario__nome__nome') 
     date_hierarchy = 'data_emissao'
     list_per_page = 20
 
