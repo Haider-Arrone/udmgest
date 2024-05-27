@@ -1,0 +1,34 @@
+
+{% extends 'global/base.html' %}
+
+
+
+{% block content %}
+
+
+{% include 'global/partials/messages.html' %}
+
+
+<h2>Estatistica: </h2>
+
+
+
+<div>
+    <h2>Protocolos por Estado</h2>
+    <img src="data:image/png;base64,{{ data_barras }}" alt="Gráfico de Protocolos por Estado">
+</div>
+<div>
+    <h2>Protocolos Emitidos por Mês</h2>
+    <img src="data:image/png;base64,{{ data_linha }}" alt="Gráfico de Protocolos Emitidos por Mês">
+</div>
+<div>
+    <h2>Protocolos Confirmados vs. Não Confirmados</h2>
+    <img src="data:image/png;base64,{{ data_pizza }}" alt="Gráfico de Protocolos Confirmados vs. Não Confirmados">
+</div>
+<div>
+    <h2>Protocolos Feitos e Recebidos por Departamento</h2>
+    <img src="data:image/png;base64,{{ data_dept }}" alt="Gráfico de Protocolos Feitos e Recebidos por Departamento">
+</div>
+
+
+{% endblock content %}

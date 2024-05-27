@@ -61,5 +61,7 @@ urlpatterns = [
          name='dashbord_protocol_confirmacao'),
     path('dashboard/protocol/search/',
          views.protocol_search, name="protocol_search"),
+    path('dashboard/protocol/statistics/',
+         views.protocol_statistics, name="protocol_statistics"),
 
 ]

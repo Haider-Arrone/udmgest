@@ -26,6 +26,14 @@ from .forms import LoginForm, RegisterForm
 from expedient.filters import Expedient_filter, Protocol_filter
 from utils.send_emails import enviar_email, enviar_email_novo_protocolo, enviar_email_protocolo_confirmado, enviar_email_resposta_expediente, enviar_email_parecer_confirmado
 
+import matplotlib
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
+import io
+import urllib, base64
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
 # Create your views here.
 PER_PAGE = int(os.environ.get('PER_PAGE', 10))
 
@@ -949,39 +957,188 @@ def dashbord_protocol_confirmacao(request, id):
                   )
 
 
+# @login_required(login_url='authors:login', redirect_field_name='next')
+# def protocol_search(request):
+#     #search_term = request.GET.get('search', '').strip()
+#     #form = AuthorExpedientFormFilter(request.GET)
+
+#     id_departamento = Funcionario.objects.filter(author=request.user).first()
+#     if not id_departamento:
+#         raise Http404()
+#     #ver_funcionario = Funcionario.objects.filter(author=request.user).first()
+#     print(id_departamento.departamento.id)
+
+#     if id_departamento:
+#         protocols = Protocol_filter(
+#             request.GET, queryset=Protocolo.objects.all())
+#     else:
+#         raise Http404()
+
+    
+#     filtro = Protocol_filter(request.GET, queryset=Protocolo.objects.all())
+#     page_obj, pagination_range = make_pagination(
+#     request, filtro.qs, PER_PAGE)
+#     # recipes = recipes.filter(is_published=True)
+#     #recipe = Recipe.objects.filter(id=id, is_published=True).order_by('-id').first
+#     return render(request, 'authors/pages/protocol_search.html',
+#                   context={
+#                       # 'page_title': f'Search for "{search_term}"',
+#                       # 'search_term': search_term,
+#                        'filtros': page_obj,
+#                        'pagination_range': pagination_range,
+#                       # 'additional_url_query': f'&search={search_term}',
+#                       'funcionario': id_departamento,
+#                       #'filtro': filtro,
+#                       # 'form': form,
+#                       'query_string': pagination_context['query_string'], 
+#                       'protocols': protocols,
+
+#                   })
+
 @login_required(login_url='authors:login', redirect_field_name='next')
 def protocol_search(request):
-    #search_term = request.GET.get('search', '').strip()
-    #form = AuthorExpedientFormFilter(request.GET)
-
     id_departamento = Funcionario.objects.filter(author=request.user).first()
     if not id_departamento:
         raise Http404()
-    #ver_funcionario = Funcionario.objects.filter(author=request.user).first()
-    print(id_departamento.departamento.id)
 
-    if id_departamento:
-        protocols = Protocol_filter(
-            request.GET, queryset=Protocolo.objects.all())
-    else:
-        raise Http404()
-
-    
+    protocols = Protocol_filter(request.GET, queryset=Protocolo.objects.all())
     filtro = Protocol_filter(request.GET, queryset=Protocolo.objects.all())
-    page_obj, pagination_range = make_pagination(
-    request, filtro.qs, PER_PAGE)
-    # recipes = recipes.filter(is_published=True)
-    #recipe = Recipe.objects.filter(id=id, is_published=True).order_by('-id').first
-    return render(request, 'authors/pages/protocol_search.html',
-                  context={
-                      # 'page_title': f'Search for "{search_term}"',
-                      # 'search_term': search_term,
-                       'filtros': page_obj,
-                       'pagination_range': pagination_range,
-                      # 'additional_url_query': f'&search={search_term}',
-                      'funcionario': id_departamento,
-                      #'filtro': filtro,
-                      # 'form': form,
-                      'protocols': protocols,
 
-                  })
+    page_obj, pagination_context = make_pagination(request, filtro.qs, PER_PAGE)
+
+    print(f"Current page: {pagination_context['current_page']}")
+    print(f"Total pages: {pagination_context['total_pages']}")
+    print(f"Pagination range: {pagination_context['pagination_range']}")
+    print(f"Query string: {pagination_context['query_string']}")
+
+    return render(request, 'authors/pages/protocol_search.html', {
+        'filtros': page_obj,
+        'pagination_range': pagination_context['pagination_range'],
+        'funcionario': id_departamento,
+        'protocols': protocols,
+        'query_string': pagination_context['query_string'],
+        'first_page_out_of_range': pagination_context['first_page_out_of_range'],
+        'last_page_out_of_range': pagination_context['last_page_out_of_range'],
+        'current_page': pagination_context['current_page'],
+        'total_pages': pagination_context['total_pages'],
+    })
+    
+@login_required(login_url='authors:login', redirect_field_name='next')
+def protocol_statistics(request):
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    if not funcionario:
+        raise Http404()
+    # Gráfico de barras: Protocolos por estado
+    data = Protocolo.objects.values('estado').annotate(total=Count('estado'))
+    states = [item['estado'] for item in data]
+    totals = [item['total'] for item in data]
+
+    fig1, ax1 = plt.subplots()
+    bars1 = ax1.bar(states, totals)
+    ax1.set_xlabel('Estado')
+    ax1.set_ylabel('Total de Protocolos')
+    ax1.set_title('Protocolos por Estado')
+
+    for bar in bars1:
+        height = bar.get_height()
+        ax1.annotate(f'{height}',
+                     xy=(bar.get_x() + bar.get_width() / 2, height),
+                     xytext=(0, 3),
+                     textcoords="offset points",
+                     ha='center', va='bottom')
+
+    buf1 = io.BytesIO()
+    plt.savefig(buf1, format='png')
+    buf1.seek(0)
+    string1 = base64.b64encode(buf1.read())
+    uri1 = urllib.parse.quote(string1)
+
+    # Gráfico de linha: Protocolos emitidos por mês
+    protocols_by_month = Protocolo.objects.annotate(month=TruncMonth('data_emissao')).values('month').annotate(total=Count('id')).order_by('month')
+    months = [item['month'].strftime('%Y-%m') for item in protocols_by_month]
+    month_totals = [item['total'] for item in protocols_by_month]
+
+    fig2, ax2 = plt.subplots()
+    line2 = ax2.plot(months, month_totals, marker='o')
+    ax2.set_xlabel('Mês')
+    ax2.set_ylabel('Total de Protocolos')
+    ax2.set_title('Protocolos Emitidos por Mês')
+
+    for i, total in enumerate(month_totals):
+        ax2.annotate(f'{total}', xy=(months[i], total), textcoords="offset points", xytext=(0, 5), ha='center')
+
+    buf2 = io.BytesIO()
+    plt.savefig(buf2, format='png')
+    buf2.seek(0)
+    string2 = base64.b64encode(buf2.read())
+    uri2 = urllib.parse.quote(string2)
+
+    # Gráfico de pizza: Protocolos confirmados vs. não confirmados
+    confirmed_count = Protocolo.objects.filter(confirmacao_user_status=True).count()
+    not_confirmed_count = Protocolo.objects.filter(confirmacao_user_status=False).count()
+
+    fig3, ax3 = plt.subplots()
+    wedges, texts, autotexts = ax3.pie([confirmed_count, not_confirmed_count], labels=['Confirmados', 'Não Confirmados'], autopct='%1.1f%%', startangle=90)
+    ax3.axis('equal')
+    ax3.set_title('Protocolos Confirmados vs. Não Confirmados')
+
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontsize(12)
+
+    buf3 = io.BytesIO()
+    plt.savefig(buf3, format='png')
+    buf3.seek(0)
+    string3 = base64.b64encode(buf3.read())
+    uri3 = urllib.parse.quote(string3)
+
+    # Gráfico de barras: Protocolos feitos e recebidos por departamento
+    departments = Departamento.objects.all()
+    dept_names = [dept.nome for dept in departments]
+    made_totals = [Protocolo.objects.filter(remetente__departamento=dept).count() for dept in departments]
+    received_totals = [Protocolo.objects.filter(destinatario=dept).count() for dept in departments]
+
+    fig4, ax4 = plt.subplots(figsize=(10, 6))  # Aumentar o tamanho da figura
+    bar_width = 0.35
+    index = range(len(dept_names))
+
+    bar1 = ax4.bar(index, made_totals, bar_width, label='Feitos')
+    bar2 = ax4.bar([i + bar_width for i in index], received_totals, bar_width, label='Recebidos')
+
+    ax4.set_xlabel('Departamento')
+    ax4.set_ylabel('Total de Protocolos')
+    ax4.set_title('Protocolos Feitos e Recebidos por Departamento')
+    ax4.set_xticks([i + bar_width / 2 for i in index])
+    ax4.set_xticklabels(dept_names, rotation=45, ha='right')  # Rotacionar e alinhar os rótulos
+    ax4.legend()
+
+    for bar in bar1:
+        height = bar.get_height()
+        ax4.annotate(f'{height}',
+                     xy=(bar.get_x() + bar.get_width() / 2, height),
+                     xytext=(0, 3),
+                     textcoords="offset points",
+                     ha='center', va='bottom')
+
+    for bar in bar2:
+        height = bar.get_height()
+        ax4.annotate(f'{height}',
+                     xy=(bar.get_x() + bar.get_width() / 2, height),
+                     xytext=(0, 3),
+                     textcoords="offset points",
+                     ha='center', va='bottom')
+
+    plt.tight_layout()  # Ajustar layout para evitar sobreposição
+    buf4 = io.BytesIO()
+    plt.savefig(buf4, format='png')
+    buf4.seek(0)
+    string4 = base64.b64encode(buf4.read())
+    uri4 = urllib.parse.quote(string4)
+
+    return render(request, 'authors/pages/protocol_statistics.html', {
+        'data_barras': uri1,
+        'data_linha': uri2,
+        'data_pizza': uri3,
+        'data_dept': uri4,
+        'funcionario': funcionario,
+    })

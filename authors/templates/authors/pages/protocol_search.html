@@ -73,7 +73,7 @@
 </ul> -->
 
 
-{% if filtros.has_other_pages %}
+{% comment %} {% if filtros.has_other_pages %}
 
 
 <div class="container">
@@ -110,8 +110,41 @@
 </div>
 
 
-{% endif %}
+{% endif %}  {% endcomment %}
 
+
+{% if filtros.has_other_pages %}
+<div class="container">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <!-- Link para a primeira página -->
+            {% if first_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1&{{ query_string }}">Primeira</a>
+            </li>
+            {% endif %}
+            <!-- Links para as páginas -->
+            {% for page in pagination_range %}
+                {% if current_page == page %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">{{ page }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page }}&{{ query_string }}">{{ page }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            <!-- Link para a última página -->
+            {% if last_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ total_pages }}&{{ query_string }}">Última</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
 
 
 {% endblock content %}
