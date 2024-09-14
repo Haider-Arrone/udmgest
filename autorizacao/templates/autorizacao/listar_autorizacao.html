@@ -1,0 +1,99 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Dashbord ({{ user }}) | {% endblock title %}
+
+{% block content %}
+
+
+{% include 'global/partials/messages.html' %}
+
+
+
+  <H2 align="center">Autorizações Emitidas</H2>
+  <br>
+  {% comment %} <h3>Estado do protocolo:
+    <a class="btn btn-success" href="{% url 'authors:dashbord_protocol_emitidos_pendente' %}">Pendente</a>
+    &nbsp;&nbsp;
+    
+    <a class="btn btn-primary" href="{% url 'authors:dashbord_protocol_emitidos_finalizado'%}">Finalizado</a>
+  </h3> {% endcomment %}
+  <table class="table table-striped table-hover" style="table-layout: fixed;">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome do Estudante</th>
+            <th>Avaliação</th>
+            <th>Data da Avaliação</th>
+            <th>Autorizado</th>
+            {% comment %} <th>Justificativa</th> {% endcomment %}
+            <th>Data de Autorização</th>
+            <th>Responsável</th>
+        </tr>
+    </thead>
+ 
+    {% for autorizacao in autorizacoes %}
+   
+    <tr>
+         <td> <a href="{% url 'autorizacao:detalhes_autorizacao' autorizacao.id %}">{{ autorizacao.id }}</a> </td> 
+        <td>{{ autorizacao.estudante_nome|safe }}</td>
+        <td>{{ autorizacao.avaliacao_nome }}</td>
+        <td>{{ autorizacao.data_avaliacao }}</td>
+       
+        <td>{{ autorizacao.autorizado}}</td>
+        <td>{{ autorizacao.data_autorizacao }}</td>
+        <td>{{ autorizacao.responsavel }}</td>
+      
+     </tr>
+       
+   
+      
+    {% empty %}
+     
+        <p style="color:red">Não tens nenhum protocolo emitido, crie um.</p>
+    
+    {% endfor %}
+</table>
+
+
+{% if protocols.has_other_pages %}
+
+
+<div class="container">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <!-- Link para a primeira página -->
+            
+            {% if pagination_range.first_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">Primeira</a>
+            </li>
+           {% endif %}
+            <!-- Links para as páginas -->
+            {% for page in pagination_range.pagination_range %}
+                {% if pagination_range.current_page == page %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">{{ page }}</span>
+                </li>
+                    
+                    
+                {% else %}
+                    <a class ="page-link page-item" href="?page={{ page }}{{ additional_url_query}}"> {{ page }} </a>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Link para a última página -->
+            {% if pagination_range.last_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ pagination_range.total_pages }}">Última</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav
+</div>
+
+
+{% endif %}
+
+
+
+{% endblock content %}s

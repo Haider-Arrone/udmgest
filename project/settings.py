@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'authors',
     'crispy_forms',
     'salas',
+    'autorizacao',
 ]
 
 MIDDLEWARE = [

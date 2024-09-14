@@ -1,0 +1,75 @@
+
+{% extends 'global/base.html' %}
+
+
+
+{% block content %}
+
+
+{% include 'global/partials/messages.html' %}
+
+
+<h2>Defina os Filtros: </h2>
+
+
+
+{% load crispy_forms_tags %}
+<form class="main-form" method="get">
+  <div class="form-group">
+  {% csrf_token %}
+  {{ ocupacoes.form|crispy }} 
+  </div>
+  <br>
+  <button class="btn btn-success" type="submit">Filtrar</button>
+</form>
+
+
+
+
+<!---->
+<table class="table table-striped table-hover"  style="table-layout: fixed;">
+  <thead>
+    <tr>
+      <th>ID </th>
+        <th>Sala</th>
+        <th>Estado</th>
+        <th>Turno</th>
+        <th>Faculdade</th>
+        <th>Dia da Semana</th>
+        
+        <th>Hora de Inicio</th>
+      
+   </tr>
+    </thead>
+
+  {% for ocupacao in ocupacoes.qs %}
+  <tr>
+      <td><a href="{% url 'dashbord_salas_detail' ocupacao.id %}">{{ ocupacao.id }}</a> </td>
+      <td>{{ ocupacao.sala }}</td>
+      <td>{{ ocupacao.estado}}</td>
+      <td>{{ ocupacao.turno }}</td>
+     
+      <td>{{ ocupacao.faculdade}}</td>
+      <td>{{ ocupacao.dia_semana }}</td>
+      <td>{{ ocupacao.phora_inicio }}</td>
+    
+   </tr>
+     
+ 
+    
+  {% empty %}
+   
+      <p style="color:red">Não tens nenhum protocolo emitido, crie um.</p>
+  
+  {% endfor %}
+</table>
+{{ ocupacoes }}
+<!-- No arquivo consulta_modelo.html
+
+
+<ul>
+  {% for objeto in filtro.qs %}
+      <li>{{ objeto }}</li>
+  {% endfor %}
+</ul> -->
+{% endblock content %}

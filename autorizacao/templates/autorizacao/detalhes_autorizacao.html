@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Autorização</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .document-header, .document-footer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .document-header h1 {
+            margin: 0;
+        }
+        .document-footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .document-content {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .document-content table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .document-content th, .document-content td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .document-content th {
+            background-color: #f4f4f4;
+        }
+        .print-button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            text-align: center;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .print-button:hover {
+            background-color: #0056b3;
+        }
+        .signature-section {
+            margin-top: 80px;
+            text-align: center;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 300px;
+            margin: 0 auto;
+            padding-top: 5px;
+        }
+        .signature-label {
+            margin-top: 10px;
+        }
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="document-header">
+            <img  src="../../../media/expedient/images/udm.jpg " alt="" >
+            <h1>Autorização Contabilidade</h1>
+        </div>
+
+        <div class="document-content">
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <td>{{ autorizacao.id }}</td>
+                </tr>
+                <tr>
+                    <th>Nome do Estudante</th>
+                    <td>{{ autorizacao.estudante_nome }}</td>
+                </tr>
+                <tr>
+                    <th>Avaliação</th>
+                    <td>{{ autorizacao.get_avaliacao_nome_display }}</td>
+                </tr>
+                <tr>
+                    <th>Data da Avaliação</th>
+                    <td>{{ autorizacao.data_avaliacao }}</td>
+                </tr>
+                <tr>
+                    <th>Autorizado</th>
+                    <td>{{ autorizacao.autorizado|yesno:"Sim,Não" }}</td>
+                </tr>
+                {% comment %} <tr>
+                    <th>Justificativa</th>
+                    <td>{{ autorizacao.justificativa }}</td>
+                </tr> {% endcomment %}
+                <tr>
+                    <th>Data de Autorização</th>
+                    <td>{{ autorizacao.data_autorizacao }}</td>
+                </tr>
+                <tr>
+                    <th>Responsável</th>
+                    <td>{{ autorizacao.responsavel }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="signature-section">
+            <div class="signature-line"></div>
+            <div class="signature-label">Assinatura do Responsável</div>
+        </div>
+        <a href="javascript:window.print()" class="print-button">Imprimir</a>
+
+        <div class="document-footer">
+            <p>&copy; {{ current_year }} Universidade Técnica de Moçambique - UDMGest</p>
+        </div>
+    </div>
+</body>
+</html>
