@@ -6,5 +6,5 @@ class AutorizacaoForm(forms.ModelForm):
         model = Autorizacao
         fields = ['estudante_nome', 'avaliacao_nome', 'disciplina', 'data_avaliacao', 'autorizado', 'justificativa', ]
         labels = {
-            'data_avaliacao': 'Data da Avaliação (mm/dd/aaaa)',  # Personalize o label do campo aqui
+            'data_avaliacao': 'Data da Avaliação (dd/mm/aaaa)',  # Personalize o label do campo aqui
         }
