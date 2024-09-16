@@ -10,8 +10,8 @@ from utils.expedient.pagination import make_pagination
 
 import os
 
-PER_PAGE = int(os.environ.get('PER_PAGE', 10))
-
+# PER_PAGE = int(os.environ.get('PER_PAGE', 10))
+PER_PAGE = 8
 @login_required(login_url='authors:login', redirect_field_name='next')
 def cadastrar_autorizacao(request):
     funcionario = Funcionario.objects.filter(author=request.user).first()
