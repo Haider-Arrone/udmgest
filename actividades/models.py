@@ -1,0 +1,75 @@
+from django.db import models
+
+from django.contrib.auth.models import User
+from datetime import datetime, timedelta
+from django.utils import timezone
+from expedient.models import Funcionario
+# Create your models here.
+class Atividade(models.Model):
+    TIPO_ATIVIDADE_CHOICES = [
+        ('Carta', 'Recebimento de Carta'),
+        ('Reingresso', 'Pedido de Reingresso'),
+        ('Declaracao', 'Pedido de Declaração'),
+        ('Certificado', 'Emissão de Certificado'),
+        ('Monografia', 'Revisão de Monografia'),
+         ('Outra', 'Outra'),
+        # Adicionar mais tipos conforme necessário
+    ]
+
+    STATUS_CHOICES = [
+        ('progresso', 'Em Progresso'),
+        ('concluida', 'Concluída'),
+        ('aguardando', 'Aguardando Informações'),
+        ('atrasada', 'Atrasada'),
+    ]
+
+    DIFICULDADE_CHOICES = [
+        ('facil', 'Fácil'),
+        ('media', 'Média'),
+        ('dificil', 'Difícil'),
+    ]
+
+    PRIORIDADE_CHOICES = [
+        ('baixa', 'Baixa'),
+        ('media', 'Média'),
+        ('alta', 'Alta'),
+    ]
+
+    funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='atividades')
+    tipo_atividade = models.CharField(max_length=50, choices=TIPO_ATIVIDADE_CHOICES)
+    descricao = models.TextField()
+    data = models.DateField(auto_now_add=True)
+    prazo = models.DateTimeField(null=True, blank=True, help_text="Prazo para conclusão da atividade")
+    hora_inicio = models.TimeField(default=datetime.now)
+    hora_fim = models.TimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='progresso')
+    observacoes = models.TextField(blank=True, null=True)
+    dificuldade = models.CharField(max_length=10, choices=DIFICULDADE_CHOICES, default='media')
+    prioridade = models.CharField(max_length=10, choices=PRIORIDADE_CHOICES, default='media')
+    
+    tempo_gasto = models.DurationField(null=True, blank=True, help_text="Tempo total gasto na atividade")
+
+    def calcular_tempo_gasto(self):
+        if self.hora_fim:
+            # Combine with a fixed date
+            data_fixa = datetime.now().date()  # Use the current date
+            inicio = datetime.combine(data_fixa, self.hora_inicio)
+            fim = datetime.combine(data_fixa, self.hora_fim)
+
+            # Return the difference
+            return fim - inicio
+        return timedelta()
+
+    def __str__(self):
+        return f"{self.funcionario.nome_completo} - {self.tipo_atividade} ({self.status})"
+
+    def save(self, *args, **kwargs):
+        # Calcular automaticamente o tempo gasto ao salvar, caso a atividade esteja concluída
+        if self.status == 'concluida' and self.hora_fim:
+            self.tempo_gasto = self.calcular_tempo_gasto()
+
+        # Definir como atrasada se passar do prazo
+        if self.prazo and self.status != 'concluida' and timezone.now() > self.prazo:
+            self.status = 'atrasada'
+
+        super().save(*args, **kwargs)
