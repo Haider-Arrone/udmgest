@@ -14,20 +14,41 @@
 
 
 {% load crispy_forms_tags %}
-<form class="main-form" method="get">
+{% comment %} <form class="main-form" method="get">
   <div class="form-group">
   {% csrf_token %}
   {{ actividades.form|crispy }} 
   </div>
   <br>
   <button class="btn btn-success" type="submit">Filtrar</button>
+</form> {% endcomment %}
+<form class="main-form" method="get">
+    <div class="form-group">
+      {% csrf_token %}
+      
+      <!-- Campo de Seleção para Departamentos -->
+      {% comment %} <label for="departamento">Departamento:</label>
+      <select name="departamento" id="departamento" class="form-control">
+        <option value="">Escolha um departamento</option> <!-- Opção padrão -->
+        {% for departamento in departamentos %}
+          <option value="{{ departamento.id }}" 
+              {% if departamento_selecionado == departamento.id|stringformat:"s" %}selected{% endif %}>
+            {{ departamento.nome }}
+          </option>
+        {% endfor %}
+      </select> {% endcomment %}
+  
+      {{ actividades.form|crispy }} 
+    </div>
+    <br>
+    <button class="btn btn-success" type="submit">Filtrar</button>
 </form>
-
+<br>
 
 
 
 <!---->
-<table class="table table-striped table-hover" style="table-layout: fixed;">
+<table class="table table-bordered table-striped table-hover text-center">
     <thead>
       <tr>
         <th>ID</th>

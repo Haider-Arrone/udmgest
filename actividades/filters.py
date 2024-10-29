@@ -1,5 +1,5 @@
 import django_filters
-from .models import Atividade
+from .models import Atividade, TipoAtividade
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
@@ -9,17 +9,22 @@ from expedient.models import Funcionario, Departamento
 
 
 class ActivityFilter(django_filters.FilterSet):
-    departamento = django_filters.ModelChoiceFilter(
-        queryset=Departamento.objects.all(),  # Puxando os departamentos completos
-        label='Departamento',
-        to_field_name='nome'  # Certifique-se de que `nome` existe no modelo Departamento
-    )
+    # departamento = django_filters.ModelChoiceFilter(
+    #     queryset=Departamento.objects.all(),
+    #     label='Departamento',
+    #     to_field_name='id'  # Filtrando pelo ID do departamento
+    # )
     
     # Filtro para o tipo de atividade
-    tipo_atividade = django_filters.ChoiceFilter(
-        field_name='tipo_atividade',
-        choices=Atividade.TIPO_ATIVIDADE_CHOICES,
-        widget=forms.Select(),
+    departamento = django_filters.ModelChoiceFilter(
+        queryset=Departamento.objects.all(),
+        label='Departamento',
+        to_field_name='id',  # Filtra pelo ID do departamento
+        method='filter_by_department'  # Define método personalizado
+    )
+    
+    tipo_atividade = django_filters.ModelChoiceFilter(
+        queryset=TipoAtividade.objects.none(),  # Inicialmente vazio, será preenchido no método
         label='Tipo de Atividade'
     )
 
@@ -94,16 +99,29 @@ class ActivityFilter(django_filters.FilterSet):
         label='Funcionário',
         to_field_name='nome_completo'  # Certifique-se de que `nome_completo` existe no modelo Funcionario
     )
+    # departamento = django_filters.ModelChoiceFilter(
+    #     queryset=Departamento.objects.all(),
+    #     label='Departamento',
+    #     to_field_name='id'  # Filtrando pelo ID do departamento
+    # )
 
     class Meta:
         model = Atividade
         fields = [
-            'departamento', 'tipo_atividade', 'status', 'dificuldade', 'prioridade',
+            # 'departamento',
+            'tipo_atividade', 'status', 'dificuldade', 'prioridade',
             'prazo', 'data', 'hora_inicio', 'hora_fim', 
-            'observacoes', 'funcionario'
+            'observacoes', 'funcionario', 
         ]
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Se um departamento for selecionado, limitar os funcionários a esse departamento
-        if 'departamento' in self.data and self.data['departamento']:
-            self.filters['funcionario'].queryset = Funcionario.objects.filter(departamento_id=self.data['departamento'])
+    def filter_by_department(self, queryset, name, value):
+        """
+        Atualiza o queryset do campo `tipo_atividade` para mostrar
+        apenas os tipos de atividades do departamento selecionado.
+        """
+        if value:
+            # Filtra o queryset de tipo de atividade pelo departamento selecionado
+            self.filters['tipo_atividade'].queryset = TipoAtividade.objects.filter(departamento=value)
+        else:
+            # Limpa o queryset se nenhum departamento estiver selecionado
+            self.filters['tipo_atividade'].queryset = TipoAtividade.objects.none()
+        return queryset

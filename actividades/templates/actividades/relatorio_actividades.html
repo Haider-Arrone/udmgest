@@ -1,12 +1,29 @@
-<!-- templates/relatorio_atividades.html -->
-
 {% extends 'global/base.html' %}
 
-{% block title %}Relatório de Atividades{% endblock %}
+{% block title %}Dashboard ({{ user }}) | {% endblock title %}
 
 {% block content %}
+
+{% include 'global/partials/messages.html' %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Relatório de Atividades por Departamento</h2>
+    <h2 class="text-center mb-4">Relatório de Actividades por Departamento</h2>
+
+    
+    <form method="GET" action="{% url 'actividades:relatorio_actividades' %}">
+        <label for="departamento">Selecionar Departamento:</label>
+        <select name="departamento" id="departamento">
+            <option value="">-- Todos os Departamentos --</option>
+            {% for departamento in departamentos %}
+          <option value="{{ departamento.id }}"
+            {% if departamento_selecionado == departamento.id|stringformat:"s" %}selected{% endif %}>
+            {{ departamento.nome }}
+          </option>
+        {% endfor %}
+        </select>
+        <button type="submit">Filtrar</button>
+    </form>
+    <br>
+
 
     <div class="row">
         <div class="col-md-6">
@@ -143,6 +160,7 @@
             }
         }
     });
+
 
     // Gráfico de Tempo Gasto por Funcionário
     const tempoGastoCtx = document.getElementById('tempoGastoChart').getContext('2d');
@@ -290,4 +308,4 @@
         }
     });
 </script>
-{% endblock %}
+{% endblock content %}

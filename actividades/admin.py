@@ -1,9 +1,10 @@
 from django.contrib import admin
-from .models import Atividade
+from .models import Atividade, TipoAtividade
 
 class AtividadeAdmin(admin.ModelAdmin):
     list_display = (
         'funcionario', 
+        'get_departamento',  # Exibe o departamento do funcionário
         'tipo_atividade', 
         'status', 
         'prioridade', 
@@ -13,23 +14,24 @@ class AtividadeAdmin(admin.ModelAdmin):
         'hora_inicio', 
         'hora_fim', 
         'tempo_gasto'
-    )  # Mostra essas colunas na listagem de atividades
+    )
 
     list_filter = (
         'status', 
         'prioridade', 
         'dificuldade', 
         'tipo_atividade', 
-        'funcionario'
-    )  # Adiciona filtros no painel de admin
+        'funcionario', 
+        'funcionario__departamento'  # Filtro adicional para o departamento
+    )
 
     search_fields = (
         'funcionario__nome_completo', 
         'descricao', 
-        'tipo_atividade'
-    )  # Permite buscar atividades pelo nome do funcionário, descrição ou tipo
+        'tipo_atividade__nome'  # Ajuste para buscar pelo nome do tipo de atividade
+    )
 
-    readonly_fields = ('tempo_gasto', 'data')  # Define tempo_gasto e data como apenas leitura no admin
+    readonly_fields = ('tempo_gasto', 'data')
 
     fieldsets = (
         (None, {
@@ -41,12 +43,23 @@ class AtividadeAdmin(admin.ModelAdmin):
         ('Prioridade e Dificuldade', {
             'fields': ('prioridade', 'dificuldade', 'observacoes')
         }),
-    )  # Organiza os campos no formulário de edição
+    )
+
+    def get_departamento(self, obj):
+        return obj.funcionario.departamento.nome
+    get_departamento.short_description = 'Departamento'  # Define o título da coluna no admin
 
     def save_model(self, request, obj, form, change):
-        """Atualiza o campo `tempo_gasto` ao salvar."""
+        """Atualiza o campo `tempo_gasto` ao salvar e valida o tipo de atividade conforme o departamento."""
+        if obj.tipo_atividade.departamento != obj.funcionario.departamento:
+            raise ValueError("O tipo de atividade deve pertencer ao mesmo departamento do funcionário.")
+        
+        # Calcular tempo gasto se a atividade estiver concluída
         if obj.status == 'concluida' and obj.hora_fim:
-            obj.tempo_gasto = obj.calcular_tempo_gasto()  # Calcular tempo gasto
-        obj.save()
+            obj.tempo_gasto = obj.calcular_tempo_gasto()
+        
+        super().save_model(request, obj, form, change)
 
 admin.site.register(Atividade, AtividadeAdmin)
+
+admin.site.register(TipoAtividade)

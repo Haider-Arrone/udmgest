@@ -3,18 +3,18 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 from django.utils import timezone
-from expedient.models import Funcionario
+from expedient.models import Funcionario, Departamento
 # Create your models here.
+
+class TipoAtividade(models.Model):
+    nome = models.CharField(max_length=50, unique=True)
+    departamento = models.ForeignKey(Departamento, on_delete=models.CASCADE, related_name="tipos_atividades")
+
+    def __str__(self):
+        return f"{self.nome} - {self.departamento.nome}"
+    
 class Atividade(models.Model):
-    TIPO_ATIVIDADE_CHOICES = [
-        ('Carta', 'Recebimento de Carta'),
-        ('Reingresso', 'Pedido de Reingresso'),
-        ('Declaracao', 'Pedido de Declaração'),
-        ('Certificado', 'Emissão de Certificado'),
-        ('Monografia', 'Revisão de Monografia'),
-         ('Outra', 'Outra'),
-        # Adicionar mais tipos conforme necessário
-    ]
+    
 
     STATUS_CHOICES = [
         ('progresso', 'Em Progresso'),
@@ -35,8 +35,9 @@ class Atividade(models.Model):
         ('alta', 'Alta'),
     ]
 
-    funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='atividades')
-    tipo_atividade = models.CharField(max_length=50, choices=TIPO_ATIVIDADE_CHOICES)
+    funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='atividades_funcionario')
+    tipo_atividade = models.ForeignKey(TipoAtividade, on_delete=models.CASCADE, null=True, blank=True, related_name='atividades_tipo')
+    
     descricao = models.TextField()
     data = models.DateField(auto_now_add=True)
     prazo = models.DateTimeField(null=True, blank=True, help_text="Prazo para conclusão da atividade")
@@ -67,6 +68,10 @@ class Atividade(models.Model):
         # Calcular automaticamente o tempo gasto ao salvar, caso a atividade esteja concluída
         if self.status == 'concluida' and self.hora_fim:
             self.tempo_gasto = self.calcular_tempo_gasto()
+            
+        if self.tipo_atividade.departamento != self.funcionario.departamento:
+            raise ValueError("O tipo de atividade deve pertencer ao mesmo departamento do funcionário.")
+
 
         # Definir como atrasada se passar do prazo
         if self.prazo and self.status != 'concluida' and timezone.now() > self.prazo:

@@ -8,7 +8,7 @@
 {% load crispy_forms_tags %}
 
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Detalhes da Atividade</h2>
+    <h2 class="text-center mb-4">Detalhes da Actividade</h2>
 
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
@@ -19,7 +19,7 @@
 
             <div class="mb-4">
                 <p><strong>Descrição:</strong></p>
-                <p>{{ actividade.descricao }}</p>
+                <p>{{ actividade.descricao|safe }}</p>
             </div>
 
             <div class="row mb-4">
@@ -32,12 +32,12 @@
                 <div class="col-md-6">
                     
                     <p><strong>Estado:</strong> 
-                        {{ actividade.status }}
+                        {{ actividade.get_status_display }}
                     </p>
-                    <p><strong>Prioridade:</strong>  {{ actividade.prioridade }}  </p>
+                    <p><strong>Prioridade:</strong>  {{ actividade.get_prioridade_display }}  </p>
                     
                    
-                    <p><strong>Dificuldade:</strong>  {{ actividade.dificuldade }}</p>
+                    <p><strong>Dificuldade:</strong>  {{ actividade.get_dificuldade_display }}</p>
                    
                    
                     <p><strong>Tempo Gasto:</strong> 
