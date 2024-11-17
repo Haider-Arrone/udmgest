@@ -96,6 +96,11 @@ def relatorio_actividades(request):
     # Pegar o departamento do GET, se existir
     departamento_id = request.GET.get('departamento')
     
+    funcionario = Funcionario.objects.filter(author=request.user).first()
+    
+    if not funcionario:
+        raise Http404("Funcionário não encontrado")
+    
     # Filtrar atividades por departamento se um departamento for selecionado
     if departamento_id:
          atividades = Atividade.objects.filter(funcionario__departamento_id=departamento_id)
@@ -150,6 +155,7 @@ def relatorio_actividades(request):
         'prioridade_totals': [item['total'] for item in prioridade_data],
         'mes_labels': [item['month'].strftime('%Y-%m') for item in atividades_por_mes],
         'mes_totals': [item['total'] for item in atividades_por_mes],
+        'funcionario': funcionario,
     }
 
     return render(request, 'actividades/relatorio_actividades.html', contexto)
