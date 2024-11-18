@@ -29,6 +29,9 @@ ALLOWED_HOSTS: list[str] = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['http://udmgest.udm.ac.mz', 'https://udmgest.udm.ac.mz', 'http://10.10.0.92', 'http://localhost', 'http://127.0.0.1']
 
+CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+
 # Application definition
 
 INSTALLED_APPS = [
