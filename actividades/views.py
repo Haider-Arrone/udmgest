@@ -119,7 +119,10 @@ def relatorio_actividades(request):
 
     # Coletar dados de tempo gasto por funcionário
     tempo_gasto_data = atividades.values('funcionario__nome_completo').annotate(total_tempo=Sum('tempo_gasto'))
-    tempo_gasto_totals = [item['total_tempo'].total_seconds() / 3600 for item in tempo_gasto_data]  # Convertendo para horas
+    tempo_gasto_totals = [
+    (item['total_tempo'].total_seconds() / 3600) if item['total_tempo'] else 0
+    for item in tempo_gasto_data
+] # Convertendo para horas
 
 
     # Coletar dados de atividades concluídas e atrasadas
