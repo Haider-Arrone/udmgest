@@ -55,6 +55,7 @@ def listar_actividades(request):
     atividades = Atividade.objects.filter(funcionario=funcionario)  # Ajuste conforme necessário
     
     departamento_id = request.GET.get('departamento')
+    print(departamento_id)
     if departamento_id:
         atividades = atividades.filter(funcionario__departamento_id=departamento_id)
 
