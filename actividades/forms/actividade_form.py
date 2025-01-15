@@ -5,7 +5,7 @@ class AtividadeForm(forms.ModelForm):
     
     tipo_atividade = forms.ModelChoiceField(
         queryset=TipoAtividade.objects.all(),
-        empty_label='Selecione o Tipo de Atividade',
+        empty_label='Selecione o Tipo de Actividade',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     class Meta:

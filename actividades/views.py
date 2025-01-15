@@ -52,25 +52,34 @@ def listar_actividades(request):
         raise Http404("Funcionário não encontrado")
     
     # Obtém todas as atividades associadas ao funcionário
-    atividades = Atividade.objects.filter(funcionario=funcionario)  # Ajuste conforme necessário
+    atividades = Atividade.objects.all()
     
+    # Verifica se um departamento foi selecionado na consulta GET
     departamento_id = request.GET.get('departamento')
     print(departamento_id)
     if departamento_id:
-        atividades = atividades.filter(funcionario__departamento_id=departamento_id)
-
-
+        try:
+            # Filtra as atividades do departamento selecionado
+            departamento = Departamento.objects.get(id=departamento_id)
+            print(departamento)
+            atividades = atividades.filter(funcionario__departamento=departamento)
+            print(atividades)
+        except Departamento.DoesNotExist:
+            # Caso o departamento não exista, podemos lançar um erro ou apenas não filtrar
+            atividades = atividades.none()  # Isso pode ser alterado para um tratamento de erro personalizado
     
+    # Obtém todos os departamentos para o filtro no formulário
     departamentos = Departamento.objects.all()
+    
     # Paginação
     page_obj, pagination_range = make_pagination(request, atividades, PER_PAGE)
     
-    return render(request, 'actividades/listar_actividade.html', {  # Altere o caminho do template conforme necessário
+    return render(request, 'actividades/listar_actividade.html', {
         'actividades': page_obj,
         'funcionario': funcionario,
         'pagination_range': pagination_range,
         'departamentos': departamentos,  # Passa os departamentos para o template
-        'departamento_selecionado': departamento_id, 
+        'departamento_selecionado': departamento_id,  # Passa o ID do departamento selecionado
     })
     
     
