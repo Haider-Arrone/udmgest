@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'salas',
     'autorizacao',
     'actividades',
+    'pautas',
 ]
 
 MIDDLEWARE = [

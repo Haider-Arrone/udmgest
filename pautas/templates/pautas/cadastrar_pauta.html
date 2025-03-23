@@ -1,0 +1,84 @@
+{% extends 'global/base.html' %}
+
+
+{% block title %}Dashbord Expediente | {% endblock title %}
+
+{% block content %}
+<h2 align="center">Registar Pauta</h2>
+{% comment %} <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const faculdadeSelect = document.getElementById('id_faculdade');  // Campo Faculdade
+      const cursoSelect = document.getElementById('id_curso');  // Campo Curso
+      const disciplinaSelect = document.getElementById('id_disciplina');  // Campo Disciplina
+      const baseUrl = window.location.origin; 
+      // Carrega os cursos baseados na faculdade selecionada
+      faculdadeSelect.addEventListener('change', function() {
+          const faculdadeId = faculdadeSelect.value;
+          console.log("Faculdade ID:", faculdadeId); 
+          if (faculdadeId) {
+              fetch(`${baseUrl}/pautas/search/get-cursos/${faculdadeId}/`)  // Rota de API para buscar cursos
+                  .then(response => response.json())
+                  .then(data => {
+                      cursoSelect.innerHTML = '<option value="">Selecione o Curso</option>';  // Limpar opções
+                      data.cursos.forEach(curso => {
+                          const option = document.createElement('option');
+                          option.value = curso.id;
+                          option.textContent = curso.nome;
+                          cursoSelect.appendChild(option);
+                      });
+                  });
+          } else {
+              cursoSelect.innerHTML = '<option value="">Selecione o Curso</option>';  // Limpar opções
+          }
+      });
+  
+      // Carrega as disciplinas baseadas no curso selecionado
+      cursoSelect.addEventListener('change', function() {
+          const cursoId = cursoSelect.value;
+          console.log("Curso ID selecionado:", cursoId); 
+          if (cursoId) {
+              fetch(`${baseUrl}/pautas/search/get-disciplinas/${cursoId}/`)  // Rota de API para buscar disciplinas
+                  .then(response => response.json())
+                  .then(data => {
+                      disciplinaSelect.innerHTML = '<option value="">Selecione a Disciplina</option>';  // Limpar opções
+                      data.disciplinas.forEach(disciplina => {
+                          const option = document.createElement('option');
+                          option.value = disciplina.id;
+                          option.textContent = disciplina.nome;
+                          disciplinaSelect.appendChild(option);
+                      });
+                  });
+          } else {
+              disciplinaSelect.innerHTML = '<option value="">Selecione a Disciplina</option>';  // Limpar opções
+          }
+      });
+  });
+  
+    </script> {% endcomment %}
+{% include 'global/partials/messages.html' %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+
+
+
+<div>
+      {% include 'global/partials/form.html' %}
+      
+     
+</div>
+{% comment %} <input type="text" id="id_prazo" class="form-control" placeholder="Selecione a data">
+
+<script>
+    $(document).ready(function() {
+        $('#id_prazo').datepicker({
+            format: 'yyyy-mm-dd',   // Formato da data
+            autoclose: true,        // Fecha o calendário após selecionar a data
+            todayHighlight: true,   // Destaca a data atual
+            orientation: "bottom"   // Posição do calendário
+        });
+    });
+</script> {% endcomment %}
+     
+{% endblock content %}
