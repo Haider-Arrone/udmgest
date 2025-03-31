@@ -14,11 +14,11 @@ class FaculdadeAdmin(admin.ModelAdmin):
 
 # Customização da interface do Admin para o modelo Curso
 class CursoAdmin(admin.ModelAdmin):
-    list_display = ('nome', )
-    search_fields = ('nome',)
-    # list_filter = ('faculdade',)
+    list_display = ('nome','faculdade' )
+    search_fields = ('nome','faculdade')
+    list_filter = ('faculdade',)
     ordering = ('nome',)
-    fields = ('nome', )  # Campos a serem exibidos no formulário de edição
+    fields = ('nome', 'faculdade')  # Campos a serem exibidos no formulário de edição
 
 # Customização da interface do Admin para o modelo Semestre
 class SemestreAdmin(admin.ModelAdmin):
@@ -30,11 +30,11 @@ class SemestreAdmin(admin.ModelAdmin):
 
 # Customização da interface do Admin para o modelo Disciplina
 class DisciplinaAdmin(admin.ModelAdmin):
-    list_display = ('nome', )
-    search_fields = ('nome',)
-    list_filter = ('nome',)
-    ordering = ('nome',)
-    fields = ('nome', )  # Campos a serem exibidos no formulário de edição
+    list_display = ('nome','curso' )
+    search_fields = ('nome','curso' )
+    list_filter = ('nome','curso' )
+    ordering = ('nome','curso' )
+    fields = ('nome', 'curso' )  # Campos a serem exibidos no formulário de edição
 
 # Customização da interface do Admin para o modelo Pauta
 # class PautaAdmin(admin.ModelAdmin):

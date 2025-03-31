@@ -70,7 +70,7 @@
             {% endif %}
         </div>
         <div class="card-footer text-muted text-center">
-            Criado por: {{ pauta.criado_por.username }} em {{ pauta.data_criacao|date:"d/m/Y H:i" }} | Última modificação: {{ pauta.data_modificacao|date:"d/m/Y H:i" }}
+            Criado por: {{ pauta.criado_por.username }} em {{ pauta.data_criacao|date:"d/m/Y H:i" }} | Última modificação: {{ pauta.data_modificacao|date:"d/m/Y H:i" }} por: {{ pauta.modificado_por.username }}
         </div>
     </div>
 </div>

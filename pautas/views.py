@@ -16,6 +16,7 @@ from .filters import PautaFilter
 from .models import Semestre, Pauta, Curso, Disciplina, Faculdade
 from django.http import JsonResponse, HttpResponse
 from .forms.pauta_form import PautaForm
+from simple_history.utils import update_change_reason
 
 # Defina o número de itens por página
 PER_PAGE = 10
@@ -128,10 +129,7 @@ def detalhes_pauta(request, id):
     
 @login_required(login_url='authors:login', redirect_field_name='next')
 def cadastrar_pauta(request):
-    funcionario = Funcionario.objects.filter(author=request.user).first()
-    
-    if not funcionario:
-        raise Http404("Funcionário não encontrado")
+    funcionario = get_object_or_404(Funcionario, author=request.user)  # Busca com 404 automático
 
     
     if request.method == "POST":
@@ -140,10 +138,13 @@ def cadastrar_pauta(request):
         if form.is_valid():
             if form.is_valid():
                 pauta = form.save(commit=False)
+                
                 pauta.criado_por = request.user  # Definir o usuário autenticado como criador
+                pauta.modificado_por = request.user 
                 pauta.ativo= True
                 pauta.save()
-                
+                update_change_reason(pauta, "Pauta criada")
+                pauta.save()  # 🔹 Segunda chamada para registrar a mudança no histórico
                 messages.success(request, 'Pauta cadastrada com sucesso!')
                 return redirect(reverse('pautas:pauta_search'))  # Redireciona para a lista de atividades ou outra página desejada
 
@@ -177,6 +178,7 @@ def editar_pauta(request, pauta_id):
         if form.is_valid():
             # Atualiza a pauta com os novos dados
             pauta = form.save(commit=False)
+            # update_change_reason(pauta, "Pauta editada")
             pauta.modificado_por = request.user  # Define o usuário autenticado como responsável pela atualização
             pauta.data_modificacao = timezone.now()
             pauta.save()
@@ -209,6 +211,7 @@ def apagar_pauta(request, pauta_id):
     if request.method == "POST":
         # Deleta a pauta
         #pauta.delete()
+        update_change_reason(pauta, "Pauta marcada como inativa")
         pauta.ativo = False
         pauta.modificado_por = request.user  # Define o usuário autenticado como responsável pela atualização
         pauta.data_modificacao = timezone.now()
