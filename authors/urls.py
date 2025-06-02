@@ -63,5 +63,8 @@ urlpatterns = [
          views.protocol_search, name="protocol_search"),
     path('dashboard/protocol/statistics/',
          views.protocol_statistics, name="protocol_statistics"),
+#     path('dashboard/protocol/statisticsd/',
+#          views.protocol_statisticsd, name="protocol_statisticsd"),
+    path('dashboard/protocol/gargalos/', views.relatorio_gargalos_view, name='relatorio_gargalos'),
 
 ]

@@ -1023,117 +1023,267 @@ def protocol_search(request):
         'total_pages': pagination_context['total_pages'],
     })
     
+# @login_required(login_url='authors:login', redirect_field_name='next')
+# def protocol_statistics(request):
+#     funcionario = Funcionario.objects.filter(author=request.user).first()
+#     if not funcionario:
+#         raise Http404()
+#     # Gráfico de barras: Protocolos por estado
+#     data = Protocolo.objects.values('estado').annotate(total=Count('estado'))
+#     states = [item['estado'] for item in data]
+#     totals = [item['total'] for item in data]
+
+#     fig1, ax1 = plt.subplots()
+#     bars1 = ax1.bar(states, totals)
+#     ax1.set_xlabel('Estado')
+#     ax1.set_ylabel('Total de Protocolos')
+#     ax1.set_title('Protocolos por Estado')
+
+#     for bar in bars1:
+#         height = bar.get_height()
+#         ax1.annotate(f'{height}',
+#                      xy=(bar.get_x() + bar.get_width() / 2, height),
+#                      xytext=(0, 3),
+#                      textcoords="offset points",
+#                      ha='center', va='bottom')
+
+#     buf1 = io.BytesIO()
+#     plt.savefig(buf1, format='png')
+#     buf1.seek(0)
+#     string1 = base64.b64encode(buf1.read())
+#     uri1 = urllib.parse.quote(string1)
+
+#     # Gráfico de linha: Protocolos emitidos por mês
+#     protocols_by_month = Protocolo.objects.annotate(month=TruncMonth('data_emissao')).values('month').annotate(total=Count('id')).order_by('month')
+#     months = [item['month'].strftime('%Y-%m') for item in protocols_by_month]
+#     month_totals = [item['total'] for item in protocols_by_month]
+
+#     fig2, ax2 = plt.subplots()
+#     line2 = ax2.plot(months, month_totals, marker='o')
+#     ax2.set_xlabel('Mês')
+#     ax2.set_ylabel('Total de Protocolos')
+#     ax2.set_title('Protocolos Emitidos por Mês')
+
+#     for i, total in enumerate(month_totals):
+#         ax2.annotate(f'{total}', xy=(months[i], total), textcoords="offset points", xytext=(0, 5), ha='center')
+
+#     buf2 = io.BytesIO()
+#     plt.savefig(buf2, format='png')
+#     buf2.seek(0)
+#     string2 = base64.b64encode(buf2.read())
+#     uri2 = urllib.parse.quote(string2)
+
+#     # Gráfico de pizza: Protocolos confirmados vs. não confirmados
+#     confirmed_count = Protocolo.objects.filter(confirmacao_user_status=True).count()
+#     not_confirmed_count = Protocolo.objects.filter(confirmacao_user_status=False).count()
+
+#     fig3, ax3 = plt.subplots()
+#     wedges, texts, autotexts = ax3.pie([confirmed_count, not_confirmed_count], labels=['Confirmados', 'Não Confirmados'], autopct='%1.1f%%', startangle=90)
+#     ax3.axis('equal')
+#     ax3.set_title('Protocolos Confirmados vs. Não Confirmados')
+
+#     for autotext in autotexts:
+#         autotext.set_color('white')
+#         autotext.set_fontsize(12)
+
+#     buf3 = io.BytesIO()
+#     plt.savefig(buf3, format='png')
+#     buf3.seek(0)
+#     string3 = base64.b64encode(buf3.read())
+#     uri3 = urllib.parse.quote(string3)
+
+#     # Gráfico de barras: Protocolos feitos e recebidos por departamento
+#     departments = Departamento.objects.all()
+#     dept_names = [dept.nome for dept in departments]
+#     made_totals = [Protocolo.objects.filter(remetente__departamento=dept).count() for dept in departments]
+#     received_totals = [Protocolo.objects.filter(destinatario=dept).count() for dept in departments]
+
+#     fig4, ax4 = plt.subplots(figsize=(10, 6))  # Aumentar o tamanho da figura
+#     bar_width = 0.35
+#     index = range(len(dept_names))
+
+#     bar1 = ax4.bar(index, made_totals, bar_width, label='Feitos')
+#     bar2 = ax4.bar([i + bar_width for i in index], received_totals, bar_width, label='Recebidos')
+
+#     ax4.set_xlabel('Departamento')
+#     ax4.set_ylabel('Total de Protocolos')
+#     ax4.set_title('Protocolos Feitos e Recebidos por Departamento')
+#     ax4.set_xticks([i + bar_width / 2 for i in index])
+#     ax4.set_xticklabels(dept_names, rotation=45, ha='right')  # Rotacionar e alinhar os rótulos
+#     ax4.legend()
+
+#     for bar in bar1:
+#         height = bar.get_height()
+#         ax4.annotate(f'{height}',
+#                      xy=(bar.get_x() + bar.get_width() / 2, height),
+#                      xytext=(0, 3),
+#                      textcoords="offset points",
+#                      ha='center', va='bottom')
+
+#     for bar in bar2:
+#         height = bar.get_height()
+#         ax4.annotate(f'{height}',
+#                      xy=(bar.get_x() + bar.get_width() / 2, height),
+#                      xytext=(0, 3),
+#                      textcoords="offset points",
+#                      ha='center', va='bottom')
+
+#     plt.tight_layout()  # Ajustar layout para evitar sobreposição
+#     buf4 = io.BytesIO()
+#     plt.savefig(buf4, format='png')
+#     buf4.seek(0)
+#     string4 = base64.b64encode(buf4.read())
+#     uri4 = urllib.parse.quote(string4)
+
+#     return render(request, 'authors/pages/protocol_statistics.html', {
+#         'data_barras': uri1,
+#         'data_linha': uri2,
+#         'data_pizza': uri3,
+#         'data_dept': uri4,
+#         'funcionario': funcionario,
+#     })
+    
+from datetime import timedelta
+from collections import defaultdict
+def calcular_gargalos():
+    protocolos = Protocolo.objects.exclude(data_confirmacao_recepcao__isnull=True)
+    
+    tempos_por_departamento = defaultdict(list)
+
+    for protocolo in protocolos:
+        if protocolo.data_emissao and protocolo.data_confirmacao_recepcao:
+            tempo_resposta = protocolo.data_confirmacao_recepcao - protocolo.data_emissao
+            tempos_por_departamento[protocolo.destinatario].append(tempo_resposta)
+
+    media_por_departamento = []
+    for departamento, tempos in tempos_por_departamento.items():
+        media = sum(tempos, timedelta()) / len(tempos)
+        media_por_departamento.append({
+            'departamento': departamento.nome,
+            'media': media,
+            'horas': round(media.total_seconds() / 3600, 2),
+        })
+
+    # Ordena do mais lento para o mais rápido
+    return sorted(media_por_departamento, key=lambda x: x['media'], reverse=True)
+
+def relatorio_gargalos_view(request):
+    gargalos = calcular_gargalos()
+    return render(request, 'authors/pages/gargalos.html', {
+        'gargalos': gargalos,
+    })
+    
+from django.utils.dateparse import parse_date
+from datetime import datetime
+from django.contrib import messages
 @login_required(login_url='authors:login', redirect_field_name='next')
 def protocol_statistics(request):
     funcionario = Funcionario.objects.filter(author=request.user).first()
     if not funcionario:
         raise Http404()
-    # Gráfico de barras: Protocolos por estado
-    data = Protocolo.objects.values('estado').annotate(total=Count('estado'))
+
+    # Obter e validar datas do GET
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+
+    try:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
+    except ValueError:
+        start_date, end_date = None, None
+        messages.error(request, "Formato de data inválido. Use AAAA-MM-DD.")
+
+    # Obter filtros de departamento
+    remetente_id = request.GET.get('remetente_id')
+    destinatario_id = request.GET.get('destinatario_id')
+
+    # Base queryset
+    protocolo_queryset = Protocolo.objects.all()
+
+    # Filtrar por intervalo de datas
+    if start_date and end_date:
+        protocolo_queryset = protocolo_queryset.filter(data_emissao__date__range=(start_date, end_date))
+    elif start_date:
+        protocolo_queryset = protocolo_queryset.filter(data_emissao__date__gte=start_date)
+    elif end_date:
+        protocolo_queryset = protocolo_queryset.filter(data_emissao__date__lte=end_date)
+
+    # Filtrar por remetente
+    if remetente_id and remetente_id.isdigit():
+        protocolo_queryset = protocolo_queryset.filter(remetente__departamento_id=int(remetente_id))
+
+    # Filtrar por destinatário
+    if destinatario_id and destinatario_id.isdigit():
+        protocolo_queryset = protocolo_queryset.filter(destinatario_id=int(destinatario_id))
+
+    # --- GRÁFICOS (iguais ao que você já tem) ---
+
+    # Gráfico 1: Barras por estado
+    data = protocolo_queryset.values('estado').annotate(total=Count('estado'))
     states = [item['estado'] for item in data]
     totals = [item['total'] for item in data]
-
     fig1, ax1 = plt.subplots()
     bars1 = ax1.bar(states, totals)
-    ax1.set_xlabel('Estado')
-    ax1.set_ylabel('Total de Protocolos')
     ax1.set_title('Protocolos por Estado')
-
     for bar in bars1:
-        height = bar.get_height()
-        ax1.annotate(f'{height}',
-                     xy=(bar.get_x() + bar.get_width() / 2, height),
-                     xytext=(0, 3),
-                     textcoords="offset points",
-                     ha='center', va='bottom')
-
+        ax1.annotate(f'{bar.get_height()}', (bar.get_x() + bar.get_width() / 2, bar.get_height()),
+                     textcoords="offset points", xytext=(0, 3), ha='center', va='bottom')
     buf1 = io.BytesIO()
     plt.savefig(buf1, format='png')
     buf1.seek(0)
-    string1 = base64.b64encode(buf1.read())
-    uri1 = urllib.parse.quote(string1)
+    uri1 = urllib.parse.quote(base64.b64encode(buf1.read()))
 
-    # Gráfico de linha: Protocolos emitidos por mês
-    protocols_by_month = Protocolo.objects.annotate(month=TruncMonth('data_emissao')).values('month').annotate(total=Count('id')).order_by('month')
+    # Gráfico 2: Linha por mês
+    protocols_by_month = protocolo_queryset.annotate(month=TruncMonth('data_emissao'))\
+        .values('month').annotate(total=Count('id')).order_by('month')
     months = [item['month'].strftime('%Y-%m') for item in protocols_by_month]
     month_totals = [item['total'] for item in protocols_by_month]
-
     fig2, ax2 = plt.subplots()
-    line2 = ax2.plot(months, month_totals, marker='o')
-    ax2.set_xlabel('Mês')
-    ax2.set_ylabel('Total de Protocolos')
+    ax2.plot(months, month_totals, marker='o')
     ax2.set_title('Protocolos Emitidos por Mês')
-
     for i, total in enumerate(month_totals):
-        ax2.annotate(f'{total}', xy=(months[i], total), textcoords="offset points", xytext=(0, 5), ha='center')
-
+        ax2.annotate(f'{total}', (months[i], total), textcoords="offset points", xytext=(0, 5), ha='center')
     buf2 = io.BytesIO()
     plt.savefig(buf2, format='png')
     buf2.seek(0)
-    string2 = base64.b64encode(buf2.read())
-    uri2 = urllib.parse.quote(string2)
+    uri2 = urllib.parse.quote(base64.b64encode(buf2.read()))
 
-    # Gráfico de pizza: Protocolos confirmados vs. não confirmados
-    confirmed_count = Protocolo.objects.filter(confirmacao_user_status=True).count()
-    not_confirmed_count = Protocolo.objects.filter(confirmacao_user_status=False).count()
-
+    # Gráfico 3: Pizza confirmados vs. não confirmados
+    confirmed_count = protocolo_queryset.filter(confirmacao_user_status=True).count()
+    not_confirmed_count = protocolo_queryset.filter(confirmacao_user_status=False).count()
     fig3, ax3 = plt.subplots()
-    wedges, texts, autotexts = ax3.pie([confirmed_count, not_confirmed_count], labels=['Confirmados', 'Não Confirmados'], autopct='%1.1f%%', startangle=90)
-    ax3.axis('equal')
+    ax3.pie([confirmed_count, not_confirmed_count], labels=['Confirmados', 'Não Confirmados'],
+            autopct='%1.1f%%', startangle=90)
     ax3.set_title('Protocolos Confirmados vs. Não Confirmados')
-
-    for autotext in autotexts:
-        autotext.set_color('white')
-        autotext.set_fontsize(12)
-
+    ax3.axis('equal')
     buf3 = io.BytesIO()
     plt.savefig(buf3, format='png')
     buf3.seek(0)
-    string3 = base64.b64encode(buf3.read())
-    uri3 = urllib.parse.quote(string3)
+    uri3 = urllib.parse.quote(base64.b64encode(buf3.read()))
 
-    # Gráfico de barras: Protocolos feitos e recebidos por departamento
+    # Gráfico 4: Barras por departamento
     departments = Departamento.objects.all()
     dept_names = [dept.nome for dept in departments]
-    made_totals = [Protocolo.objects.filter(remetente__departamento=dept).count() for dept in departments]
-    received_totals = [Protocolo.objects.filter(destinatario=dept).count() for dept in departments]
-
-    fig4, ax4 = plt.subplots(figsize=(10, 6))  # Aumentar o tamanho da figura
+    made_totals = [protocolo_queryset.filter(remetente__departamento=dept).count() for dept in departments]
+    received_totals = [protocolo_queryset.filter(destinatario=dept).count() for dept in departments]
+    fig4, ax4 = plt.subplots(figsize=(10, 6))
     bar_width = 0.35
     index = range(len(dept_names))
-
     bar1 = ax4.bar(index, made_totals, bar_width, label='Feitos')
     bar2 = ax4.bar([i + bar_width for i in index], received_totals, bar_width, label='Recebidos')
-
-    ax4.set_xlabel('Departamento')
-    ax4.set_ylabel('Total de Protocolos')
-    ax4.set_title('Protocolos Feitos e Recebidos por Departamento')
     ax4.set_xticks([i + bar_width / 2 for i in index])
-    ax4.set_xticklabels(dept_names, rotation=45, ha='right')  # Rotacionar e alinhar os rótulos
+    ax4.set_xticklabels(dept_names, rotation=45, ha='right')
     ax4.legend()
-
-    for bar in bar1:
+    ax4.set_title('Protocolos Feitos e Recebidos por Departamento')
+    for bar in bar1 + bar2:
         height = bar.get_height()
-        ax4.annotate(f'{height}',
-                     xy=(bar.get_x() + bar.get_width() / 2, height),
-                     xytext=(0, 3),
-                     textcoords="offset points",
-                     ha='center', va='bottom')
-
-    for bar in bar2:
-        height = bar.get_height()
-        ax4.annotate(f'{height}',
-                     xy=(bar.get_x() + bar.get_width() / 2, height),
-                     xytext=(0, 3),
-                     textcoords="offset points",
-                     ha='center', va='bottom')
-
-    plt.tight_layout()  # Ajustar layout para evitar sobreposição
+        ax4.annotate(f'{height}', (bar.get_x() + bar.get_width() / 2, height),
+                     textcoords="offset points", xytext=(0, 3), ha='center')
     buf4 = io.BytesIO()
+    plt.tight_layout()
     plt.savefig(buf4, format='png')
     buf4.seek(0)
-    string4 = base64.b64encode(buf4.read())
-    uri4 = urllib.parse.quote(string4)
+    uri4 = urllib.parse.quote(base64.b64encode(buf4.read()))
 
     return render(request, 'authors/pages/protocol_statistics.html', {
         'data_barras': uri1,
@@ -1141,4 +1291,9 @@ def protocol_statistics(request):
         'data_pizza': uri3,
         'data_dept': uri4,
         'funcionario': funcionario,
+        'start_date': start_date_str or '',
+        'end_date': end_date_str or '',
+        'remetente_id': remetente_id or '',
+        'destinatario_id': destinatario_id or '',
+        'departamentos': departments,
     })

@@ -1,0 +1,56 @@
+{% extends 'global/base.html' %}
+
+
+
+{% block content %}
+
+
+{% include 'global/partials/messages.html' %}
+{% load extras %}
+<div class="container">
+  <h2>Relatório de Gargalos por Departamento</h2>
+
+  <table border="1" cellpadding="10">
+    <thead>
+      <tr>
+        <th>Departamento</th>
+        <th>Tempo Médio de Resposta</th>
+        <th>Horas</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in gargalos %}
+      <tr>
+        <td>{{ item.departamento }}</td>
+        <td>{{ item.media }}</td>
+        <td>{{ item.horas }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3 class="mt-4">Visualização Gráfica</h3>
+  <canvas id="gargaloChart" height="100"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = {{ gargalos|pluck:"departamento"|safe }};
+  const data = {{ gargalos|pluck:"horas"|safe }};
+
+  const ctx = document.getElementById('gargaloChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Tempo médio de resposta (h)',
+        data: data,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    }
+  });
+</script>
+{% endblock %}
