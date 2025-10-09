@@ -1,0 +1,230 @@
+
+{% extends 'global/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+
+{% include 'global/partials/messages.html' %}
+
+
+<h2>Defina os Filtros: </h2>
+
+<!-- JavaScript que lida com a mudança da Faculdade e Carrega os Cursos -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const faculdadeSelect = document.getElementById('id_faculdade');  // Campo Faculdade
+    const cursoSelect = document.getElementById('id_curso');  // Campo Curso
+    const disciplinaSelect = document.getElementById('id_disciplina');  // Campo Disciplina
+
+    // Carrega os cursos baseados na faculdade selecionada
+    faculdadeSelect.addEventListener('change', function() {
+        const faculdadeId = faculdadeSelect.value;
+        if (faculdadeId) {
+            fetch(`get-cursos/${faculdadeId}/`)  // Rota de API para buscar cursos
+                .then(response => response.json())
+                .then(data => {
+                    cursoSelect.innerHTML = '<option value="">Selecione o Curso</option>';  // Limpar opções
+                    data.cursos.forEach(curso => {
+                        const option = document.createElement('option');
+                        option.value = curso.id;
+                        option.textContent = curso.nome;
+                        cursoSelect.appendChild(option);
+                    });
+                });
+        } else {
+            cursoSelect.innerHTML = '<option value="">Selecione o Curso</option>';  // Limpar opções
+        }
+    });
+
+    // Carrega as disciplinas baseadas no curso selecionado
+    cursoSelect.addEventListener('change', function() {
+        const cursoId = cursoSelect.value;
+        if (cursoId) {
+            fetch(`get-disciplinas/${cursoId}/`)  // Rota de API para buscar disciplinas
+                .then(response => response.json())
+                .then(data => {
+                    disciplinaSelect.innerHTML = '<option value="">Selecione a Disciplina</option>';  // Limpar opções
+                    data.disciplinas.forEach(disciplina => {
+                        const option = document.createElement('option');
+                        option.value = disciplina.id;
+                        option.textContent = disciplina.nome;
+                        disciplinaSelect.appendChild(option);
+                    });
+                });
+        } else {
+            disciplinaSelect.innerHTML = '<option value="">Selecione a Disciplina</option>';  // Limpar opções
+        }
+    });
+});
+
+  </script>
+
+
+{% load crispy_forms_tags %}
+{% comment %} <form class="main-form" method="get">
+  <div class="form-group">
+  {% csrf_token %}
+  {{ actividades.form|crispy }} 
+  </div>
+  <br>
+  <button class="btn btn-success" type="submit">Filtrar</button>
+</form> {% endcomment %}
+<form class="main-form" method="get">
+    <div class="form-group">
+      {% csrf_token %}
+      
+     
+  
+      {{ pautas.form|crispy }} 
+    </div>
+    <br>
+    <button class="btn btn-success" type="submit">Filtrar</button>
+</form>
+<br>
+
+<script src="{% static 'js/load_courses.js' %}"></script> 
+
+<!---->
+<table class="table table-bordered table-striped table-hover text-center">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Ano e Semestre</th>
+        <th>Faculdade</th>
+        <th>Curso</th>
+        <th>Disciplina</th>
+        <th>Turma</th>
+        <th>Avaliação</th>
+        <th>Usuário que criou</th>
+        <th>Data de Criação</th>
+         <th>Anexo</th>
+         <th>Acções</th>
+       
+       
+        
+      </tr>
+    </thead>
+  
+    <tbody>
+      {% for pauta in filtros %}
+      <tr>
+ 
+        <td><a href="{% url 'pautas:detalhes_pauta' pauta.id %}">{{ pauta.id }}</a></td>
+        {% comment %} <td>{{ pauta.}}</td> {% endcomment %}
+        <td>{{ pauta.semestre }}</td>
+        <td>{{ pauta.faculdade|safe }}</td>
+        <td>{{ pauta.curso }}</td>
+        <td>{{ pauta.disciplina }}</td>
+        <td>{{ pauta.turma }}</td>
+        <td>{{ pauta.get_avaliacao_display }}</td>
+        <td>{{ pauta.criado_por }} </td>
+        <td>{{ pauta.data_criacao }}</td>
+        <td>
+          {% if pauta.arquivo %}
+            {% comment %} <a href="{{ pauta.arquivo.url }}" download><i class="fas fa-download"></i></a> {% endcomment %}
+            <a href="{{ pauta.arquivo.url }}" target="_blank"><i class="fas fa-eye"></i></a>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'pautas:detalhes_pauta' pauta.id %}" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>
+          <a href="{% url 'pautas:editar_pauta' pauta.id %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+          <a href="{% url  'pautas:apagar_pauta' pauta.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja apagar esta pauta?');"><i class="fas fa-trash"></i></a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="10" style="color:red; text-align: center;">Nenhuma pauta encontrada com estes filtros.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+<!-- No arquivo consulta_modelo.html
+
+
+<ul>
+  {% for objeto in filtro.qs %}
+      <li>{{ objeto }}</li>
+  {% endfor %}
+</ul> -->
+
+
+{% comment %} {% if filtros.has_other_pages %}
+
+
+<div class="container">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <!-- Link para a primeira página -->
+            
+            {% if pagination_range.first_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">Primeira</a>
+            </li>
+           {% endif %}
+            <!-- Links para as páginas -->
+            {% for page in pagination_range.pagination_range %}
+                {% if pagination_range.current_page == page %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">{{ page }}</span>
+                </li>
+                    
+                    
+                {% else %}
+                    <a class ="page-link page-item" href="?page={{ page }}{{ additional_url_query}}"> {{ page }} </a>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Link para a última página -->
+            {% if pagination_range.last_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ pagination_range.total_pages }}">Última</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+
+{% endif %}  {% endcomment %}
+
+
+{% if filtros.has_other_pages %}
+<div class="container">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <!-- Link para a primeira página -->
+            {% if first_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1&{{ query_string }}">Primeira</a>
+            </li>
+            {% endif %}
+            <!-- Links para as páginas -->
+            {% for page in pagination_range %}
+                {% if current_page == page %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">{{ page }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page }}&{{ query_string }}">{{ page }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            <!-- Link para a última página -->
+            {% if last_page_out_of_range %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ total_pages }}&{{ query_string }}">Última</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
+
+{% endblock content %}

@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'autorizacao',
     'actividades',
     'pautas',
+    'formatura',
     'simple_history',
 ]
 

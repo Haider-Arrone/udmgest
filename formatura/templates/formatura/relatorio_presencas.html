@@ -1,0 +1,52 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Relatório de Presenças | {% endblock title %}
+
+{% block content %}
+<h2>Relatório de Presenças</h2>
+
+<!-- 🔹 Filtros de período -->
+<form method="get" action="{{ form_action }}" class="mb-4 row g-3">
+    <div class="col-md-3">
+        <label for="id_startdate" class="form-label">Data Inicial</label>
+        <input type="date" name="startdate" id="id_startdate" value="{{ request.GET.startdate }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+        <label for="id_enddate" class="form-label">Data Final</label>
+        <input type="date" name="enddate" id="id_enddate" value="{{ request.GET.enddate }}" class="form-control">
+    </div>
+    <div class="col-md-3 align-self-end">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{{ form_action }}" class="btn btn-secondary">Limpar</a>
+    </div>
+</form>
+
+<!-- 🔹 Tabela de presenças -->
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Funcionário</th>
+            <th>Departamento</th>
+            {% for dia in dias %}
+                <th>{{ dia|date:"d/m" }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for func in relatorio %}
+            <tr>
+                <td>{{ func.nome }}</td>
+                <td>{{ func.departamento }}</td>
+                {% for presenca in func.presencas %}
+                    <td>{{ presenca }}</td>
+                {% endfor %}
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="{{ dias|length|add:'2' }}">Nenhum funcionário encontrado.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}

@@ -1,0 +1,39 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Importar Presenças | {% endblock title %}
+
+{% block content %}
+<h2 align="center">Importar Registos de Presença</h2>
+
+{% include 'global/partials/messages.html' %}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" action="{{ form_action }}">
+                {% csrf_token %}
+
+                <div class="form-group mb-3">
+                    <label for="excel_file"><strong>Selecione o ficheiro Excel:</strong></label>
+                    <input 
+                        type="file" 
+                        name="excel_file" 
+                        id="excel_file" 
+                        accept=".xls,.xlsx" 
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text text-muted">
+                        O ficheiro deve conter as colunas: <code>Employee ID</code>, <code>Name</code>, <code>Department</code> e <code>[dia do mês]</code>.
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Importar Presenças
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

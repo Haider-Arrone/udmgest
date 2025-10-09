@@ -1,0 +1,78 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Detalhes da Actividade ({{ user }}) | {% endblock title %}
+
+
+
+
+{% block content %}
+
+{% include 'global/partials/messages.html' %}
+{% load crispy_forms_tags %}
+<style>
+    body {
+        background-color: #f4f7f6;
+    }
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    .status-active {
+        color: #28a745;
+        font-weight: bold;
+    }
+    .status-inactive {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .download-btn {
+        background-color: #28a745;
+        border: none;
+    }
+</style>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header text-center">Detalhes da Pauta</div>
+        <div class="card-body">
+            <h5 class="text-center">{{ pauta.disciplina }} - {{ pauta.turma }}</h5>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <p><strong>Ano/Semestre:</strong> {{ pauta.semestre }}</p>
+                    <p><strong>Faculdade:</strong> {{ pauta.faculdade.nome }}</p>
+                    <p><strong>Curso:</strong> {{ pauta.curso.nome }}</p>
+                    <p><strong>Disciplina:</strong> {{ pauta.disciplina.nome }}</p>
+                    
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Turma:</strong> {{ pauta.turma }}</p>
+                    <p><strong>Docente:</strong> {{ pauta.docente }}</p>
+                    <p><strong>Avaliação:</strong> {{ pauta.get_avaliacao_display }}</p>
+                    
+                </div>
+            </div>
+            
+            {% if pauta.arquivo %}
+            <div class="mb-3 text-center">
+                <p><strong>Arquivo da Pauta:</strong></p>
+                {% if pauta.arquivo %}
+                    <a href="{{ pauta.arquivo.url }}" class="btn btn-success" target="_blank">Baixar Pauta</a>
+                {% else %}
+                    <p>Nenhum arquivo disponível</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-footer text-muted text-center">
+            Criado por: {{ pauta.criado_por.username }} em {{ pauta.data_criacao|date:"d/m/Y H:i" }} | Última modificação: {{ pauta.data_modificacao|date:"d/m/Y H:i" }} por: {{ pauta.modificado_por.username }}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
