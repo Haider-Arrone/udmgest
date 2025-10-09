@@ -333,7 +333,8 @@
                               
                              
                             <!--</ul>-->
-                            
+                            {% if funcionario.departamento.nome == 'Departamento de Informática' %}
+                              
                             <li class="nav-item">
                               <a class="nav-link" href="{% url 'formatura:upload_presenca'  %}">
                                 <i class="fa-sharp fa-solid fa-circle-plus"></i>
@@ -341,6 +342,7 @@
                   
                               </a>
                             </li>
+                            {% endif %}
                             {% comment %} <li class="nav-item">
                               <a class="nav-link" href="{% url 'actividades:listar_actividades'  %}">
                                 <i class="fa-solid fa-list"></i>

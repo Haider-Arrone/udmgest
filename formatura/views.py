@@ -8,11 +8,20 @@ from datetime import datetime, date
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models import Q
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import date, timedelta
 
+# def is_admin(user):
+#     return user.is_superuser  # Ou user.is_staff, se quiser incluir staff também
+
+
 # Create your views here.
+
+# @user_passes_test(is_admin, login_url='authors:login')
 def upload_presenca(request):
+    if not request.user.is_superuser:
+            messages.error(request, "Acesso negado: apenas administradores podem aceder a esta funcionalidade.")
+            return redirect('expedient:home')
     funcionario = get_object_or_404(Funcionario, author=request.user) 
     if request.method == "POST" and request.FILES.get('excel_file'):
         excel_file = request.FILES['excel_file']
