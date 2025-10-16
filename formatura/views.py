@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import date, timedelta
-
+import re
 # def is_admin(user):
 #     return user.is_superuser  # Ou user.is_staff, se quiser incluir staff também
 
@@ -18,39 +18,185 @@ from datetime import date, timedelta
 # Create your views here.
 
 # @user_passes_test(is_admin, login_url='authors:login')
+# def upload_presenca(request):
+#     if not request.user.is_superuser:
+#             messages.error(request, "Acesso negado: apenas administradores podem aceder a esta funcionalidade.")
+#             return redirect('expedient:home')
+#     funcionario = get_object_or_404(Funcionario, author=request.user) 
+#     if request.method == "POST" and request.FILES.get('excel_file'):
+#         excel_file = request.FILES['excel_file']
+
+#         try:
+            
+#             # 📘 Lê o ficheiro Excel
+#             df = pd.read_excel(excel_file, engine='openpyxl')
+
+#             # 🔹 Remove linhas e colunas vazias
+#             df = df.dropna(axis=0, how='all').dropna(axis=1, how='all')
+
+#             # 🔹 Confirma colunas essenciais
+#             colunas_esperadas = ['Employee ID', 'Name', 'Department']
+#             for coluna in colunas_esperadas:
+#                 if coluna not in df.columns:
+#                     messages.error(request, f"Coluna '{coluna}' não encontrada no ficheiro.")
+#                     return redirect('upload_presenca')
+
+#             # 🔹 Detecta a coluna do dia (a única que varia)
+#             dia_coluna = next((c for c in df.columns if c not in colunas_esperadas), None)
+#             if not dia_coluna:
+#                 messages.error(request, "Não foi encontrada a coluna correspondente ao dia do mês.")
+#                 return redirect('upload_presenca')
+
+#             registros_importados = 0
+#             registros_ignorados = 0
+
+#             # 🔁 Itera sobre as linhas do ficheiro
+#             for index, row in df.iterrows():
+#                 employee_id = row.get('Employee ID')
+#                 hora_val = row.get(dia_coluna)
+
+#                 if pd.isnull(employee_id) or pd.isnull(hora_val):
+#                     registros_ignorados += 1
+#                     continue
+
+#                 # 🔹 Verifica se o usuário existe
+#                 try:
+#                     usuario = User.objects.get(pk=int(employee_id))
+#                     funcionario_registro  = Funcionario.objects.get(author=usuario)
+#                 except User.DoesNotExist:
+#                     registros_ignorados += 1
+#                     messages.warning(request, f"Usuário com ID {employee_id} não encontrado (linha {index + 2}).")
+#                     continue
+#                 except Funcionario.DoesNotExist:
+#                     registros_ignorados += 1
+#                     messages.warning(request, f"Funcionário para o usuário {employee_id} não encontrado (linha {index + 2}).")
+#                     continue
+
+#                 # 🕒 Processa a hora
+#                 hora_entrada = None
+
+#                 # Caso já seja datetime ou Timestamp (Excel interpreta como hora)
+#                 if hasattr(hora_val, "time"):
+#                     try:
+#                         hora_entrada = hora_val.time()
+#                     except Exception:
+#                         hora_entrada = None
+
+#                 # Caso seja string
+#                 if hora_entrada is None:
+#                     hora_str = str(hora_val).strip().replace("\n", " ").replace("\r", "")
+#                     parsed = None
+#                     formatos_possiveis = ("%H:%M", "%H:%M:%S", "%H.%M", "%I:%M %p", "%I:%M:%S %p")
+
+#                     for fmt in formatos_possiveis:
+#                         try:
+#                             parsed = datetime.strptime(hora_str, fmt).time()
+#                             break
+#                         except Exception:
+#                             continue
+
+#                     # Fallback automático do pandas
+#                     if parsed is None:
+#                         try:
+#                             ts = pd.to_datetime(hora_str, errors="coerce")
+#                             if not pd.isnull(ts):
+#                                 parsed = ts.time()
+#                         except Exception:
+#                             parsed = None
+
+#                     if parsed is None:
+#                         registros_ignorados += 1
+#                         messages.warning(request, f"Hora inválida na linha {index + 2}: {hora_str}")
+#                         continue
+
+#                     hora_entrada = parsed
+
+#                 # 🗓 Cria a data de presença com base no nome da coluna
+#                 today = date.today()
+#                 try:
+#                     dia = int(str(dia_coluna).strip())
+#                     data_presenca = date(today.year, today.month, dia)
+#                 except ValueError:
+#                     messages.error(request, f"Coluna '{dia_coluna}' não é um número válido de dia.")
+#                     return redirect('upload_presenca')
+
+#                 # 💾 Cria ou atualiza presença
+#                 Presenca.objects.update_or_create(
+#                     usuario=usuario,
+#                     data_presenca=data_presenca,
+#                     defaults={
+#                         'hora_entrada': hora_entrada,
+#                         'origem_registo': 'Importação Excel'
+#                     }
+#                 )
+#                 registros_importados += 1
+
+#             # ✅ Mensagens de sucesso/falha
+#             messages.success(request, f"{registros_importados} registros importados com sucesso!")
+#             if registros_ignorados:
+#                 messages.warning(request, f"{registros_ignorados} registros foram ignorados por erro ou falta de dados.")
+
+#             return redirect(reverse('formatura:upload_presenca'))
+
+#         except Exception as e:
+#             messages.error(request, f"Erro ao processar o ficheiro: {str(e)}")
+
+#     return render(request, 'formatura/upload_presenca.html', {
+#         'funcionario': funcionario,
+#         'form_action': reverse('formatura:upload_presenca'),
+#     })
+   
+@login_required(login_url='authors:login')
 def upload_presenca(request):
     if not request.user.is_superuser:
-            messages.error(request, "Acesso negado: apenas administradores podem aceder a esta funcionalidade.")
-            return redirect('expedient:home')
-    funcionario = get_object_or_404(Funcionario, author=request.user) 
+        messages.error(request, "Acesso negado: apenas administradores podem aceder a esta funcionalidade.")
+        return redirect('expedient:home')
+
+    funcionario = get_object_or_404(Funcionario, author=request.user)
+
     if request.method == "POST" and request.FILES.get('excel_file'):
         excel_file = request.FILES['excel_file']
 
         try:
-            
-            # 📘 Lê o ficheiro Excel
             df = pd.read_excel(excel_file, engine='openpyxl')
-
-            # 🔹 Remove linhas e colunas vazias
             df = df.dropna(axis=0, how='all').dropna(axis=1, how='all')
 
-            # 🔹 Confirma colunas essenciais
+            # ✅ Colunas obrigatórias
             colunas_esperadas = ['Employee ID', 'Name', 'Department']
             for coluna in colunas_esperadas:
                 if coluna not in df.columns:
-                    messages.error(request, f"Coluna '{coluna}' não encontrada no ficheiro.")
-                    return redirect('upload_presenca')
+                    messages.error(request, f"Coluna obrigatória '{coluna}' não encontrada.")
+                    return redirect('formatura:upload_presenca')
 
-            # 🔹 Detecta a coluna do dia (a única que varia)
-            dia_coluna = next((c for c in df.columns if c not in colunas_esperadas), None)
-            if not dia_coluna:
-                messages.error(request, "Não foi encontrada a coluna correspondente ao dia do mês.")
-                return redirect('upload_presenca')
+            # ✅ Identificar a coluna de dia
+            colunas_dias = [c for c in df.columns if c not in colunas_esperadas]
+            if not colunas_dias:
+                messages.error(request, "Nenhuma coluna de dia encontrada no ficheiro.")
+                return redirect('formatura:upload_presenca')
+
+            # Pegamos a primeira coluna (pois é um ficheiro de um só dia)
+            dia_coluna = colunas_dias[0]
+
+            # ✅ Tentar extrair o número do dia (ex: "16")
+            try:
+                dia = int(re.findall(r'\d+', str(dia_coluna))[0])
+            except (IndexError, ValueError):
+                messages.error(request, f"Nome da coluna de dia inválido: {dia_coluna}")
+                return redirect('formatura:upload_presenca')
+
+            # ✅ Permite definir data com base no nome do ficheiro (ex: presencas_2025-10-09.xlsx)
+            match_data = re.search(r'(\d{4})[-_](\d{2})[-_](\d{2})', excel_file.name)
+            if match_data:
+                ano, mes, _ = map(int, match_data.groups())
+            else:
+                hoje = date.today()
+                ano, mes = hoje.year, hoje.month
+
+            data_presenca = date(ano, mes, dia)
 
             registros_importados = 0
             registros_ignorados = 0
 
-            # 🔁 Itera sobre as linhas do ficheiro
             for index, row in df.iterrows():
                 employee_id = row.get('Employee ID')
                 hora_val = row.get(dia_coluna)
@@ -59,82 +205,45 @@ def upload_presenca(request):
                     registros_ignorados += 1
                     continue
 
-                # 🔹 Verifica se o usuário existe
                 try:
                     usuario = User.objects.get(pk=int(employee_id))
-                    funcionario_registro  = Funcionario.objects.get(author=usuario)
                 except User.DoesNotExist:
                     registros_ignorados += 1
                     messages.warning(request, f"Usuário com ID {employee_id} não encontrado (linha {index + 2}).")
                     continue
-                except Funcionario.DoesNotExist:
-                    registros_ignorados += 1
-                    messages.warning(request, f"Funcionário para o usuário {employee_id} não encontrado (linha {index + 2}).")
-                    continue
 
-                # 🕒 Processa a hora
+                # 🕒 Processar hora
                 hora_entrada = None
-
-                # Caso já seja datetime ou Timestamp (Excel interpreta como hora)
                 if hasattr(hora_val, "time"):
-                    try:
-                        hora_entrada = hora_val.time()
-                    except Exception:
-                        hora_entrada = None
-
-                # Caso seja string
-                if hora_entrada is None:
-                    hora_str = str(hora_val).strip().replace("\n", " ").replace("\r", "")
-                    parsed = None
-                    formatos_possiveis = ("%H:%M", "%H:%M:%S", "%H.%M", "%I:%M %p", "%I:%M:%S %p")
-
-                    for fmt in formatos_possiveis:
+                    hora_entrada = hora_val.time()
+                else:
+                    hora_str = str(hora_val).strip()
+                    for fmt in ("%H:%M", "%H:%M:%S", "%I:%M %p", "%I:%M:%S %p"):
                         try:
-                            parsed = datetime.strptime(hora_str, fmt).time()
+                            hora_entrada = datetime.strptime(hora_str, fmt).time()
                             break
                         except Exception:
                             continue
 
-                    # Fallback automático do pandas
-                    if parsed is None:
-                        try:
-                            ts = pd.to_datetime(hora_str, errors="coerce")
-                            if not pd.isnull(ts):
-                                parsed = ts.time()
-                        except Exception:
-                            parsed = None
+                if not hora_entrada:
+                    registros_ignorados += 1
+                    continue
 
-                    if parsed is None:
-                        registros_ignorados += 1
-                        messages.warning(request, f"Hora inválida na linha {index + 2}: {hora_str}")
-                        continue
+                # 💾 Criar nova presença (sem sobrescrever)
+                if not Presenca.objects.filter(usuario=usuario, data_presenca=data_presenca).exists():
+                    Presenca.objects.create(
+                        usuario=usuario,
+                        data_presenca=data_presenca,
+                        hora_entrada=hora_entrada,
+                        origem_registo='Importação Excel'
+                    )
+                    registros_importados += 1
+                else:
+                    registros_ignorados += 1  # já existia
 
-                    hora_entrada = parsed
-
-                # 🗓 Cria a data de presença com base no nome da coluna
-                today = date.today()
-                try:
-                    dia = int(str(dia_coluna).strip())
-                    data_presenca = date(today.year, today.month, dia)
-                except ValueError:
-                    messages.error(request, f"Coluna '{dia_coluna}' não é um número válido de dia.")
-                    return redirect('upload_presenca')
-
-                # 💾 Cria ou atualiza presença
-                Presenca.objects.update_or_create(
-                    usuario=usuario,
-                    data_presenca=data_presenca,
-                    defaults={
-                        'hora_entrada': hora_entrada,
-                        'origem_registo': 'Importação Excel'
-                    }
-                )
-                registros_importados += 1
-
-            # ✅ Mensagens de sucesso/falha
-            messages.success(request, f"{registros_importados} registros importados com sucesso!")
+            messages.success(request, f"{registros_importados} presenças importadas com sucesso para o dia {data_presenca.strftime('%d/%m/%Y')}.")
             if registros_ignorados:
-                messages.warning(request, f"{registros_ignorados} registros foram ignorados por erro ou falta de dados.")
+                messages.warning(request, f"{registros_ignorados} registos foram ignorados (duplicados ou inválidos).")
 
             return redirect(reverse('formatura:upload_presenca'))
 
@@ -144,7 +253,9 @@ def upload_presenca(request):
     return render(request, 'formatura/upload_presenca.html', {
         'funcionario': funcionario,
         'form_action': reverse('formatura:upload_presenca'),
-    })
+    }) 
+    
+    
 '''  
 @login_required(login_url='authors:login', redirect_field_name='next')
 def listar_presencas(request):
@@ -211,13 +322,13 @@ def listar_presencas(request):
 
 @login_required(login_url='authors:login')
 def relatorio_presencas(request):
-    # Seleciona o período (mês atual como padrão)
     today = date.today()
     startdate = request.GET.get('startdate')
     enddate = request.GET.get('enddate')
-    
+
     funcionario = get_object_or_404(Funcionario, author=request.user)
 
+    # 🔹 Definir período
     if startdate:
         startdate = datetime.strptime(startdate, "%Y-%m-%d").date()
     else:
@@ -228,13 +339,23 @@ def relatorio_presencas(request):
     else:
         enddate = today
 
-    # Lista de dias do período
-    delta = enddate - startdate
-    dias = [startdate + timedelta(days=i) for i in range(delta.days + 1)]
+    # 🔹 Buscar presenças no período
+    presencas_no_periodo = Presenca.objects.filter(
+        data_presenca__range=[startdate, enddate]
+    ).select_related('usuario', 'usuario__funcionario', 'usuario__funcionario__departamento')
 
+    # 🔹 Obter dias únicos onde houveram presenças
+    dias_com_presenca = presencas_no_periodo.values_list('data_presenca', flat=True).distinct().order_by('data_presenca')
+
+    # 🔹 Mapear presenças por usuário e dia para acesso rápido
+    presencas_dict = {}
+    for p in presencas_no_periodo:
+        presencas_dict.setdefault(p.usuario_id, {})[p.data_presenca] = p
+
+    # 🔹 Buscar todos os funcionários
     funcionarios = Funcionario.objects.select_related('departamento').all()
 
-    # Monta o relatório
+    # 🔹 Monta relatório
     relatorio = []
     for func in funcionarios:
         linha = {
@@ -242,26 +363,27 @@ def relatorio_presencas(request):
             'departamento': func.departamento.nome if func.departamento else '-',
             'presencas': []
         }
-        for dia in dias:
-            presenca = Presenca.objects.filter(usuario=func.author, data_presenca=dia).first()
+        for dia in dias_com_presenca:
+            presenca = presencas_dict.get(func.author_id, {}).get(dia)
             if presenca:
                 linha['presencas'].append(presenca.hora_entrada.strftime("%H:%M"))
             else:
-                linha['presencas'].append('F')  # F = Faltou
+                linha['presencas'].append('F')  # Faltou
         relatorio.append(linha)
 
     context = {
         'relatorio': relatorio,
         'funcionario': funcionario,
-        'dias': dias,
+        'dias': dias_com_presenca,
         'form_action': reverse('formatura:relatorio_presencas'),
+        'startdate': startdate,
+        'enddate': enddate,
     }
 
     return render(request, 'formatura/relatorio_presencas.html', context)
 
 @login_required(login_url='authors:login', redirect_field_name='next')
 def listar_presencas(request):
-    # Usuário logado
     funcionario = get_object_or_404(Funcionario, author=request.user)
 
     # 🔹 Filtros do formulário
@@ -271,68 +393,76 @@ def listar_presencas(request):
     enddate_query = request.GET.get('enddate', '').strip()
     status_presenca = request.GET.get('status', 'todos')  # todos, presentes, faltosos
 
-    # 🔹 QuerySet base de presenças
-    presencas_qs = Presenca.objects.select_related(
-        'usuario', 'usuario__funcionario', 'usuario__funcionario__departamento'
-    )
+    # 🔹 Definir período
+    today = date.today()
+    try:
+        startdate = datetime.strptime(startdate_query, "%Y-%m-%d").date() if startdate_query else today.replace(day=1)
+        enddate = datetime.strptime(enddate_query, "%Y-%m-%d").date() if enddate_query else today
+    except ValueError:
+        messages.warning(request, "Datas inválidas. Usando período padrão do mês atual.")
+        startdate = today.replace(day=1)
+        enddate = today
 
-    # 🔹 Filtrar por datas
-    if startdate_query:
-        try:
-            startdate = datetime.strptime(startdate_query, "%Y-%m-%d").date()
-            presencas_qs = presencas_qs.filter(data_presenca__gte=startdate)
-        except ValueError:
-            messages.warning(request, "Data inicial inválida. Use o formato AAAA-MM-DD.")
+    # 🔹 QuerySet base de presenças no período
+    presencas_qs = Presenca.objects.select_related('usuario', 'usuario__funcionario', 'usuario__funcionario__departamento') \
+                                   .filter(data_presenca__range=(startdate, enddate))
 
-    if enddate_query:
-        try:
-            enddate = datetime.strptime(enddate_query, "%Y-%m-%d").date()
-            presencas_qs = presencas_qs.filter(data_presenca__lte=enddate)
-        except ValueError:
-            messages.warning(request, "Data final inválida. Use o formato AAAA-MM-DD.")
-
-    # 🔹 Lista de todos os funcionários
+    # 🔹 Lista de todos os funcionários (filtrando nome/departamento)
     funcionarios = Funcionario.objects.select_related('departamento').all()
+    if nome_query:
+        funcionarios = funcionarios.filter(nome_completo__icontains=nome_query)
+    if departamento_id:
+        funcionarios = funcionarios.filter(departamento_id=departamento_id)
 
-    # 🔹 Lista final de dados padronizados para o template
-    tabela_presencas = []
+    # 🔹 Monta relatório completo
+    dias = presencas_qs.values_list('data_presenca', flat=True).distinct().order_by('data_presenca')
+
+    presencas_dict = {}
+    for p in presencas_qs:
+        presencas_dict.setdefault(p.usuario_id, {})[p.data_presenca] = p
+
+
+    relatorio = []
 
     for func in funcionarios:
-        # Filtrar por nome
-        if nome_query and nome_query.lower() not in func.nome_completo.lower():
-            continue
-
-        # Filtrar por departamento
-        if departamento_id and (not func.departamento or str(func.departamento.id) != departamento_id):
-            continue
-
-        # Buscar presença do funcionário no período filtrado
-        presenca = presencas_qs.filter(usuario=func.author).first()
-
-        # Filtrar por status
-        if status_presenca == 'presentes' and not presenca:
-            continue
-        if status_presenca == 'faltosos' and presenca:
-            continue
-
-        tabela_presencas.append({
+        linha = {
             'nome': func.nome_completo,
             'departamento': func.departamento.nome if func.departamento else '-',
-            'data_presenca': presenca.data_presenca if presenca else '-',
-            'hora_entrada': presenca.hora_entrada if presenca else '-',
-            'origem_registo': presenca.origem_registo if presenca else '-',
-        })
+            'presencas': []
+        }
+        for dia in dias:
+            presenca = presencas_dict.get(func.author_id, {}).get(dia)
+            if presenca:
+                linha['presencas'].append({
+                    'hora_entrada': presenca.hora_entrada.strftime("%H:%M") if presenca.hora_entrada else '-',
+                    'origem_registo': presenca.origem_registo or '-',
+                    'status': 'P'
+                })
+            else:
+                linha['presencas'].append({
+                    'hora_entrada': '-',
+                    'origem_registo': '-',
+                    'status': 'F'
+                })
+
+        # Filtro por status geral do funcionário
+        if status_presenca == 'presentes' and all(p['status'] == 'F' for p in linha['presencas']):
+            continue
+        if status_presenca == 'faltosos' and all(p['status'] == 'P' for p in linha['presencas']):
+            continue
+
+        relatorio.append(linha)
+
 
     context = {
         'funcionario': funcionario,
-        'tabela_presencas': tabela_presencas,
-        'total_funcionarios': funcionarios.count(),
-        'total_registros': len(tabela_presencas),
+        'relatorio': relatorio,
+        'dias': dias,
+        'departamentos': Departamento.objects.all(),
         'nome_query': nome_query,
         'departamento_id': departamento_id,
         'startdate_query': startdate_query,
         'enddate_query': enddate_query,
-        'departamentos': Departamento.objects.all(),
         'status_presenca': status_presenca,
         'form_action': reverse('formatura:listar_presencas'),
     }

@@ -14,7 +14,7 @@
             <label for="id_nome" class="form-label">Nome do Funcionário</label>
             <input type="text" name="nome" id="id_nome" value="{{ nome_query }}" class="form-control">
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="id_departamento" class="form-label">Departamento</label>
             <select name="departamento" id="id_departamento" class="form-select">
                 <option value="">Todos</option>
@@ -31,15 +31,18 @@
             <label for="id_enddate" class="form-label">Data Final</label>
             <input type="date" name="enddate" id="id_enddate" value="{{ enddate_query }}" class="form-control">
         </div>
-        <div class="col-md-2">
-            <label for="id_status" class="form-label">Status Presença</label>
-            <select name="status" id="id_status" class="form-select">
-                <option value="todos" {% if status_presenca == 'todos' %}selected{% endif %}>Todos</option>
-                <option value="presentes" {% if status_presenca == 'presentes' %}selected{% endif %}>Presentes</option>
-                <option value="faltosos" {% if status_presenca == 'faltosos' %}selected{% endif %}>Faltosos</option>
-            </select>
-        </div>
+
+         <div class="col-md-2">
+    <label for="id_status" class="form-label">Status Presença</label>
+    <select name="status" id="id_status" class="form-select">
+        <option value="todos" {% if status_presenca == 'todos' %}selected{% endif %}>Todos</option>
+        <option value="presentes" {% if status_presenca == 'presentes' %}selected{% endif %}>Presentes</option>
+        <option value="faltosos" {% if status_presenca == 'faltosos' %}selected{% endif %}>Faltosos</option>
+    </select>
+</div>
+
     </div>
+   
 
     <div class="mt-3">
         <button type="submit" class="btn btn-primary">Filtrar</button>
@@ -49,8 +52,7 @@
 
 <!-- 🔹 Contadores -->
 <div class="mb-3">
-    <strong>Total Funcionários:</strong> {{ total_funcionarios }} |
-    <strong>Total Registros exibidos:</strong> {{ total_registros }}
+    <strong>Total Funcionários:</strong> {{ relatorio|length }}
 </div>
 
 <!-- 🔹 Tabela de presenças -->
@@ -60,24 +62,26 @@
             <th>#</th>
             <th>Funcionário</th>
             <th>Departamento</th>
-            <th>Data</th>
-            <th>Hora de Entrada</th>
-            <th>Origem do Registo</th>
+            {% for dia in dias %}
+                <th>{{ dia|date:"d/m" }}</th>
+            {% endfor %}
         </tr>
     </thead>
     <tbody>
-        {% for p in tabela_presencas %}
+        {% for linha in relatorio %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ p.nome }}</td>
-            <td>{{ p.departamento }}</td>
-            <td>{% if p.data_presenca != '-' %}{{ p.data_presenca|date:"d/m/Y" }}{% else %}-{% endif %}</td>
-            <td>{% if p.hora_entrada != '-' %}{{ p.hora_entrada|time:"H:i" }}{% else %}-{% endif %}</td>
-            <td>{{ p.origem_registo }}</td>
+            <td>{{ linha.nome }}</td>
+            <td>{{ linha.departamento }}</td>
+            {% for p in linha.presencas %}
+                <td class="{% if p.status == 'P' %}table-success{% else %}table-danger{% endif %}" title="{{ p.origem_registo }}">
+        {{ p.hora_entrada }} {% if p.status %}({{ p.status }}){% endif %}
+    </td>
+            {% endfor %}
         </tr>
         {% empty %}
         <tr>
-            <td colspan="6" class="text-center">Nenhum registro encontrado.</td>
+            <td colspan="{{ 3|add:dias|length }}" class="text-center">Nenhum registro encontrado.</td>
         </tr>
         {% endfor %}
     </tbody>
