@@ -7,7 +7,7 @@
 <div class="container my-5">
     <h2 class="text-center mb-4">Meu Currículo</h2>
     {% include 'global/partials/messages.html' %}
-
+ {% comment %} {% include 'global/partials/form.html' %} {% endcomment %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="hidden" name="aba_atual" id="abaAtual" value="curriculo">
@@ -33,6 +33,22 @@
                     <div class="col-md-6">{{ form.regime_contrato.label_tag }} {{ form.regime_contrato }}</div>
                     <div class="col-md-6">{{ form.data_nascimento.label_tag }} {{ form.data_nascimento }}</div>
                     <div class="col-md-6">{{ form.naturalidade.label_tag }} {{ form.naturalidade }}</div>
+                    <div class="col-md-6">
+                        {{ form.contacto_telefonico.label_tag }}
+                        {{ form.contacto_telefonico }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.endereco_electronico.label_tag }}
+                        {{ form.endereco_electronico }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.endereco_fisico.label_tag }}
+                        {{ form.endereco_fisico }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.areas_interesse.label_tag }}
+                        {{ form.areas_interesse }}
+                    </div>
                     <div class="col-12">
                         <label>Idiomas</label>
                         <div class="d-flex flex-wrap gap-2">
@@ -46,7 +62,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="curriculo">💾 Salvar Currículo</button>
+                    <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="curriculo"> Salvar Currículo</button>
                 </div>
             </div>
 
@@ -56,6 +72,7 @@
                 {{ formsets.formacoes.management_form }}
                 <div id="formacaoContainer">
                     {% for form_f in formsets.formacoes %}
+                    {{ form_f.id }} 
                         <div class="card mb-3 p-3 border">
                             <div class="row g-3">
                                 <div class="col-md-6">{{ form_f.grau_entrada.label_tag }} {{ form_f.grau_entrada|add_class:"form-select" }}</div>
@@ -63,12 +80,19 @@
                                 <div class="col-md-6">{{ form_f.area_formacao.label_tag }} {{ form_f.area_formacao|add_class:"form-control" }}</div>
                                 <div class="col-md-6">{{ form_f.instituicao_ensino.label_tag }} {{ form_f.instituicao_ensino|add_class:"form-control" }}</div>
                                 <div class="col-md-6">{{ form_f.ano_conclusao.label_tag }} {{ form_f.ano_conclusao|add_class:"form-control" }}</div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_f.DELETE }} 
+                                        <label class="form-check-label">Remover esta formação</label>
+                                    </div>
+                                </div>
+                            
                             </div>
                         </div>
                     {% endfor %}
                 </div>
                 <div class="d-flex justify-content-between mt-3">
-                    <button type="button" id="addFormacao" class="btn btn-outline-primary">+ Adicionar Formação</button>
+                    {% comment %} <button type="button" id="addFormacao" class="btn btn-outline-primary">+ Adicionar Formação</button> {% endcomment %}
                     <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="formacao">💾 Salvar Formação</button>
                 </div>
             </div>
@@ -79,18 +103,27 @@
                 {{ formsets.cursos.management_form }}
                 <div id="cursoContainer">
                     {% for form_c in formsets.cursos %}
+                    {{ form_c.id }} 
                         <div class="card mb-3 p-3 border">
                             <div class="row g-3">
                                 <div class="col-md-6">{{ form_c.nome_curso.label_tag }} {{ form_c.nome_curso|add_class:"form-control" }}</div>
                                 <div class="col-md-6">{{ form_c.instituicao_formadora.label_tag }} {{ form_c.instituicao_formadora|add_class:"form-control" }}</div>
                                 <div class="col-md-6">{{ form_c.duracao.label_tag }} {{ form_c.duracao|add_class:"form-control" }}</div>
                                 <div class="col-md-6">{{ form_c.ano_conclusao.label_tag }} {{ form_c.ano_conclusao|add_class:"form-control" }}</div>
+                                
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_c.DELETE }} 
+                                        <label class="form-check-label">Remover este curso</label>
+                                    </div>
+                                </div>
+                           
                             </div>
                         </div>
                     {% endfor %}
                 </div>
                 <div class="d-flex justify-content-between mt-3">
-                    <button type="button" id="addCurso" class="btn btn-outline-primary">+ Adicionar Curso</button>
+                    {% comment %} <button type="button" id="addCurso" class="btn btn-outline-primary">+ Adicionar Curso</button> {% endcomment %}
                     <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="curso">💾 Salvar Cursos</button>
                 </div>
             </div>
@@ -101,6 +134,7 @@
                 {{ formsets.competencias.management_form }}
                 <div id="competenciasContainer">
                     {% for form_c in formsets.competencias %}
+                    {{ form_c.id }} 
                         <div class="card mb-3 p-3 border">
                             <div class="row g-3">
                                 <div class="col-md-6">{{ form_c.ferramentas_trabalho.label_tag }} {{ form_c.ferramentas_trabalho|add_class:"form-select" }}</div>
@@ -109,12 +143,21 @@
                                 <div class="col-md-6">{{ form_c.plataforma_nome.label_tag }} {{ form_c.plataforma_nome|add_class:"form-control" }}</div>
                                 <div class="col-md-6">{{ form_c.uso_redes_sociais.label_tag }} {{ form_c.uso_redes_sociais|add_class:"form-select" }}</div>
                                 <div class="col-12">{{ form_c.outras_competencias.label_tag }} {{ form_c.outras_competencias|add_class:"form-control" }}</div>
+                                
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_c.DELETE }} 
+                                        <label class="form-check-label">Remover esta competência:</label>
+                                    </div>
+                                </div>
+                           
+                           
                             </div>
                         </div>
                     {% endfor %}
                 </div>
                 <div class="d-flex justify-content-between mt-3">
-                    <button type="button" id="addCompetencia" class="btn btn-outline-primary">+ Adicionar Competência</button>
+                    {% comment %} <button type="button" id="addCompetencia" class="btn btn-outline-primary">+ Adicionar Competência</button> {% endcomment %}
                     <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="competencias">💾 Salvar Competências</button>
                 </div>
             </div>
@@ -125,6 +168,7 @@
                 {{ formsets.habilidades.management_form }}
                 <div id="habilidadesContainer">
                     {% for form_h in formsets.habilidades %}
+                     {{ form_h.id }} 
                         <div class="card mb-3 p-3 border">
                             <div class="row g-3">
                                 <div class="col-md-6">{{ form_h.habilidades_tecnicas.label_tag }} {{ form_h.habilidades_tecnicas|add_class:"form-select" }}</div>
@@ -136,12 +180,20 @@
                                 <div class="col-md-6">{{ form_h.desportivas.label_tag }} {{ form_h.desportivas|add_class:"form-select" }}</div>
                                 <div class="col-md-6">{{ form_h.gastronomicas.label_tag }} {{ form_h.gastronomicas|add_class:"form-select" }}</div>
                                 <div class="col-12">{{ form_h.outras_habilidades.label_tag }} {{ form_h.outras_habilidades|add_class:"form-control" }}</div>
+                           
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_h.DELETE }} 
+                                        <label class="form-check-label">Remover esta habilidade</label>
+                                    </div>
+                                </div>
+                           
                             </div>
                         </div>
                     {% endfor %}
                 </div>
                 <div class="d-flex justify-content-between mt-3">
-                    <button type="button" id="addHabilidade" class="btn btn-outline-primary">+ Adicionar Habilidade</button>
+                    {% comment %} <button type="button" id="addHabilidade" class="btn btn-outline-primary">+ Adicionar Habilidade</button> {% endcomment %}
                     <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="habilidades">💾 Salvar Habilidades</button>
                 </div>
             </div>
@@ -152,11 +204,19 @@
                 {{ formsets.mobilidade.management_form }}
                 <div id="mobilidadeContainer">
                     {% for form_m in formsets.mobilidade %}
+                     {{ form_m.id }} 
                         <div class="card mb-3 p-3 border">
                             <div class="row g-3">
                                 <div class="col-md-6">{{ form_m.disponibilidade.label_tag }} {{ form_m.disponibilidade|add_class:"form-select" }}</div>
                                 <div class="col-md-6">{{ form_m.area_interesse.label_tag }} {{ form_m.area_interesse|add_class:"form-control" }}</div>
                                 <div class="col-12">{{ form_m.experiencia_anterior.label_tag }} {{ form_m.experiencia_anterior|add_class:"form-control" }}</div>
+                                
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_m.DELETE }} 
+                                        <label class="form-check-label">Remover esta mobilidade</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
@@ -268,7 +328,23 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
+
+
+document.querySelectorAll('input[name$="-DELETE"]').forEach(checkbox => {
+    checkbox.addEventListener('change', e => {
+        const card = e.target.closest('.card');
+        if (e.target.checked) {
+            card.style.opacity = '0.5';  // deixa mais claro que será removido
+        } else {
+            card.style.opacity = '1';
+        }
+    });
+});
+
+
 </script>
+
+
 
 
 {% endblock content %}

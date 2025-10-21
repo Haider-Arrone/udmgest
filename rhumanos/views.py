@@ -13,8 +13,9 @@ from django.core.paginator import Paginator
 from .models import Curriculo, FormacaoAcademica, CursoCertificacao, CompetenciasDigitais, HabilidadesTalentos, MobilidadeInterna
 from django.http import Http404, HttpRequest, HttpResponse
 from utils.expedient.pagination import make_pagination
-
+from expedient.models import Departamento
 from .filters import CurriculoFilter
+
 # Create your views here.
 # Configura um logger para registrar erros
 logger = logging.getLogger(__name__)
@@ -40,87 +41,108 @@ def cadastrar_curriculo(request):
 
 
 
-    aba_atual = request.POST.get('aba_atual', 'geral')
+    aba_atual = request.POST.get('aba_atual', 'curriculo')
     print(aba_atual,1)
-    print(mobilidade_formset)
+    # print(mobilidade_formset)
     if request.method == "POST":
         try:
             with transaction.atomic():
-                if aba_atual == 'geral' and form.is_valid():
+                #aba_atual = request.POST.get('aba_atual', 'geral')
+
+                # --- Geral ---
+                if aba_atual == 'curriculo' and form.is_valid():
+                    print("teste")
                     curriculo = form.save(commit=False)
                     curriculo.user = request.user
                     curriculo.save()
-
                     idioma_ids = request.POST.getlist('idiomas')
                     curriculo.idiomas.set(idioma_ids)
                     messages.success(request, "Dados gerais salvos com sucesso!")
 
-                elif aba_atual == 'formacao' and formacao_formset.is_valid():
-                    formacao_formset.instance = curriculo
-                    formacao_formset.save()
-                    messages.success(request, "Formações salvas com sucesso!")
+                # --- Formacao, Curso, Competencias, Habilidades (mantém o teu fluxo) ---
+                elif aba_atual == 'formacao':
+                    formacao_formset = FormacaoFormSet(request.POST, instance=curriculo, prefix='formacao')
+                    if formacao_formset.is_valid():
+                        formacao_formset.save()
+                        messages.success(request, "Formações salvas com sucesso!")
+                    else:
+                        messages.error(request, "Erros nos campos de formação.")
 
-                elif aba_atual == 'curso' and curso_formset.is_valid():
-                    curso_formset.instance = curriculo
-                    curso_formset.save()
-                    messages.success(request, "Cursos salvos com sucesso!")
+                elif aba_atual == 'curso':
+                    curso_formset = CursoFormSet(request.POST, instance=curriculo, prefix='curso')
+                    if curso_formset.is_valid():
+                        curso_formset.save()
+                        messages.success(request, "Cursos salvos com sucesso!")
+                    else:
+                        messages.error(request, "Erros nos campos de cursos.")
 
-                elif aba_atual == 'competencias' and competencias_formset.is_valid():
-                    competencias_formset.instance = curriculo
-                    competencias_formset.save()
-                    messages.success(request, "Competências salvas com sucesso!")
+                elif aba_atual == 'competencias':
+                    competencias_formset = CompetenciasFormSet(request.POST, instance=curriculo, prefix='competencias')
+                    if competencias_formset.is_valid():
+                        competencias_formset.save()
+                        messages.success(request, "Competências salvas com sucesso!")
+                    else:
+                        messages.error(request, "Erros nos campos de competências.")
 
-                elif aba_atual == 'habilidades' and habilidades_formset.is_valid():
-                    habilidades_formset.instance = curriculo
-                    habilidades_formset.save()
-                    messages.success(request, "Habilidades salvas com sucesso!")
+                elif aba_atual == 'habilidades':
+                    habilidades_formset = HabilidadesFormSet(request.POST, instance=curriculo, prefix='habilidades')
+                    if habilidades_formset.is_valid():
+                        habilidades_formset.save()
+                        messages.success(request, "Habilidades salvas com sucesso!")
+                    else:
+                        messages.error(request, "Erros nos campos de habilidades.")
 
-                if aba_atual == 'mobilidade' and mobilidade_formset.is_valid():
-                    print("mob")
-                    # Filtrar apenas formulários preenchidos
-                    for form in mobilidade_formset:
-                        if not form.cleaned_data.get('disponibilidade') and not form.cleaned_data.get('area_interesse'):
-                            form.cleaned_data['DELETE'] = True  # marca para deletar
-                    
-                    mobilidade_formset.instance = curriculo
-                    mobilidade_formset.save()
-                    messages.success(request, "Mobilidade salva com sucesso!")
-                    
+                # --- Mobilidade: PRUNE antes de validar ---
+                elif aba_atual == 'mobilidade':
+                    mobilidade_formset = MobilidadeFormSet(
+                        request.POST or None,
+                        request.FILES or None,
+                        instance=curriculo,
+                        prefix='mobilidade'
+                    )
+
+                    if mobilidade_formset.is_valid():
+                        mobilidade_formset.save()
+                        messages.success(request, "Mobilidade salva com sucesso!")
+                    else:
+                        # Debug detalhado
+                        print("===== ERROS mobilidade_formset =====")
+                        print(mobilidade_formset.errors)
+                        print(mobilidade_formset.non_form_errors())
+                        messages.error(request, "Erros nos campos de mobilidade. Verifique o formulário.")
+
+                # --- Ficheiro (upload) ---
                 elif aba_atual == 'ficheiro' and form.is_valid():
-                    print(aba_atual)
                     curriculo = form.save(commit=False)
                     curriculo.user = request.user
                     if 'ficheiro_cv' in request.FILES:
                         curriculo.ficheiro_cv = request.FILES['ficheiro_cv']
-                    
-                    if request.POST.get('remover_cv'):
-                        if curriculo.ficheiro_cv:
-                            curriculo.ficheiro_cv.delete(save=False)  # Deleta arquivo do storage
-                            curriculo.ficheiro_cv = None
+
+                    if request.POST.get('remover_cv') and curriculo.ficheiro_cv:
+                        curriculo.ficheiro_cv.delete(save=False)
+                        curriculo.ficheiro_cv = None
 
                     curriculo.save()
                     messages.success(request, "CV enviado/atualizado com sucesso!")
 
                 else:
-                    print("===== ERROS DE FORMSETS =====")
+                    # se chegou aqui é porque a aba selecionada não passou validação
+                    # imprime debug dos erros
+                    print("===== ERROS DE FORMSETS (fallback) =====")
                     print("Form Geral Errors:", form.errors)
+                    # Opcional: imprimir erros dos outros formsets (os que estão na memória)
                     print("Formacao Errors:", formacao_formset.errors)
                     print("Curso Errors:", curso_formset.errors)
                     print("Competencias Errors:", competencias_formset.errors)
                     print("Habilidades Errors:", habilidades_formset.errors)
                     print("Mobilidade Errors:", mobilidade_formset.errors)
-                    print("Formset non_form_errors:")
-                    print("Formacao non_form_errors:", formacao_formset.non_form_errors())
-                    print("Curso non_form_errors:", curso_formset.non_form_errors())
-                    print("Competencias non_form_errors:", competencias_formset.non_form_errors())
-                    print("Habilidades non_form_errors:", habilidades_formset.non_form_errors())
-                    print("Mobilidade non_form_errors:", mobilidade_formset.non_form_errors())
                     messages.error(request, "Existem erros nos campos desta aba. Verifique e tente novamente.")
 
                 return redirect('rhumanos:cadastrar_curriculo')
 
         except Exception as e:
             messages.error(request, f"Erro ao salvar os dados: {e}")
+
 
     # GET
     idiomas = Idioma.objects.all()
@@ -159,11 +181,28 @@ def listar_curriculos(request: HttpRequest) -> HttpResponse:
         logger.warning("Funcionário não encontrado para o utilizador %s", request.user.username)
         raise Http404("Funcionário não encontrado")
 
-    curriculo_user = Curriculo.objects.select_related('user').filter(user=request.user).first()
-    if not curriculo_user:
-        logger.warning("Currículo não encontrado para o utilizador %s", request.user.username)
-        raise Http404("Currículo do utilizador não encontrado")
+    # curriculo_user = Curriculo.objects.select_related('user').filter(user=request.user).first()
+    # if not curriculo_user:
+    #     logger.warning("Currículo não encontrado para o utilizador %s", request.user.username)
+    #     raise Http404("Currículo do utilizador não encontrado")
 
+    # Verifica se um departamento foi selecionado na consulta GET
+    departamento_id = request.GET.get('departamento')
+    # print(departamento_id)
+    # if departamento_id:
+    #     try:
+    #         # Filtra as atividades do departamento selecionado
+    #         departamento = Departamento.objects.get(id=departamento_id)
+    #         print(departamento)
+    #         curriculos = curriculos.filter(user__funcionario__departamento_id=departamento_id)
+    #         print(curriculos)
+    #     except Departamento.DoesNotExist:
+    #         # Caso o departamento não exista, podemos lançar um erro ou apenas não filtrar
+    #         atividades = atividades.none()  # Isso pode ser alterado para um tratamento de erro personalizado
+    
+    # Obtém todos os departamentos para o filtro no formulário
+    # departamentos = Departamento.objects.all().order_by('nome')
+    
     # --- 2️⃣ Queryset base optimizado ---
     curriculos = (
         Curriculo.objects
@@ -180,6 +219,7 @@ def listar_curriculos(request: HttpRequest) -> HttpResponse:
     query = request.GET.get('q', '').strip()
     regime = request.GET.get('regime', '').strip()
     idioma_id = request.GET.get('idioma', '').strip()
+    departamento_id = request.GET.get('departamento')
 
     # 🔍 Pesquisa textual avançada
     if query:
@@ -206,6 +246,15 @@ def listar_curriculos(request: HttpRequest) -> HttpResponse:
             logger.warning("Idioma com ID %s não encontrado", idioma_id)
             curriculos = curriculos.none()
 
+    if departamento_id:
+        try:
+            departamento = Departamento.objects.get(id=departamento_id)
+            print(departamento)
+            curriculos = curriculos.filter(user__funcionario__departamento_id=departamento_id)
+        except Departamento.DoesNotExist:
+            curriculos = curriculos.none()
+        
+    departamentos = Departamento.objects.all().order_by('nome')
     # 🔢 Ordenação padrão
     curriculos = curriculos.distinct().order_by('user__first_name')
 
@@ -220,9 +269,11 @@ def listar_curriculos(request: HttpRequest) -> HttpResponse:
     context = {
         'titulo_pagina': 'Lista de Currículos',
         'funcionario': funcionario,
+        'departamentos': departamentos,
+        'departamento_selecionado': departamento_id,
         'curriculos': page_obj,
         'pagination_range': pagination_range,
-        'curriculo_user': curriculo_user,
+        # 'curriculo_user': curriculo_user,
         'idiomas': idiomas,
         'regimes': regimes,
         'query': query,
@@ -326,3 +377,5 @@ def curriculo_search(request):
     }
 
     return render(request, 'rhumanos/curriculo_search.html', context)
+
+

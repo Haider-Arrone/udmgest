@@ -43,6 +43,19 @@
       </select>
     </div>
 
+
+    <div class="col-md-3">
+        <label for="id_departamento" class="form-label mb-1 fw-semibold text-secondary">Departamento</label>
+        <select id="id_departamento" name="departamento" class="form-select">
+            <option value="">-- Todos --</option>
+            {% for dept in departamentos %}
+                <option value="{{ dept.id }}" {% if departamento_selecionado == dept.id|stringformat:"s" %}selected{% endif %}>
+                    {{ dept.nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
     <div class="col-md-2 d-grid align-items-end">
       <button type="submit" class="btn btn-primary">
         <i class="bi bi-filter"></i> Filtrar
