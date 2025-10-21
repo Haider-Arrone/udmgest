@@ -1,0 +1,311 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Dashboard ({{ user }}) | {% endblock title %}
+
+{% block content %}
+
+{% include 'global/partials/messages.html' %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Relatório de Actividades por Departamento</h2>
+
+    
+    <form method="GET" action="{% url 'actividades:relatorio_actividades' %}">
+        <label for="departamento">Selecionar Departamento:</label>
+        <select name="departamento" id="departamento">
+            <option value="">-- Todos os Departamentos --</option>
+            {% for departamento in departamentos %}
+          <option value="{{ departamento.id }}"
+            {% if departamento_selecionado == departamento.id|stringformat:"s" %}selected{% endif %}>
+            {{ departamento.nome }}
+          </option>
+        {% endfor %}
+        </select>
+        <button type="submit">Filtrar</button>
+    </form>
+    <br>
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Status das Actividades</h4>
+            <canvas id="statusChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4>Tipos de Actividades</h4>
+            <canvas id="tipoChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4>Actividades por Funcionário</h4>
+            <canvas id="funcionarioChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4>Tempo Gasto por Funcionário</h4>
+            <canvas id="tempoGastoChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4>Actividades Concluídas vs Atrasadas</h4>
+            <canvas id="statusConcluidasChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4>Dificuldade das Actividades</h4>
+            <canvas id="dificuldadeChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4>Actividades por Prioridade</h4>
+            <canvas id="prioridadeChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4>Actividades por Mês</h4>
+            <canvas id="mesChart"></canvas>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="" class="btn btn-primary">Voltar ao Início</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Status das Atividades
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusChart = new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ status_labels|safe }},
+            datasets: [{
+                label: 'Status das Atividades',
+                data: {{ status_totals|safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Distribuição das Atividades por Status'
+                }
+            }
+        }
+    });
+
+    // Gráfico de Tipos de Atividades
+    const tipoCtx = document.getElementById('tipoChart').getContext('2d');
+    const tipoChart = new Chart(tipoCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ tipo_labels|safe }},
+            datasets: [{
+                label: 'Quantidade de Atividades',
+                data: {{ tipo_totals|safe }},
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Atividades por Tipo'
+                }
+            }
+        }
+    });
+
+    // Gráfico de Atividades por Funcionário
+    const funcionarioCtx = document.getElementById('funcionarioChart').getContext('2d');
+    const funcionarioChart = new Chart(funcionarioCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ funcionario_labels|safe }},
+            datasets: [{
+                label: 'Quantidade de Atividades',
+                data: {{ funcionario_totals|safe }},
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Atividades por Funcionário'
+                }
+            }
+        }
+    });
+
+
+    // Gráfico de Tempo Gasto por Funcionário
+    const tempoGastoCtx = document.getElementById('tempoGastoChart').getContext('2d');
+    const tempoGastoChart = new Chart(tempoGastoCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ tempo_gasto_labels|safe }},
+            datasets: [{
+                label: 'Tempo Gasto (horas)',
+                data: {{ tempo_gasto_totals|safe }},
+                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Tempo Gasto por Funcionário'
+                }
+            }
+        }
+    });
+
+    // Gráfico de Atividades Concluídas vs Atrasadas
+    const statusConcluidasCtx = document.getElementById('statusConcluidasChart').getContext('2d');
+    const statusConcluidasChart = new Chart(statusConcluidasCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Concluídas', 'Atrasadas'],
+            datasets: [{
+                label: 'Status',
+                data: [{{ status_concluidas }}, {{ status_atrasadas }}],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Atividades Concluídas vs Atrasadas'
+                }
+            }
+        }
+    });
+
+    // Gráfico de Dificuldade das Atividades
+    const dificuldadeCtx = document.getElementById('dificuldadeChart').getContext('2d');
+    const dificuldadeChart = new Chart(dificuldadeCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ dificuldade_labels|safe }},
+            datasets: [{
+                label: 'Quantidade de Atividades',
+                data: {{ dificuldade_totals|safe }},
+                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Dificuldade das Atividades'
+                }
+            }
+        }
+    });
+
+    // Gráfico de Atividades por Prioridade
+    const prioridadeCtx = document.getElementById('prioridadeChart').getContext('2d');
+    const prioridadeChart = new Chart(prioridadeCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ prioridade_labels|safe }},
+            datasets: [{
+                label: 'Quantidade de Atividades',
+                data: {{ prioridade_totals|safe }},
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Atividades por Prioridade'
+                }
+            }
+        }
+    });
+
+    // Gráfico de Atividades por Mês
+    const mesCtx = document.getElementById('mesChart').getContext('2d');
+    const mesChart = new Chart(mesCtx, {
+        type: 'line',
+        data: {
+            labels: {{ mes_labels|safe }},
+            datasets: [{
+                label: 'Atividades por Mês',
+                data: {{ mes_totals|safe }},
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Atividades por Mês'
+                }
+            }
+        }
+    });
+</script>
+{% endblock content %}

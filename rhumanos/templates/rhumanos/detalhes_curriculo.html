@@ -1,0 +1,194 @@
+{% extends 'global/base.html' %}
+
+
+{% load static %}
+
+{% block title %}Detalhes do Currículo - {{ curriculo.user.get_full_name|default:"Usuário" }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Cabeçalho -->
+  <div class="text-center mb-5">
+    <h2 class="fw-bold text-primary mb-2">Detalhes do Currículo</h2>
+    <p class="text-muted">Informações completas do candidato</p>
+    <hr class="w-25 mx-auto text-primary">
+  </div>
+
+  <!-- Dados Pessoais -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <i class="bi bi-person-lines-fill me-2"></i> Dados Pessoais
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6"><strong>Nome:</strong> {{ curriculo.user.get_full_name|default:"-" }}</div>
+        <div class="col-md-6"><strong>Cargo Actual:</strong> {{ curriculo.cargo_actual|default:"-" }}</div>
+        <div class="col-md-6"><strong>Data de Nascimento:</strong> {{ curriculo.data_nascimento|date:"d/m/Y"|default:"-" }}</div>
+        <div class="col-md-6"><strong>Naturalidade:</strong> {{ curriculo.naturalidade|default:"-" }}</div>
+        <div class="col-md-6"><strong>Regime de Contrato:</strong> {{ curriculo.regime_contrato|default:"-" }}</div>
+        <div class="col-md-6"><strong>Idiomas:</strong>
+          {% if curriculo.idiomas.all %}
+            {{ curriculo.idiomas.all|join:", " }}
+          {% else %}
+            -
+          {% endif %}
+        </div>
+        <div class="col-md-6"><strong>Contacto Telefónico:</strong> {{ curriculo.contacto_telefonico|default:"-" }}</div>
+        <div class="col-md-6"><strong>E-mail:</strong> {{ curriculo.endereco_electronico|default:"-" }}</div>
+        <div class="col-md-12"><strong>Endereço Físico:</strong> {{ curriculo.endereco_fisico|default:"-" }}</div>
+        <div class="col-md-12"><strong>Áreas de Interesse:</strong> {{ curriculo.areas_interesse|default:"-" }}</div>
+
+        {% if curriculo.ficheiro_cv %}
+        <div class="col-md-12">
+          <strong>Ficheiro do CV:</strong> 
+          <a href="{{ curriculo.ficheiro_cv.url }}" class="btn btn-sm btn-outline-primary ms-2" target="_blank">
+            <i class="bi bi-file-earmark-arrow-down"></i> Download
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Formação Académica -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white">
+      <i class="bi bi-mortarboard-fill me-2"></i> Formação Académica
+    </div>
+    <div class="card-body">
+      {% if curriculo.formacoes.all %}
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Grau de Entrada</th>
+              <th>Grau Actual</th>
+              <th>Área de Formação</th>
+              <th>Instituição</th>
+              <th>Ano de Conclusão</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for formacao in curriculo.formacoes.all %}
+            <tr>
+              <td>{{ formacao.grau_entrada|default:"-" }}</td>
+              <td>{{ formacao.grau_actual|default:"-" }}</td>
+              <td>{{ formacao.area_formacao|default:"-" }}</td>
+              <td>{{ formacao.instituicao_ensino|default:"-" }}</td>
+              <td>{{ formacao.ano_conclusao|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted">Sem formações académicas registadas.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Cursos e Certificações -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-info text-white">
+      <i class="bi bi-award-fill me-2"></i> Cursos e Certificações
+    </div>
+    <div class="card-body">
+      {% if curriculo.cursos_certificacoes.all %}
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Nome do Curso</th>
+              <th>Instituição</th>
+              <th>Duração</th>
+              <th>Ano de Conclusão</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for curso in curriculo.cursos_certificacoes.all %}
+            <tr>
+              <td>{{ curso.nome_curso|default:"-" }}</td>
+              <td>{{ curso.instituicao_formadora|default:"-" }}</td>
+              <td>{{ curso.duracao|default:"-" }}</td>
+              <td>{{ curso.ano_conclusao|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted">Sem cursos ou certificações registados.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Competências Digitais -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-warning text-dark">
+      <i class="bi bi-laptop me-2"></i> Competências Digitais
+    </div>
+    <div class="card-body">
+      {% if curriculo.competencias_digitais.all %}
+        {% for comp in curriculo.competencias_digitais.all %}
+          <ul class="list-group mb-3">
+            <li class="list-group-item"><strong>Ferramentas de Trabalho:</strong> {{ comp.ferramentas_trabalho|default:"-" }}</li>
+            <li class="list-group-item"><strong>Gestão de E-mail:</strong> {{ comp.gestao_email|default:"-" }}</li>
+            <li class="list-group-item"><strong>Uso de Plataformas de Ensino:</strong> {{ comp.uso_plataformas_ensino|default:"-" }}</li>
+            <li class="list-group-item"><strong>Plataforma:</strong> {{ comp.plataforma_nome|default:"-" }}</li>
+            <li class="list-group-item"><strong>Redes Sociais:</strong> {{ comp.uso_redes_sociais|default:"-" }}</li>
+            <li class="list-group-item"><strong>Outras Competências:</strong> {{ comp.outras_competencias|default:"-" }}</li>
+          </ul>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted">Sem competências digitais registadas.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Habilidades e Talentos -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-secondary text-white">
+      <i class="bi bi-stars me-2"></i> Habilidades e Talentos
+    </div>
+    <div class="card-body">
+      {% if curriculo.habilidades_talentos.all %}
+        {% for hab in curriculo.habilidades_talentos.all %}
+          <ul class="list-group mb-3">
+            <li class="list-group-item"><strong>Técnicas:</strong> {{ hab.habilidades_tecnicas|default:"-" }}</li>
+            <li class="list-group-item"><strong>Comunicacionais:</strong> {{ hab.comunicacionais|default:"-" }}</li>
+            <li class="list-group-item"><strong>Culturais:</strong> {{ hab.culturais|default:"-" }}</li>
+            <li class="list-group-item"><strong>Desportivas:</strong> {{ hab.desportivas|default:"-" }}</li>
+            <li class="list-group-item"><strong>Gastronômicas/Eventos:</strong> {{ hab.gastronomicas|default:"-" }}</li>
+            <li class="list-group-item"><strong>Outras:</strong> {{ hab.outras_habilidades|default:"-" }}</li>
+          </ul>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted">Sem habilidades registadas.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Mobilidade Interna -->
+  <div class="card shadow-sm mb-5">
+    <div class="card-header bg-dark text-white">
+      <i class="bi bi-geo-alt-fill me-2"></i> Mobilidade Interna
+    </div>
+    <div class="card-body">
+      {% if curriculo.mobilidade_interna.all %}
+        {% for mob in curriculo.mobilidade_interna.all %}
+          <ul class="list-group mb-3">
+            <li class="list-group-item"><strong>Disponibilidade:</strong> {{ mob.disponibilidade|default:"-" }}</li>
+            <li class="list-group-item"><strong>Área de Interesse:</strong> {{ mob.area_interesse|default:"-" }}</li>
+            <li class="list-group-item"><strong>Experiência Anterior:</strong> {{ mob.experiencia_anterior|default:"-" }}</li>
+          </ul>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted">Sem registos de mobilidade interna.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Botão Voltar -->
+  <div class="text-center">
+    <a href="" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+  </div>
+</div>
+{% endblock %}

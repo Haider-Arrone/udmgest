@@ -1,0 +1,159 @@
+{% extends 'global/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+
+  <!-- 🔹 Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-primary mb-0">
+      <i class="bi bi-person-vcard"></i> {{ titulo_pagina }}
+    </h3>
+    {% comment %} <a href="{% url 'criar_curriculo' %}" class="btn btn-success">
+      <i class="bi bi-plus-circle"></i> Novo Currículo
+    </a> {% endcomment %}
+  </div>
+
+  <!-- 🔍 Filtros -->
+  <form method="get" class="row g-2 mb-4 bg-light p-3 rounded shadow-sm">
+    <div class="col-md-4">
+      <label for="id_q" class="form-label mb-1 fw-semibold text-secondary">Pesquisar</label>
+      <input type="text" id="id_q" name="q" class="form-control"
+             placeholder="Nome, cargo ou interesse..." value="{{ query }}">
+    </div>
+
+    <div class="col-md-3">
+      <label for="id_regime" class="form-label mb-1 fw-semibold text-secondary">Regime</label>
+      <select id="id_regime" name="regime" class="form-select">
+        <option value="">-- Todos --</option>
+        {% for r, nome in regimes %}
+          <option value="{{ r }}" {% if regime_selecionado == r %}selected{% endif %}>{{ nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label for="id_idioma" class="form-label mb-1 fw-semibold text-secondary">Idioma</label>
+      <select id="id_idioma" name="idioma" class="form-select">
+        <option value="">-- Todos --</option>
+        {% for idioma in idiomas %}
+          <option value="{{ idioma.id }}" {% if idioma_selecionado == idioma.id|stringformat:"s" %}selected{% endif %}>
+            {{ idioma.nome }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-2 d-grid align-items-end">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-filter"></i> Filtrar
+      </button>
+    </div>
+  </form>
+
+  <!-- 📊 Tabela -->
+  <div class="table-responsive shadow-sm rounded border">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-primary">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Nome</th>
+          <th scope="col">Cargo Actual</th>
+          <th scope="col">Regime</th>
+          <th scope="col">Idiomas</th>
+          <th scope="col">Formação + Recente</th>
+          <th scope="col">Áreas de Interesse</th>
+          <th scope="col">Data Registo</th>
+          <th scope="col" class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for curriculo in curriculos %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td class="fw-semibold">{{ curriculo.user.get_full_name|default:"(Sem nome)" }}</td>
+          <td>{{ curriculo.cargo_actual|default:"-" }}</td>
+          <td><span class="badge bg-secondary">{{ curriculo.regime_contrato|default:"-" }}</span></td>
+          <td>
+            {% for idioma in curriculo.idiomas.all %}
+              <span class="badge bg-info text-dark">{{ idioma.nome }}</span>
+            {% empty %}
+              <small class="text-muted">Nenhum</small>
+            {% endfor %}
+          </td>
+          <td>
+            {% with formacao=curriculo.formacoes.first %}
+              {% if formacao %}
+                {{ formacao.grau_actual|default:"-" }} – {{ formacao.instituicao_ensino|default:"-" }}
+              {% else %}
+                <small class="text-muted">Sem formação</small>
+              {% endif %}
+            {% endwith %}
+          </td>
+          <td>{{ curriculo.areas_interesse|truncatechars:40|default:"-" }}</td>
+          <td>{{ curriculo.data_registo|date:"d/m/Y H:i" }}</td>
+           <td class="text-center">
+            <a href="{% url 'rhumanos:detalhes_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> Detalhes
+                                </a>
+            {% comment %} <a href="{% url 'editar_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'eliminar_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('Tem a certeza que deseja eliminar este currículo?');" title="Eliminar">
+              <i class="bi bi-trash"></i>
+            </a> {% endcomment %}
+          </td> 
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">
+            <i class="bi bi-info-circle"></i> Nenhum currículo encontrado.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 📄 Paginação -->
+ {% if actividades.has_other_pages %}
+    <nav aria-label="Paginação de Atividades">
+      <ul class="pagination justify-content-center mt-4">
+        {% if pagination_range.first_page_out_of_range %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1{{ additional_url_query }}">
+              <i class="fas fa-angle-double-left"></i> Primeira
+            </a>
+          </li>
+        {% endif %}
+
+        {% for page in pagination_range.pagination_range %}
+          {% if pagination_range.current_page == page %}
+            <li class="page-item active">
+              <span class="page-link">{{ page }}</span>
+            </li>
+          {% else %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page }}{{ additional_url_query }}">{{ page }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if pagination_range.last_page_out_of_range %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ pagination_range.total_pages }}{{ additional_url_query }}">
+              Última <i class="fas fa-angle-double-right"></i>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+
+  <!-- 📊 Rodapé informativo -->
+  <div class="text-end text-muted mt-3">
+    Total de registos: <strong>{{ total_registros }}</strong>
+  </div>
+
+</div>
+{% endblock %}

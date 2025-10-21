@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     'pautas',
     'formatura',
     'simple_history',
+    'rhumanos',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
