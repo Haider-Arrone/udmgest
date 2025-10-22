@@ -16,4 +16,5 @@ urlpatterns = [
          views.curriculo_search, name="curriculo_search"),
 #     path('search/get-cursos/<int:faculdade_id>/', views.get_cursos, name='get_cursos'),
 #     path('search/get-disciplinas/<int:curso_id>/', views.get_disciplinas, name='get_disciplinas'),
+    path("seed-curriculos/", views.seed_curriculos_view, name="seed_curriculos"),
 ]

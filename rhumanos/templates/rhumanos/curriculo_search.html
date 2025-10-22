@@ -135,29 +135,74 @@
             </table>
 
             <!-- Paginação -->
-            <nav aria-label="Página de resultados">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
+                                    <!-- 📄 Paginação -->
+                       {% if curriculos.has_other_pages %}
+<nav aria-label="Paginação de Curriculos">
+  <ul class="pagination justify-content-center mt-4">
+
+    {# Primeira página #}
+                        {% if curriculos.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ query_string }}" aria-label="Anterior">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
+                        <a class="page-link" href="?page=1&{{ query_string }}">
+                            <i class="fas fa-angle-double-left"></i> Primeira
+                        </a>
                         </li>
-                    {% endif %}
-                    {% for num in page_obj.paginator.page_range %}
-                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        {% else %}
+                        <li class="page-item disabled">
+                        <span class="page-link"><i class="fas fa-angle-double-left"></i> Primeira</span>
+                        </li>
+                        {% endif %}
+
+                        {# Página anterior #}
+                        {% if curriculos.has_previous %}
+                        <li class="page-item">
+                        <a class="page-link" href="?page={{ curriculos.previous_page_number }}&{{ query_string }}">Anterior</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                        <span class="page-link">Anterior</span>
+                        </li>
+                        {% endif %}
+
+                        {# Números das páginas #}
+                        {% for num in curriculos.paginator.page_range %}
+                        {% if curriculos.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item">
                             <a class="page-link" href="?page={{ num }}&{{ query_string }}">{{ num }}</a>
-                        </li>
-                    {% endfor %}
-                    {% if page_obj.has_next %}
+                            </li>
+                        {% endif %}
+                        {% endfor %}
+
+                        {# Próxima página #}
+                        {% if curriculos.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ query_string }}" aria-label="Próximo">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
+                        <a class="page-link" href="?page={{ curriculos.next_page_number }}&{{ query_string }}">Próxima</a>
                         </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                        <span class="page-link">Próxima</span>
+                        </li>
+                        {% endif %}
+
+                        {# Última página #}
+                        {% if curriculos.has_next %}
+                        <li class="page-item">
+                        <a class="page-link" href="?page={{ curriculos.paginator.num_pages }}&{{ query_string }}">
+                            Última <i class="fas fa-angle-double-right"></i>
+                        </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                        <span class="page-link">Última <i class="fas fa-angle-double-right"></i></span>
+                        </li>
+                        {% endif %}
+
+                    </ul>
+                    </nav>
                     {% endif %}
-                </ul>
-            </nav>
+
         </div>
     </div>
 

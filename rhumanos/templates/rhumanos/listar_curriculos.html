@@ -82,7 +82,7 @@
       <tbody>
         {% for curriculo in curriculos %}
         <tr>
-          <td>{{ forloop.counter }}</td>
+         <td>{{ forloop.counter0|add:curriculos.start_index }}</td>
           <td class="fw-semibold">{{ curriculo.user.get_full_name|default:"(Sem nome)" }}</td>
           <td>{{ curriculo.cargo_actual|default:"-" }}</td>
           <td><span class="badge bg-secondary">{{ curriculo.regime_contrato|default:"-" }}</span></td>
@@ -129,8 +129,8 @@
   </div>
 
   <!-- 📄 Paginação -->
- {% if actividades.has_other_pages %}
-    <nav aria-label="Paginação de Atividades">
+ {% if curriculos.has_other_pages %}
+    <nav aria-label="Paginação de Curriculos">
       <ul class="pagination justify-content-center mt-4">
         {% if pagination_range.first_page_out_of_range %}
           <li class="page-item">

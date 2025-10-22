@@ -365,6 +365,11 @@ def curriculo_search(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Remove o parâmetro page da query string
+    query_params = request.GET.copy()
+    if 'page' in query_params:
+        query_params.pop('page')
+    query_string = query_params.urlencode() 
     # Contexto
     context = {
         'curriculos': page_obj,           # Currículos paginados
@@ -373,9 +378,90 @@ def curriculo_search(request):
         'funcionario': funcionario,
         'current_page': page_obj.number,
         'total_pages': paginator.num_pages,
-        'query_string': request.META['QUERY_STRING'],
+        'query_string': query_string,
     }
 
     return render(request, 'rhumanos/curriculo_search.html', context)
 
 
+
+
+
+
+from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+from faker import Faker
+import random
+
+from rhumanos.models import Curriculo, Idioma
+#from funcionarios.models import Funcionario, Departamento
+
+def seed_curriculos_view(request):
+    fake = Faker('pt_PT')
+    User = get_user_model()
+    TOTAL = 40
+
+    # --- Criar departamentos se não existirem ---
+    departamentos = []
+    for nome in ["Recursos Humanos", "Tecnologia", "Finanças", "Jurídico", "Comercial"]:
+        dep, _ = Departamento.objects.get_or_create(nome=nome)
+        departamentos.append(dep)
+
+    # --- Criar idiomas se não existirem ---
+    idiomas = list(Idioma.objects.all())
+    if not idiomas:
+        idiomas = [
+            Idioma.objects.create(nome="Português"),
+            Idioma.objects.create(nome="Inglês"),
+            Idioma.objects.create(nome="Francês"),
+        ]
+
+    criados = 0
+    for _ in range(TOTAL):
+        nome = fake.name()
+        email = fake.unique.email()
+        telefone = fake.phone_number()
+        dep = random.choice(departamentos)
+
+        # Cria o usuário
+        user, created_user = User.objects.get_or_create(
+            username=email,
+            defaults={
+                "first_name": nome.split()[0],
+                "last_name": " ".join(nome.split()[1:]),
+                "email": email,
+            }
+        )
+
+        # Cria funcionário
+        Funcionario.objects.get_or_create(
+            author=user,
+            defaults={
+                "nome_completo": nome,
+                "numero_telefone": telefone,
+                "estado": "Ativo",
+                "departamento": dep,
+            },
+        )
+
+        # Cria currículo
+        curriculo, created_cv = Curriculo.objects.get_or_create(
+            user=user,
+            defaults={
+                "cargo_actual": fake.job(),
+                "naturalidade": fake.city(),
+                "contacto_telefonico": telefone,
+                "endereco_electronico": email,
+                "endereco_fisico": fake.address(),
+                "areas_interesse": fake.sentence(),
+                "regime_contrato": random.choice([r[0] for r in Curriculo.REGIME_CONTRATO_CHOICES]),
+                "data_nascimento": fake.date_of_birth(minimum_age=22, maximum_age=55),
+            }
+        )
+
+        # Associa idiomas aleatórios
+        curriculo.idiomas.set(random.sample(idiomas, random.randint(1, len(idiomas))))
+
+        criados += 1
+
+    return JsonResponse({"message": f"{criados} currículos criados com sucesso!"})
