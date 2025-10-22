@@ -388,80 +388,80 @@ def curriculo_search(request):
 
 
 
-from django.http import JsonResponse
-from django.contrib.auth import get_user_model
-from faker import Faker
-import random
+# from django.http import JsonResponse
+# from django.contrib.auth import get_user_model
+# from faker import Faker
+# import random
 
-from rhumanos.models import Curriculo, Idioma
-#from funcionarios.models import Funcionario, Departamento
+# from rhumanos.models import Curriculo, Idioma
+# #from funcionarios.models import Funcionario, Departamento
 
-def seed_curriculos_view(request):
-    fake = Faker('pt_PT')
-    User = get_user_model()
-    TOTAL = 40
+# def seed_curriculos_view(request):
+#     fake = Faker('pt_PT')
+#     User = get_user_model()
+#     TOTAL = 40
 
-    # --- Criar departamentos se não existirem ---
-    departamentos = []
-    for nome in ["Recursos Humanos", "Tecnologia", "Finanças", "Jurídico", "Comercial"]:
-        dep, _ = Departamento.objects.get_or_create(nome=nome)
-        departamentos.append(dep)
+#     # --- Criar departamentos se não existirem ---
+#     departamentos = []
+#     for nome in ["Recursos Humanos", "Tecnologia", "Finanças", "Jurídico", "Comercial"]:
+#         dep, _ = Departamento.objects.get_or_create(nome=nome)
+#         departamentos.append(dep)
 
-    # --- Criar idiomas se não existirem ---
-    idiomas = list(Idioma.objects.all())
-    if not idiomas:
-        idiomas = [
-            Idioma.objects.create(nome="Português"),
-            Idioma.objects.create(nome="Inglês"),
-            Idioma.objects.create(nome="Francês"),
-        ]
+#     # --- Criar idiomas se não existirem ---
+#     idiomas = list(Idioma.objects.all())
+#     if not idiomas:
+#         idiomas = [
+#             Idioma.objects.create(nome="Português"),
+#             Idioma.objects.create(nome="Inglês"),
+#             Idioma.objects.create(nome="Francês"),
+#         ]
 
-    criados = 0
-    for _ in range(TOTAL):
-        nome = fake.name()
-        email = fake.unique.email()
-        telefone = fake.phone_number()
-        dep = random.choice(departamentos)
+#     criados = 0
+#     for _ in range(TOTAL):
+#         nome = fake.name()
+#         email = fake.unique.email()
+#         telefone = fake.phone_number()
+#         dep = random.choice(departamentos)
 
-        # Cria o usuário
-        user, created_user = User.objects.get_or_create(
-            username=email,
-            defaults={
-                "first_name": nome.split()[0],
-                "last_name": " ".join(nome.split()[1:]),
-                "email": email,
-            }
-        )
+#         # Cria o usuário
+#         user, created_user = User.objects.get_or_create(
+#             username=email,
+#             defaults={
+#                 "first_name": nome.split()[0],
+#                 "last_name": " ".join(nome.split()[1:]),
+#                 "email": email,
+#             }
+#         )
 
-        # Cria funcionário
-        Funcionario.objects.get_or_create(
-            author=user,
-            defaults={
-                "nome_completo": nome,
-                "numero_telefone": telefone,
-                "estado": "Ativo",
-                "departamento": dep,
-            },
-        )
+#         # Cria funcionário
+#         Funcionario.objects.get_or_create(
+#             author=user,
+#             defaults={
+#                 "nome_completo": nome,
+#                 "numero_telefone": telefone,
+#                 "estado": "Ativo",
+#                 "departamento": dep,
+#             },
+#         )
 
-        # Cria currículo
-        curriculo, created_cv = Curriculo.objects.get_or_create(
-            user=user,
-            defaults={
-                "cargo_actual": fake.job(),
-                "naturalidade": fake.city(),
-                "contacto_telefonico": telefone,
-                "endereco_electronico": email,
-                "endereco_fisico": fake.address(),
-                "areas_interesse": fake.sentence(),
-                "regime_contrato": random.choice([r[0] for r in Curriculo.REGIME_CONTRATO_CHOICES]),
-                "data_nascimento": fake.date_of_birth(minimum_age=22, maximum_age=55),
-            }
-        )
+#         # Cria currículo
+#         curriculo, created_cv = Curriculo.objects.get_or_create(
+#             user=user,
+#             defaults={
+#                 "cargo_actual": fake.job(),
+#                 "naturalidade": fake.city(),
+#                 "contacto_telefonico": telefone,
+#                 "endereco_electronico": email,
+#                 "endereco_fisico": fake.address(),
+#                 "areas_interesse": fake.sentence(),
+#                 "regime_contrato": random.choice([r[0] for r in Curriculo.REGIME_CONTRATO_CHOICES]),
+#                 "data_nascimento": fake.date_of_birth(minimum_age=22, maximum_age=55),
+#             }
+#         )
 
-        # Associa idiomas aleatórios
-        curriculo.idiomas.set(random.sample(idiomas, random.randint(1, len(idiomas))))
+#         # Associa idiomas aleatórios
+#         curriculo.idiomas.set(random.sample(idiomas, random.randint(1, len(idiomas))))
 
-        criados += 1
+#         criados += 1
 
-    return JsonResponse({"message": f"{criados} currículos criados com sucesso!"})
+#     return JsonResponse({"message": f"{criados} currículos criados com sucesso!"})
