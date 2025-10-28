@@ -353,7 +353,8 @@ def relatorio_presencas(request):
         presencas_dict.setdefault(p.usuario_id, {})[p.data_presenca] = p
 
     # 🔹 Buscar todos os funcionários
-    funcionarios = Funcionario.objects.select_related('departamento').all()
+    funcionarios = Funcionario.objects.select_related('departamento', 'author').filter(author__is_active=True)
+
 
     # 🔹 Monta relatório
     relatorio = []
@@ -408,7 +409,8 @@ def listar_presencas(request):
                                    .filter(data_presenca__range=(startdate, enddate))
 
     # 🔹 Lista de todos os funcionários (filtrando nome/departamento)
-    funcionarios = Funcionario.objects.select_related('departamento').all()
+    funcionarios = Funcionario.objects.select_related('departamento', 'author').filter(author__is_active=True)
+
     if nome_query:
         funcionarios = funcionarios.filter(nome_completo__icontains=nome_query)
     if departamento_id:
