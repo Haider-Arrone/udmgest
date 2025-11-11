@@ -1,0 +1,377 @@
+{% extends 'global/base.html' %}
+{% load static widget_tweaks %}
+
+{% block title %}Editar Formatura{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h1 class="mb-4 text-primary fw-bold text-center">Editar Formatura</h1>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ form_action }}">
+        {% csrf_token %}
+
+        <!-- ============== FORM DADOS FORMATURA ================= -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white fw-semibold">
+                Dados da Formatura
+            </div>
+
+            <div class="card-body">
+                <div class="row g-3">
+
+                    {% for field in form %}
+                        <div class="col-md-6">
+                            <label class="form-label">{{ field.label }}</label>
+
+                            {% if field.field.widget.input_type == "checkbox" %}
+                                <div class="form-check form-switch">
+                                    {{ field|add_class:"form-check-input" }}
+                                    <label class="form-check-label" for="{{ field.id_for_label }}">Publicado</label>
+                                </div>
+                            {% else %}
+                                {{ field|add_class:"form-control" }}
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ============== PONTOS DE AGENDA ================= -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-secondary text-white fw-semibold d-flex justify-content-between">
+                <span>Pontos de Agenda</span>
+
+                <button type="button" class="btn btn-light btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#agendaModal">
+                    + Adicionar Ponto
+                </button>
+            </div>
+
+            <div class="card-body">
+
+                {{ formset.management_form }}
+<div id="hiddenForms" style="display: none;">
+    {% for f in formset %}
+        {{ f.id }}
+    {% endfor %}
+</div>
+                {% comment %} <div id="hiddenForms" style="display: none;"></div> {% endcomment %}
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Ordem</th>
+                            <th>Título</th>
+                            <th>Departamento</th>
+                            <th>Responsável</th>
+                            <th>Status</th> 
+                            <th>Acções</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="agendaTableBody">
+    {% for f in formset %}
+
+    <tr class="agenda-row" data-index="{{ forloop.counter0 }}">
+        
+        <!-- 🔥 os inputs reais escondidos -->
+        <td style="display:none;">
+            {{ f.as_p }}
+        </td>
+
+        <!-- parte visual -->
+        <td class="col-ordem">{{ f.instance.ordem }}</td>
+        <td class="col-titulo">{{ f.instance.titulo }}</td>
+        <td class="col-dep" data-id="{{ f.instance.departamento.id|default:'' }}">
+            {{ f.instance.departamento.nome|default:"-" }}
+        </td>
+        <td class="col-resp" data-id="{{ f.instance.responsavel.id|default:'' }}">
+            {{ f.instance.responsavel.get_full_name|default:"-" }}
+        </td>
+        <td class="col-status">{{ f.instance.get_status_display }}</td>
+
+        <td>
+            <button type="button" class="btn btn-info btn-sm editAgendaBtn">Editar</button>
+            {% if formset.can_delete %}
+                {{ f.DELETE }}
+                <button type="button" class="btn btn-danger btn-sm removeExistingRow">Remover</button>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+
+                </table>
+
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <button class="btn btn-success btn-lg px-5">Salvar Alterações</button>
+        </div>
+
+    </form>
+</div>
+
+<!-- ============================ -->
+<!-- Modal: Add Ponto Agenda     -->
+<!-- ============================ -->
+<div class="modal fade" id="agendaModal" tabindex="-1"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+        <input type="hidden" id="editingIndex" value="">
+
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title">Adicionar Ponto de Agenda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row g-3">
+
+                    <div class="col-md-2">
+                        <label class="form-label">Ordem</label>
+                        {{ formset.empty_form.ordem|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Departamento</label>
+                        {{ formset.empty_form.departamento }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Responsável</label>
+                        {{ formset.empty_form.responsavel|add_class:"form-select" }}
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Título</label>
+                        {{ formset.empty_form.titulo|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Descrição</label>
+                        {{ formset.empty_form.descricao|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        {{ formset.empty_form.status|add_class:"form-select" }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Prioridade</label>
+                        {{ formset.empty_form.prioridade|add_class:"form-select" }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Data Limite</label>
+                        {{ formset.empty_form.data_limite|add_class:"form-control" }}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="addAgendaBtn" class="btn btn-primary">Adicionar</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener("click", function (e) {
+
+    // 🔹 Clicou no botão Editar
+    if (e.target.classList.contains("editAgendaBtn")) {
+
+        const tr = e.target.closest("tr");
+        const index = tr.dataset.index;
+        document.getElementById("editingIndex").value = index;
+
+        // pegar inputs reais
+        const prefix = "{{ formset.prefix }}-" + index;
+
+        const get = (name) => document.querySelector(`[name='${prefix}-${name}']`).value;
+
+        document.querySelector('#agendaModal [name$="ordem"]').value        = get("ordem");
+        document.querySelector('#agendaModal [name$="titulo"]').value       = get("titulo");
+        document.querySelector('#agendaModal [name$="responsavel"]').value  = get("responsavel");
+        document.querySelector('#agendaModal [name$="departamento"]').value = get("departamento");
+        document.querySelector('#agendaModal [name$="status"]').value       = get("status");
+        document.querySelector('#agendaModal [name$="prioridade"]').value   = get("prioridade");
+        document.querySelector('#agendaModal [name$="data_limite"]').value  = get("data_limite");
+        document.querySelector('#agendaModal [name$="descricao"]').value = get("descricao");
+
+        const bsModal = new bootstrap.Modal(document.getElementById("agendaModal"));
+        bsModal.show();
+    }
+
+});
+
+
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    let totalForms = document.getElementById("id_{{ formset.prefix }}-TOTAL_FORMS");
+    const addBtn = document.getElementById("addAgendaBtn");
+    const modal = document.getElementById("agendaModal");
+    const editingIndexInput = document.getElementById("editingIndex");
+
+    // Função para atualizar linha existente
+    const updateRow = (index) => {
+        const prefix = "{{ formset.prefix }}-" + index;
+        const tr = document.querySelector(`.agenda-row[data-index='${index}']`);
+        const ordem = document.querySelector('#agendaModal [name$="ordem"]').value;
+        const titulo = document.querySelector('#agendaModal [name$="titulo"]').value;
+        const descricao = document.querySelector('#agendaModal [name$="descricao"]').value; 
+        const responsavel = document.querySelector('#agendaModal [name$="responsavel"]').value;
+        const responsavelText = document.querySelector('#agendaModal [name$="responsavel"] option:checked').text;
+        const departamento = document.querySelector('#agendaModal [name$="departamento"]').value;
+        const departamentoText = document.querySelector('#agendaModal [name$="departamento"] option:checked').text;
+        const status = document.querySelector('#agendaModal [name$="status"]').value;
+        const prioridade = document.querySelector('#agendaModal [name$="prioridade"]').value;
+        const data_limite = document.querySelector('#agendaModal [name$="data_limite"]').value;
+
+        // Atualiza inputs escondidos
+        const wrapper = document.querySelector(`[name^='${prefix}-ordem']`).closest('div');
+        wrapper.querySelector(`[name$="ordem"]`).value = ordem;
+        wrapper.querySelector(`[name$="titulo"]`).value = titulo;
+        wrapper.querySelector(`[name$="descricao"]`).value = descricao;
+        wrapper.querySelector(`[name$="responsavel"]`).value = responsavel;
+        wrapper.querySelector(`[name$="departamento"]`).value = departamento;
+        wrapper.querySelector(`[name$="status"]`).value = status;
+        wrapper.querySelector(`[name$="prioridade"]`).value = prioridade;
+        wrapper.querySelector(`[name$="data_limite"]`).value = data_limite;
+
+        // Atualiza a linha visível
+        tr.querySelector('.col-ordem').innerText = ordem;
+        tr.querySelector('.col-titulo').innerText = titulo;
+        tr.querySelector('.col-dep').innerText = departamentoText;
+        tr.querySelector('.col-dep').dataset.id = departamento;
+        tr.querySelector('.col-resp').innerText = responsavelText;
+        tr.querySelector('.col-resp').dataset.id = responsavel;
+        tr.querySelector('.col-status').innerText = status;
+    };
+
+    addBtn.addEventListener("click", function () {
+        const editingIndex = editingIndexInput.value;
+
+        if (editingIndex !== "") {
+            // 🔹 Edição de ponto existente
+            updateRow(editingIndex);
+            editingIndexInput.value = "";
+            addBtn.innerText = "Adicionar"; // volta para padrão
+        } else {
+            // 🔹 Adicionar novo ponto
+            let index = totalForms.value;
+            let wrapper = document.createElement("div");
+            wrapper.innerHTML = `{{ formset.empty_form.as_p|escapejs }}`.replace(/__prefix__/g, index);
+
+            // Pega valores do modal
+            const ordem = document.querySelector('#agendaModal [name$="ordem"]').value;
+            const titulo = document.querySelector('#agendaModal [name$="titulo"]').value;
+            const responsavel = document.querySelector('#agendaModal [name$="responsavel"]').value;
+            const responsavelText = document.querySelector('#agendaModal [name$="responsavel"] option:checked').text;
+            const departamento = document.querySelector('#agendaModal [name$="departamento"]').value;
+            const departamentoText = document.querySelector('#agendaModal [name$="departamento"] option:checked').text;
+            const status = document.querySelector('#agendaModal [name$="status"]').value;
+            const prioridade = document.querySelector('#agendaModal [name$="prioridade"]').value;
+            const data_limite = document.querySelector('#agendaModal [name$="data_limite"]').value;
+
+            // Preenche o form invisível
+            wrapper.querySelector(`[name$="ordem"]`).value = ordem;
+            wrapper.querySelector(`[name$="titulo"]`).value = titulo;
+            wrapper.querySelector(`[name$="responsavel"]`).value = responsavel;
+            wrapper.querySelector(`[name$="departamento"]`).value = departamento;
+            wrapper.querySelector(`[name$="status"]`).value = status;
+            wrapper.querySelector(`[name$="prioridade"]`).value = prioridade;
+            wrapper.querySelector(`[name$="data_limite"]`).value = data_limite;
+
+            document.getElementById("hiddenForms").appendChild(wrapper);
+
+            // Adiciona linha visível
+            let row = document.createElement("tr");
+            row.className = "agenda-row";
+            row.dataset.index = index;
+            row.innerHTML = `
+                <td class="col-ordem">${ordem}</td>
+                <td class="col-titulo">${titulo}</td>
+                <td class="col-dep" data-id="${departamento}">${departamentoText}</td>
+                <td class="col-resp" data-id="${responsavel}">${responsavelText}</td>
+                <td class="col-status">${status}</td>
+                <td>
+                    <button type="button" class="btn btn-info btn-sm editAgendaBtn">Editar</button>
+                    <button type="button" class="btn btn-danger btn-sm removeRow">X</button>
+                </td>
+            `;
+            document.getElementById("agendaTableBody").appendChild(row);
+
+            totalForms.value = Number(totalForms.value) + 1;
+        }
+
+        // fecha modal
+        bootstrap.Modal.getInstance(modal).hide();
+    });
+
+    document.addEventListener("click", function (e) {
+        // remove linha
+        if (e.target.classList.contains("removeRow")) {
+            e.target.closest("tr").remove();
+            totalForms.value = document.querySelectorAll(".agenda-row").length;
+        }
+
+        // editar linha
+        if (e.target.classList.contains("editAgendaBtn")) {
+            const tr = e.target.closest("tr");
+            const index = tr.dataset.index;
+            editingIndexInput.value = index;
+            addBtn.innerText = "Salvar Alterações"; // muda texto do botão
+
+            // preencher modal
+            const prefix = "{{ formset.prefix }}-" + index;
+            const get = (name) => document.querySelector(`[name='${prefix}-${name}']`).value;
+            document.querySelector('#agendaModal [name$="ordem"]').value = get("ordem");
+            document.querySelector('#agendaModal [name$="titulo"]').value = get("titulo");
+            document.querySelector('#agendaModal [name$="responsavel"]').value = get("responsavel");
+            document.querySelector('#agendaModal [name$="departamento"]').value = get("departamento");
+            document.querySelector('#agendaModal [name$="status"]').value = get("status");
+            document.querySelector('#agendaModal [name$="prioridade"]').value = get("prioridade");
+            document.querySelector('#agendaModal [name$="data_limite"]').value = get("data_limite");
+
+            bootstrap.Modal.getInstance(modal).show();
+        }
+    });
+});
+
+
+$('#agendaModal').on('shown.bs.modal', function () {
+    $(this).find('select').each(function () {
+        if (!$(this).hasClass('select2-hidden-accessible')) {
+            $(this).djangoSelect2();
+        }
+    });
+});
+</script>
+
+{% endblock %}

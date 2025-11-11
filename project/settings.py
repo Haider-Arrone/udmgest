@@ -60,6 +60,9 @@ INSTALLED_APPS = [
     'simple_history',
     'rhumanos',
     'widget_tweaks',
+    'ckeditor',
+    # "dal",
+    # "dal_select2",
 ]
 
 MIDDLEWARE = [

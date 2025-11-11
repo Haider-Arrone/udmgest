@@ -327,9 +327,22 @@
                               </a>
                             </li> {% endcomment %}
                             <li class="nav-item">
+                              <a class="nav-link" href="{% url 'formatura:cadastrar_formatura'  %}">
+                                
+                                <i class="fa-solid fa-calendar-days"></i>
+                                Agendar Formatura
+                              </a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" href="{% url 'formatura:listar_formaturas'  %}">
+                                <i class="fa-solid fa-list-ol"></i>
+                                Listar Dados da Formatura
+                              </a>
+                            </li>
+                            <li class="nav-item">
                               <a class="nav-link" href="{% url 'formatura:listar_presencas'  %}">
                                 <i class="fa-solid fa-magnifying-glass"></i>
-                                Consultar
+                                Consultar Presenças
                               </a>
                             </li>
                             <li class="nav-item"> 

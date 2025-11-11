@@ -16,11 +16,14 @@ from utils.expedient.pagination import make_pagination
 from expedient.models import Departamento
 from .filters import CurriculoFilter
 
+from django.db.models import F
+from django.db.models import Value
+from django.db.models.functions import Concat, Coalesce
 # Create your views here.
 # Configura um logger para registrar erros
 logger = logging.getLogger(__name__)
 
-PER_PAGE = 10
+PER_PAGE = 15
 
 @login_required(login_url='authors:login', redirect_field_name='next')
 def cadastrar_curriculo(request):
@@ -281,6 +284,8 @@ def listar_curriculos(request: HttpRequest) -> HttpResponse:
         'idioma_selecionado': idioma_id,
         'total_registros': curriculos.count(),
     }
+
+    
 
     logger.info("Listagem de currículos gerada com sucesso por %s", request.user.username)
     return render(request, 'rhumanos/listar_curriculos.html', context)

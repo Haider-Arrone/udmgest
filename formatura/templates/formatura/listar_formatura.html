@@ -1,0 +1,81 @@
+{% extends "global/base.html" %}
+
+{% block title %}Formaturas cadastradas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Formaturas Cadastradas</h2>
+
+    {% include 'global/partials/messages.html' %}
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="titulo" class="form-control"
+                   placeholder="Buscar por título" value="{{ titulo_query }}">
+        </div>
+
+        <div class="col-md-3">
+            <input type="text" name="local" class="form-control"
+                   placeholder="Local" value="{{ local_query }}">
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" name="startdate" class="form-control"
+                   value="{{ startdate_query }}">
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" name="enddate" class="form-control"
+                   value="{{ enddate_query }}">
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Buscar</button>
+        </div>
+    </form>
+
+
+    <div class="table-responsive shadow-sm">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Título</th>
+                    <th>Data</th>
+                    <th>Local</th>
+                    <th>Total Tarefas</th>
+                    <th>Concluídas</th>
+                    <th>Progresso</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for linha in linhas %}
+                <tr>
+                    <td>{{ linha.titulo }}</td>
+                    <td>{{ linha.data|date:"d/m/Y" }}</td>
+                    <td>{{ linha.local }}</td>
+                    <td>{{ linha.total_tarefas }}</td>
+                    <td>{{ linha.tarefas_concluidas }}</td>
+                    <td>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar"
+                                 role="progressbar"
+                                 style="width: {{ linha.progresso_percentual }}%;">
+                                {{ linha.progresso_percentual }}%
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="{% url 'formatura:detalhes_formatura' linha.id %}"  class="btn btn-sm btn-info">Ver</a>
+                        <a href="{% url 'formatura:editar_formatura' linha.id %}" class="btn btn-sm btn-warning">Editar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center">Nenhuma formatura encontrada</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

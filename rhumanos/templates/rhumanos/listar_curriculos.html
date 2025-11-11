@@ -81,6 +81,7 @@
       </thead>
       <tbody>
         {% for curriculo in curriculos %}
+       
         <tr>
          <td>{{ forloop.counter0|add:curriculos.start_index }}</td>
           <td class="fw-semibold">{{ curriculo.user.get_full_name|default:"(Sem nome)" }}</td>

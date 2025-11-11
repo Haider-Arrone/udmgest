@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 import pandas as pd
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Presenca
+from .models import Presenca, Formatura, PontoAgenda
 from expedient.models import Funcionario, Departamento  # importa o modelo Funcionario
 from datetime import datetime, date
 from django.contrib.auth.models import User
@@ -11,6 +11,13 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import date, timedelta
 import re
+from simple_history.utils import update_change_reason
+from django.db import transaction
+from formatura.forms.formatura_form import FormaturaForm, PontoAgendaForm, PontoAgendaFormSet
+from django.db.models import Prefetch, Q
+
+
+
 # def is_admin(user):
 #     return user.is_superuser  # Ou user.is_staff, se quiser incluir staff também
 
@@ -355,7 +362,7 @@ def relatorio_presencas(request):
     # 🔹 Buscar todos os funcionários
     funcionarios = Funcionario.objects.select_related('departamento', 'author').filter(author__is_active=True)
 
-
+    funcionarios = funcionarios.order_by('nome_completo')
     # 🔹 Monta relatório
     relatorio = []
     for func in funcionarios:
@@ -425,6 +432,8 @@ def listar_presencas(request):
 
 
     relatorio = []
+    funcionarios = funcionarios.order_by('nome_completo')
+
 
     for func in funcionarios:
         linha = {
@@ -460,7 +469,7 @@ def listar_presencas(request):
         'funcionario': funcionario,
         'relatorio': relatorio,
         'dias': dias,
-        'departamentos': Departamento.objects.all(),
+        'departamentos': Departamento.objects.all().order_by('nome'),
         'nome_query': nome_query,
         'departamento_id': departamento_id,
         'startdate_query': startdate_query,
@@ -470,3 +479,234 @@ def listar_presencas(request):
     }
 
     return render(request, 'formatura/listar_presencas.html', context)
+
+
+@login_required(login_url="authors:login", redirect_field_name="next")
+@transaction.atomic
+def cadastrar_formatura(request):
+
+    # 🔹 Obtém dados do funcionário do usuário autenticado
+    funcionario = get_object_or_404(Funcionario, author=request.user)
+
+    if request.method == "POST":
+        form = FormaturaForm(data=request.POST, files=request.FILES)
+        formset = PontoAgendaFormSet(data=request.POST, files=request.FILES)
+
+        if form.is_valid() and formset.is_valid():
+            formatura = form.save(commit=False)
+
+            # Auditoria
+            if hasattr(formatura, "criado_por") and not formatura.pk:
+                formatura.criado_por = request.user
+            if hasattr(formatura, "atualizado_por"):
+                formatura.atualizado_por = request.user
+
+            formatura.ativo = True
+            formatura.save()
+
+            # Registrar histórico
+            try:
+                update_change_reason(formatura, "Formatura criada")
+                formatura.save()
+            except:
+                pass
+
+            # Processar pontos de agenda
+            pontos = formset.save(commit=False)
+            for ponto in pontos:
+                ponto.formatura = formatura
+                if hasattr(ponto, "criado_por") and not ponto.pk:
+                    ponto.criado_por = request.user
+                if hasattr(ponto, "atualizado_por"):
+                    ponto.atualizado_por = request.user
+                ponto.save()
+
+            messages.success(request, "✅ Formatura cadastrada com sucesso!")
+            return redirect(reverse("formatura:listar_formaturas"))
+        else:
+            messages.error(request, "⚠️ Dados inválidos. Verifique o formulário.")
+    else:
+        form = FormaturaForm()
+        formset = PontoAgendaFormSet()
+
+    return render(
+        request,
+        "formatura/cadastrar_formatura.html",
+        {
+            "form": form,
+            "formset": formset,
+            "funcionario": funcionario,
+            "form_action": reverse("formatura:cadastrar_formatura"),
+        },
+    )
+    
+@login_required(login_url='authors:login', redirect_field_name='next')
+def listar_formaturas(request):
+    funcionario = get_object_or_404(Funcionario, author=request.user)
+
+    # 🔹 Filtros GET
+    titulo_query = request.GET.get('titulo', '').strip()
+    local_query = request.GET.get('local', '').strip()
+    startdate_query = request.GET.get('startdate', '').strip()
+    enddate_query = request.GET.get('enddate', '').strip()
+
+    # 🔹 Definir período
+    today = date.today()
+    try:
+        startdate = datetime.strptime(startdate_query, "%Y-%m-%d").date() if startdate_query else None
+        enddate = datetime.strptime(enddate_query, "%Y-%m-%d").date() if enddate_query else None
+    except ValueError:
+        messages.warning(request, "Datas inválidas. Usando período padrão do mês atual.")
+        startdate = today.replace(day=1)
+        enddate = today
+
+    if startdate and enddate:
+        formaturas = formaturas.filter(data__range=(startdate, enddate))
+    elif startdate:
+        formaturas = formaturas.filter(data__gte=startdate)
+    elif enddate:
+        formaturas = formaturas.filter(data__lte=enddate)
+    
+    formaturas = Formatura.objects.filter(
+    Q(publicado=True) | Q(criado_por=request.user)
+    )
+
+    # Aplica filtro por data somente se startdate e enddate existirem
+    if startdate and enddate:
+        formaturas = formaturas.filter(data__range=(startdate, enddate))
+
+    # Continua com select_related, prefetch_related e ordenação
+    formaturas = formaturas.select_related('criado_por', 'atualizado_por') \
+                        .prefetch_related(
+                            Prefetch('pontos_agenda', queryset=PontoAgenda.objects.select_related('departamento', 'responsavel'))
+                        ) \
+                        .order_by("-data", "titulo")
+    # 🔹 Query base
+    # formaturas = (
+    #     Formatura.objects.filter(
+    #         Q(publicado=True) | Q(criado_por=request.user)
+    #     )
+    #     # .filter(data__range=(startdate, enddate))
+    #     .filter(data__range=(startdate, enddate))
+    #     .select_related()
+    #     .order_by("-data", "titulo")
+    # )
+
+    # 🔹 Aplicação dos filtros
+    if titulo_query:
+        formaturas = formaturas.filter(titulo__icontains=titulo_query)
+
+    if local_query:
+        formaturas = formaturas.filter(local__icontains=local_query)
+
+    # 🔹 Monta resultado
+    linhas = []
+    for form in formaturas:
+        linhas.append({
+            "id": form.id,
+            "titulo": form.titulo or "-",
+            "data": form.data,
+            "local": form.local or "-",
+            "total_tarefas": form.total_tarefas,
+            "tarefas_concluidas": form.tarefas_concluidas,
+            "progresso_percentual": form.progresso_percentual,
+        })
+
+    context = {
+        "funcionario": funcionario,
+        "linhas": linhas,
+        "startdate_query": startdate_query,
+        "enddate_query": enddate_query,
+        "titulo_query": titulo_query,
+        "local_query": local_query,
+        "form_action": reverse("formatura:listar_formaturas"),
+    }
+
+    return render(request, "formatura/listar_formatura.html", context)
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def detalhes_formatura(request, id):
+    funcionario = get_object_or_404(Funcionario, author=request.user)
+    
+    formatura = get_object_or_404(Formatura, id=id)
+
+    # 🔹 Ordena pontos de agenda pelo campo 'ordem', depois prioridade
+    pontos = formatura.pontos_agenda.select_related('departamento', 'responsavel').order_by('ordem', '-prioridade')
+
+    context = {
+        "funcionario": funcionario,
+        "formatura": formatura,
+        "pontos": pontos,
+        "total_tarefas": formatura.total_tarefas,
+        "tarefas_concluidas": formatura.tarefas_concluidas,
+        "progresso_percentual": formatura.progresso_percentual,
+        "voltar_url": reverse("formatura:listar_formaturas"),
+       # "editar_url": reverse("formatura:editar_formatura", args=[formatura.id]),  # caso tenha tela de edição
+    }
+
+    return render(request, "formatura/detalhes_formatura.html", context)
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+@transaction.atomic
+def editar_formatura(request, pk):
+    # funcionario = Funcionario.objects.filter(author=request.user).first()
+    # if not funcionario:
+    #     raise Http404("Funcionário não encontrado")
+
+    funcionario = get_object_or_404(Funcionario, author=request.user)
+
+    # ✅ Garantir que o user só edita se:
+    #   - For superuser
+    #   - Ou for o criador
+    formatura = get_object_or_404(Formatura, pk=pk)
+
+    # if not request.user.is_superuser and formatura.criado_por != request.user:
+    #     messages.error(request, "⚠️ Não tem permissão para editar esta formatura.")
+    #     return redirect(reverse("formatura:listar_formaturas"))
+
+    # Carrega form e formset
+    if request.method == "POST":
+        form = FormaturaForm(data=request.POST, files=request.FILES, instance=formatura)
+        formset = PontoAgendaFormSet(data=request.POST, files=request.FILES, instance=formatura)
+        print("FORM ERRORS:", form.errors)
+        print("FORMSET ERRORS:", formset.errors)
+
+        if form.is_valid() and formset.is_valid():
+            print("✅ FORM VALID, BEFORE SAVE:", formatura.__dict__)
+            formatura = form.save(commit=False)
+
+            # 🔹 Auditoria
+            if hasattr(formatura, "atualizado_por"):
+                formatura.atualizado_por = request.user
+
+            formatura.save()
+
+            formset.save()
+
+            # Registrar histórico
+            try:
+                update_change_reason(formatura, "Formatura atualizada")
+                formatura.save()
+            except:
+                pass
+
+            messages.success(request, "✅ Formatura atualizada com sucesso!")
+            return redirect(reverse("formatura:listar_formaturas"))
+        else:
+            messages.error(request, "⚠️ Alguns dados são inválidos. Verifique o formulário.")
+    else:
+        form = FormaturaForm(instance=formatura)
+        formset = PontoAgendaFormSet(instance=formatura)
+
+    return render(
+        request,
+        "formatura/editar_formatura.html",
+        {
+            "form": form,
+            "formset": formset,
+            "formatura": formatura,
+            "funcionario": funcionario,
+            "form_action": reverse("formatura:editar_formatura", kwargs={"pk": pk}),
+        },
+    )
