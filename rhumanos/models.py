@@ -1,14 +1,35 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import User
 
 # Create your models here.
+class AuditoriaBase(models.Model):
+    criado_em = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    atualizado_em = models.DateTimeField(auto_now=True, null=True, blank=True)
+    criado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="%(class)s_criado_por",
+        null=True,
+        blank=True,
+    )
+    atualizado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="%(class)s_atualizado_por",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        abstract = True
 class Idioma(models.Model):
     nome = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.nome
     
-class Curriculo(models.Model):
+class Curriculo(AuditoriaBase):
     REGIME_CONTRATO_CHOICES = [
         ('Indeterminado', 'Indeterminado'),
         ('Determinado', 'Determinado'),
@@ -106,7 +127,7 @@ class Curriculo(models.Model):
         return f"{nome_usuario} - {self.cargo_actual or 'Sem cargo definido'}"
     
 
-class FormacaoAcademica(models.Model):
+class FormacaoAcademica(AuditoriaBase):
     GRAU_CHOICES = [
         ('Licenciatura', 'Licenciatura'),
         ('Mestrado', 'Mestrado'),
@@ -169,7 +190,7 @@ class FormacaoAcademica(models.Model):
     def __str__(self):
         return f"{self.area_formacao or 'Sem área'} - {self.instituicao_ensino or 'Sem instituição'}"
     
-class CursoCertificacao(models.Model):
+class CursoCertificacao(AuditoriaBase):
     curriculo = models.ForeignKey(
         'Curriculo',
         on_delete=models.CASCADE,
@@ -216,7 +237,7 @@ class CursoCertificacao(models.Model):
     def __str__(self):
         return f"{self.nome_curso or 'Sem nome'} - {self.instituicao_formadora or 'Sem instituição'}"
 
-class CompetenciasDigitais(models.Model):
+class CompetenciasDigitais(AuditoriaBase):
     NIVEL_CHOICES = [
         ('Básico', 'Básico'),
         ('Intermédio', 'Intermédio'),
@@ -298,7 +319,7 @@ class CompetenciasDigitais(models.Model):
     def __str__(self):
         return f"{self.curriculo.user.get_full_name() if self.curriculo else 'Sem usuário'} - {self.ferramentas_trabalho or 'Sem nível definido'}"
     
-class HabilidadesTalentos(models.Model):
+class HabilidadesTalentos(AuditoriaBase):
     # Choices das categorias
     HABILIDADES_TECNICAS_CHOICES = [
         ('Marcenaria', 'Marcenaria'),
@@ -435,7 +456,7 @@ class HabilidadesTalentos(models.Model):
     def __str__(self):
         return f"{self.curriculo.user.get_full_name() if self.curriculo else 'Sem usuário'} - {self.habilidades_tecnicas or 'Sem habilidade definida'}"
     
-class MobilidadeInterna(models.Model):
+class MobilidadeInterna(AuditoriaBase):
     SIM_NAO_CHOICES = [
         ('Sim', 'Sim'),
         ('Não', 'Não'),

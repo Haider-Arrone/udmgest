@@ -1,0 +1,350 @@
+{% extends 'global/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Meu Currículo | {% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">Meu Currículo</h2>
+    {% include 'global/partials/messages.html' %}
+ {% comment %} {% include 'global/partials/form.html' %} {% endcomment %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="aba_atual" id="abaAtual" value="curriculo">
+
+        <!-- Navegação das Abas -->
+        <ul class="nav nav-pills mb-4 justify-content-center" id="cvWizardTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" id="curriculo-tab" data-bs-toggle="pill" data-bs-target="#curriculo" type="button" role="tab">Currículo</button></li>
+            <li class="nav-item"><button class="nav-link" id="formacao-tab" data-bs-toggle="pill" data-bs-target="#formacao" type="button" role="tab">Formação Académica</button></li>
+            <li class="nav-item"><button class="nav-link" id="cursos-tab" data-bs-toggle="pill" data-bs-target="#cursos" type="button" role="tab">Cursos / Certificações</button></li>
+            <li class="nav-item"><button class="nav-link" id="competencias-tab" data-bs-toggle="pill" data-bs-target="#competencias" type="button" role="tab">Competências Digitais</button></li>
+            <li class="nav-item"><button class="nav-link" id="habilidades-tab" data-bs-toggle="pill" data-bs-target="#habilidades" type="button" role="tab">Habilidades e Talentos</button></li>
+            <li class="nav-item"><button class="nav-link" id="mobilidade-tab" data-bs-toggle="pill" data-bs-target="#mobilidade" type="button" role="tab">Mobilidade Interna</button></li>
+            <li class="nav-item"><button class="nav-link" id="ficheiro-tab" data-bs-toggle="pill" data-bs-target="#ficheiro" type="button" role="tab">Upload do CV</button></li>
+        </ul>
+
+        <div class="tab-content border rounded shadow-sm p-4 bg-white">
+            
+            <!-- 🟢 1. Currículo -->
+            <div class="tab-pane fade show active" id="curriculo">
+                <h5 class="mb-3">Informações Pessoais</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">{{ form.cargo_actual.label_tag }} {{ form.cargo_actual }}</div>
+                    <div class="col-md-6">{{ form.regime_contrato.label_tag }} {{ form.regime_contrato }}</div>
+                    <div class="col-md-6">{{ form.data_nascimento.label_tag }} {{ form.data_nascimento }}</div>
+                    <div class="col-md-6">{{ form.naturalidade.label_tag }} {{ form.naturalidade }}</div>
+                    <div class="col-md-6">
+                        {{ form.contacto_telefonico.label_tag }}
+                        {{ form.contacto_telefonico }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.endereco_electronico.label_tag }}
+                        {{ form.endereco_electronico }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.endereco_fisico.label_tag }}
+                        {{ form.endereco_fisico }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.areas_interesse.label_tag }}
+                        {{ form.areas_interesse }}
+                    </div>
+                    <div class="col-12">
+                        <label>Idiomas</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for idioma in idiomas %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="idiomas" value="{{ idioma.id }}" id="idioma{{ idioma.id }}" {% if idioma.id in selected_idiomas %}checked{% endif %}>
+                                    <label class="form-check-label" for="idioma{{ idioma.id }}">{{ idioma.nome }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="curriculo"> Salvar Currículo</button>
+                </div>
+            </div>
+
+            <!-- 🟢 2. Formação Académica -->
+            <div class="tab-pane fade" id="formacao">
+                <h5 class="mb-3">Formações Académicas</h5>
+                {{ formsets.formacoes.management_form }}
+                <div id="formacaoContainer">
+                    {% for form_f in formsets.formacoes %}
+                    {{ form_f.id }} 
+                        <div class="card mb-3 p-3 border">
+                            <div class="row g-3">
+                                <div class="col-md-6">{{ form_f.grau_entrada.label_tag }} {{ form_f.grau_entrada|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_f.grau_actual.label_tag }} {{ form_f.grau_actual|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_f.area_formacao.label_tag }} {{ form_f.area_formacao|add_class:"form-control" }}</div>
+                                <div class="col-md-6">{{ form_f.instituicao_ensino.label_tag }} {{ form_f.instituicao_ensino|add_class:"form-control" }}</div>
+                                <div class="col-md-6">{{ form_f.ano_conclusao.label_tag }} {{ form_f.ano_conclusao|add_class:"form-control" }}</div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_f.DELETE }} 
+                                        <label class="form-check-label">Remover esta formação</label>
+                                    </div>
+                                </div>
+                            
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    {% comment %} <button type="button" id="addFormacao" class="btn btn-outline-primary">+ Adicionar Formação</button> {% endcomment %}
+                    <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="formacao">💾 Salvar Formação</button>
+                </div>
+            </div>
+
+            <!-- 🟢 3. Cursos / Certificações -->
+            <div class="tab-pane fade" id="cursos">
+                <h5 class="mb-3">Cursos / Certificações</h5>
+                {{ formsets.cursos.management_form }}
+                <div id="cursoContainer">
+                    {% for form_c in formsets.cursos %}
+                    {{ form_c.id }} 
+                        <div class="card mb-3 p-3 border">
+                            <div class="row g-3">
+                                <div class="col-md-6">{{ form_c.nome_curso.label_tag }} {{ form_c.nome_curso|add_class:"form-control" }}</div>
+                                <div class="col-md-6">{{ form_c.instituicao_formadora.label_tag }} {{ form_c.instituicao_formadora|add_class:"form-control" }}</div>
+                                <div class="col-md-6">{{ form_c.duracao.label_tag }} {{ form_c.duracao|add_class:"form-control" }}</div>
+                                <div class="col-md-6">{{ form_c.ano_conclusao.label_tag }} {{ form_c.ano_conclusao|add_class:"form-control" }}</div>
+                                
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_c.DELETE }} 
+                                        <label class="form-check-label">Remover este curso</label>
+                                    </div>
+                                </div>
+                           
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    {% comment %} <button type="button" id="addCurso" class="btn btn-outline-primary">+ Adicionar Curso</button> {% endcomment %}
+                    <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="curso">💾 Salvar Cursos</button>
+                </div>
+            </div>
+
+            <!-- 🟢 4. Competências Digitais -->
+            <div class="tab-pane fade" id="competencias">
+                <h5 class="mb-3">Competências Digitais</h5>
+                {{ formsets.competencias.management_form }}
+                <div id="competenciasContainer">
+                    {% for form_c in formsets.competencias %}
+                    {{ form_c.id }} 
+                        <div class="card mb-3 p-3 border">
+                            <div class="row g-3">
+                                <div class="col-md-6">{{ form_c.ferramentas_trabalho.label_tag }} {{ form_c.ferramentas_trabalho|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_c.gestao_email.label_tag }} {{ form_c.gestao_email|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_c.uso_plataformas_ensino.label_tag }} {{ form_c.uso_plataformas_ensino|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_c.plataforma_nome.label_tag }} {{ form_c.plataforma_nome|add_class:"form-control" }}</div>
+                                <div class="col-md-6">{{ form_c.uso_redes_sociais.label_tag }} {{ form_c.uso_redes_sociais|add_class:"form-select" }}</div>
+                                <div class="col-12">{{ form_c.outras_competencias.label_tag }} {{ form_c.outras_competencias|add_class:"form-control" }}</div>
+                                
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_c.DELETE }} 
+                                        <label class="form-check-label">Remover esta competência:</label>
+                                    </div>
+                                </div>
+                           
+                           
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    {% comment %} <button type="button" id="addCompetencia" class="btn btn-outline-primary">+ Adicionar Competência</button> {% endcomment %}
+                    <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="competencias">💾 Salvar Competências</button>
+                </div>
+            </div>
+
+            <!-- 🟢 5. Habilidades e Talentos -->
+            <div class="tab-pane fade" id="habilidades">
+                <h5 class="mb-3">Habilidades e Talentos</h5>
+                {{ formsets.habilidades.management_form }}
+                <div id="habilidadesContainer">
+                    {% for form_h in formsets.habilidades %}
+                     {{ form_h.id }} 
+                        <div class="card mb-3 p-3 border">
+                            <div class="row g-3">
+                                <div class="col-md-6">{{ form_h.habilidades_tecnicas.label_tag }} {{ form_h.habilidades_tecnicas|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_h.habilidades_tecnicas_outro.label_tag }} {{ form_h.habilidades_tecnicas_outro|add_class:"form-control" }}</div>
+                                <div class="col-md-6">{{ form_h.comunicacionais.label_tag }} {{ form_h.comunicacionais|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_h.comunicacionais_outro.label_tag }} {{ form_h.comunicacionais_outro|add_class:"form-control" }}</div>
+                                <div class="col-md-6">{{ form_h.culturais.label_tag }} {{ form_h.culturais|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_h.culturais_outro.label_tag }} {{ form_h.culturais_outro|add_class:"form-control" }}</div>
+                                <div class="col-md-6">{{ form_h.desportivas.label_tag }} {{ form_h.desportivas|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_h.gastronomicas.label_tag }} {{ form_h.gastronomicas|add_class:"form-select" }}</div>
+                                <div class="col-12">{{ form_h.outras_habilidades.label_tag }} {{ form_h.outras_habilidades|add_class:"form-control" }}</div>
+                           
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_h.DELETE }} 
+                                        <label class="form-check-label">Remover esta habilidade</label>
+                                    </div>
+                                </div>
+                           
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    {% comment %} <button type="button" id="addHabilidade" class="btn btn-outline-primary">+ Adicionar Habilidade</button> {% endcomment %}
+                    <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="habilidades">💾 Salvar Habilidades</button>
+                </div>
+            </div>
+
+            <!-- 🟢 6. Mobilidade Interna -->
+            <div class="tab-pane fade" id="mobilidade">
+                <h5 class="mb-3">Mobilidade Interna</h5>
+                {{ formsets.mobilidade.management_form }}
+                <div id="mobilidadeContainer">
+                    {% for form_m in formsets.mobilidade %}
+                     {{ form_m.id }} 
+                        <div class="card mb-3 p-3 border">
+                            <div class="row g-3">
+                                <div class="col-md-6">{{ form_m.disponibilidade.label_tag }} {{ form_m.disponibilidade|add_class:"form-select" }}</div>
+                                <div class="col-md-6">{{ form_m.area_interesse.label_tag }} {{ form_m.area_interesse|add_class:"form-control" }}</div>
+                                <div class="col-12">{{ form_m.experiencia_anterior.label_tag }} {{ form_m.experiencia_anterior|add_class:"form-control" }}</div>
+                                
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form_m.DELETE }} 
+                                        <label class="form-check-label">Remover esta mobilidade</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    {% comment %} <button type="button" id="addMobilidade" class="btn btn-outline-primary">+ Adicionar Mobilidade</button> {% endcomment %}
+                    <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="mobilidade">💾 Salvar Mobilidade</button>
+                </div>
+            </div>
+
+            <!-- 🟢 7. Upload -->
+           <div class="tab-pane fade" id="ficheiro">
+    <div class="card border-primary mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Upload do CV</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                {{ form.ficheiro_cv|add_class:"form-control" }}
+                {% if form.instance.ficheiro_cv %}
+                    <div class="alert alert-secondary mt-2 d-flex align-items-center" role="alert">
+                        <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                        Arquivo atual: 
+                        <a href="{{ form.instance.ficheiro_cv.url }}" target="_blank" class="ms-1">ver</a>
+                    </div>
+                    <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" name="remover_cv" id="remover_cv">
+            <label class="form-check-label" for="remover_cv">
+                🗑️ Remover arquivo atual
+            </label>
+        </div>
+                {% else %}
+                    <small class="text-muted d-block mt-1">
+                        Nenhum arquivo enviado ainda.
+                    </small>
+                {% endif %}
+                <small class="text-muted d-block mt-1">
+                    Formatos aceitos: PDF, DOC, DOCX | Tamanho máximo: 5MB
+                </small>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-success btn-salvar-aba" data-aba="ficheiro">
+                    <i class="bi bi-save"></i> Salvar Ficheiro
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+    </form>
+</div>
+
+<!-- ✅ Script: adicionar formsets dinamicamente e definir aba -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function adicionarForm(containerId, addButtonId) {
+        const container = document.getElementById(containerId);
+        const addButton = document.getElementById(addButtonId);
+        if (!container || !addButton) return;
+
+        addButton.addEventListener("click", function() {
+            const totalForms = container.querySelector('[name$="-TOTAL_FORMS"]');
+            const currentCount = parseInt(totalForms.value);
+            const firstForm = container.querySelector('.card');
+
+            if (!firstForm) return;
+
+            // Clonar apenas o card, sem o botão Adicionar ou Salvar
+            const newForm = firstForm.cloneNode(true);
+
+            // Limpar valores dos inputs e atualizar ids e names
+            newForm.querySelectorAll('input, select, textarea').forEach(el => {
+                el.name = el.name.replace(/-\d+-/, `-${currentCount}-`);
+                el.id = el.id.replace(/-\d+-/, `-${currentCount}-`);
+
+                if (el.type === "checkbox" || el.type === "radio") {
+                    el.checked = false;
+                } else if (el.type === "hidden" && el.name.includes("id")) {
+                    // Limpar o hidden do id para novos formulários
+                    el.value = '';
+                } 
+                else if (el.type === "hidden" && el.name.includes("id")) {
+    el.value = '';
+    el.removeAttribute('name');  // remove do envio
+}
+                else {
+                    el.value = '';
+                }
+            });
+
+            container.appendChild(newForm);
+            totalForms.value = currentCount + 1;
+        });
+    }
+
+    adicionarForm("formacaoContainer", "addFormacao");
+    adicionarForm("cursoContainer", "addCurso");
+    adicionarForm("competenciasContainer", "addCompetencia");
+    adicionarForm("habilidadesContainer", "addHabilidade");
+    adicionarForm("mobilidadeContainer", "addMobilidade");
+
+    // Guardar a aba atual antes do submit
+    document.querySelectorAll('.btn-salvar-aba').forEach(btn => {
+        btn.addEventListener('click', e => {
+            const button = e.target.closest('button');
+            if (button && button.dataset.aba) {
+                document.getElementById('abaAtual').value = button.dataset.aba;
+            }
+        });
+    });
+});
+
+
+document.querySelectorAll('input[name$="-DELETE"]').forEach(checkbox => {
+    checkbox.addEventListener('change', e => {
+        const card = e.target.closest('.card');
+        if (e.target.checked) {
+            card.style.opacity = '0.5';  // deixa mais claro que será removido
+        } else {
+            card.style.opacity = '1';
+        }
+    });
+});
+
+
+</script>
+
+
+
+
+{% endblock content %}

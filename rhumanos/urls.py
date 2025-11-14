@@ -6,8 +6,8 @@ app_name = 'rhumanos'
 
 urlpatterns = [
     path('create/new', views.cadastrar_curriculo,
-         name='cadastrar_curriculo'),
-#      path('editar_pauta/<int:pauta_id>/', views.editar_pauta, name='editar_pauta'),
+        name='cadastrar_curriculo'),
+    path('editar/<int:id>/', views.editar_curriculo, name='editar_curriculo'),
 #      path('apagar_pauta/<int:pauta_id>/', views.apagar_pauta, name='apagar_pauta'),
     path('list/', views.listar_curriculos, name='listar_curriculos'),
     path('details/<int:id>/', views.detalhes_curriculo, name='detalhes_curriculo'),

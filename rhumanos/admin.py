@@ -15,14 +15,16 @@ class FormacaoAcademicaInline(admin.TabularInline):
     model = FormacaoAcademica
     extra = 1
     show_change_link = True
-    fields = ('grau_entrada', 'grau_actual', 'area_formacao', 'instituicao_ensino', 'ano_conclusao')
+    fields = ('grau_entrada', 'grau_actual', 'area_formacao', 'instituicao_ensino', 'ano_conclusao','criado_por', 'atualizado_por', 'criado_em', 'atualizado_em')
+    readonly_fields = ('criado_por', 'atualizado_por', 'criado_em', 'atualizado_em')
     ordering = ('-ano_conclusao',)
 
 class CursoCertificacaoInline(admin.TabularInline):
     model = CursoCertificacao
     extra = 1
     show_change_link = True
-    fields = ('nome_curso', 'instituicao_formadora', 'duracao', 'ano_conclusao')
+    fields = ('nome_curso', 'instituicao_formadora', 'duracao', 'ano_conclusao','criado_por', 'atualizado_por', 'criado_em', 'atualizado_em')
+    readonly_fields = ('criado_por', 'atualizado_por', 'criado_em', 'atualizado_em')
     ordering = ('-ano_conclusao',)
 
 class CompetenciasDigitaisInline(admin.TabularInline):
@@ -31,8 +33,9 @@ class CompetenciasDigitaisInline(admin.TabularInline):
     show_change_link = True
     fields = (
         'ferramentas_trabalho', 'gestao_email', 'uso_plataformas_ensino',
-        'plataforma_nome', 'uso_redes_sociais', 'outras_competencias'
+        'plataforma_nome', 'uso_redes_sociais', 'outras_competencias', 'criado_por', 'atualizado_por', 'criado_em', 'atualizado_em'
     )
+    readonly_fields = ('criado_por', 'atualizado_por', 'criado_em', 'atualizado_em')
 
 class HabilidadesTalentosInline(admin.TabularInline):
     model = HabilidadesTalentos
@@ -42,14 +45,16 @@ class HabilidadesTalentosInline(admin.TabularInline):
         'habilidades_tecnicas', 'habilidades_tecnicas_outro',
         'comunicacionais', 'comunicacionais_outro',
         'culturais', 'culturais_outro',
-        'desportivas', 'gastronomicas', 'outras_habilidades'
+        'desportivas', 'gastronomicas', 'outras_habilidades', 'criado_por', 'atualizado_por', 'criado_em', 'atualizado_em'
     )
+    readonly_fields = ('criado_por', 'atualizado_por', 'criado_em', 'atualizado_em')
 
 class MobilidadeInternaInline(admin.TabularInline):
     model = MobilidadeInterna
     extra = 1
     show_change_link = True
-    fields = ('disponibilidade', 'area_interesse', 'experiencia_anterior')
+    fields = ('disponibilidade', 'area_interesse', 'experiencia_anterior', 'criado_por', 'atualizado_por', 'criado_em', 'atualizado_em')
+    readonly_fields = ('criado_por', 'atualizado_por', 'criado_em', 'atualizado_em')
 
 # --- Admin Principal --- #
 
@@ -59,7 +64,7 @@ class CurriculoAdmin(admin.ModelAdmin):
     list_filter = ('regime_contrato', 'idiomas', 'data_registo')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'cargo_actual', 'endereco_electronico')
     ordering = ('user__username',)
-    readonly_fields = ('data_registo',)
+    readonly_fields = ('data_registo','criado_por', 'atualizado_por')
     
     filter_horizontal = ('idiomas',)
     fieldsets = (
@@ -76,7 +81,7 @@ class CurriculoAdmin(admin.ModelAdmin):
             'fields': ('ficheiro_cv',)
         }),
         ('Informações do Sistema', {
-            'fields': ('data_registo',)
+            'fields': ('data_registo','criado_por', 'atualizado_por')
         }),
     )
 

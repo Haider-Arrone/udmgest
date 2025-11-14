@@ -1,6 +1,8 @@
 {% extends 'global/base.html' %}
 {% load static %}
 {% block content %}
+
+{% include 'global/partials/messages.html' %}
 <div class="container mt-4">
 
   <!-- 🔹 Cabeçalho -->
@@ -109,13 +111,14 @@
             <a href="{% url 'rhumanos:detalhes_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-eye"></i> Detalhes
                                 </a>
-            {% comment %} <a href="{% url 'editar_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
-              <i class="bi bi-pencil"></i>
+            <a href="{% url 'rhumanos:editar_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
+              <i class="bi bi-pencil"></i>Editar
             </a>
-            <a href="{% url 'eliminar_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-danger"
+           
+            {% comment %} <a href="{% url 'eliminar_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-danger"
                onclick="return confirm('Tem a certeza que deseja eliminar este currículo?');" title="Eliminar">
               <i class="bi bi-trash"></i>
-            </a> {% endcomment %}
+            </a>  {% endcomment %}
           </td> 
         </tr>
         {% empty %}

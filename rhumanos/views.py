@@ -19,6 +19,7 @@ from .filters import CurriculoFilter
 from django.db.models import F
 from django.db.models import Value
 from django.db.models.functions import Concat, Coalesce
+from django.core.exceptions import PermissionDenied
 # Create your views here.
 # Configura um logger para registrar erros
 logger = logging.getLogger(__name__)
@@ -57,6 +58,9 @@ def cadastrar_curriculo(request):
                     print("teste")
                     curriculo = form.save(commit=False)
                     curriculo.user = request.user
+                    curriculo.atualizado_por = request.user  # Auditoria
+                    if not curriculo.criado_por:
+                        curriculo.criado_por = request.user
                     curriculo.save()
                     idioma_ids = request.POST.getlist('idiomas')
                     curriculo.idiomas.set(idioma_ids)
@@ -66,7 +70,13 @@ def cadastrar_curriculo(request):
                 elif aba_atual == 'formacao':
                     formacao_formset = FormacaoFormSet(request.POST, instance=curriculo, prefix='formacao')
                     if formacao_formset.is_valid():
-                        formacao_formset.save()
+                        formacoes = formacao_formset.save(commit=False)
+                        for f in formacoes:
+                            f.atualizado_por = request.user
+                            if not f.criado_por:
+                                f.criado_por = request.user
+                            f.save()
+                        formacao_formset.save_m2m()
                         messages.success(request, "Formações salvas com sucesso!")
                     else:
                         messages.error(request, "Erros nos campos de formação.")
@@ -74,7 +84,13 @@ def cadastrar_curriculo(request):
                 elif aba_atual == 'curso':
                     curso_formset = CursoFormSet(request.POST, instance=curriculo, prefix='curso')
                     if curso_formset.is_valid():
-                        curso_formset.save()
+                        cursos = curso_formset.save(commit=False)
+                        for c in cursos:
+                            c.atualizado_por = request.user
+                            if not c.criado_por:
+                                c.criado_por = request.user
+                            c.save()
+                        curso_formset.save_m2m()
                         messages.success(request, "Cursos salvos com sucesso!")
                     else:
                         messages.error(request, "Erros nos campos de cursos.")
@@ -82,7 +98,13 @@ def cadastrar_curriculo(request):
                 elif aba_atual == 'competencias':
                     competencias_formset = CompetenciasFormSet(request.POST, instance=curriculo, prefix='competencias')
                     if competencias_formset.is_valid():
-                        competencias_formset.save()
+                        comps = competencias_formset.save(commit=False)
+                        for comp in comps:
+                            comp.atualizado_por = request.user
+                            if not comp.criado_por:
+                                comp.criado_por = request.user
+                            comp.save()
+                        competencias_formset.save_m2m()
                         messages.success(request, "Competências salvas com sucesso!")
                     else:
                         messages.error(request, "Erros nos campos de competências.")
@@ -90,7 +112,13 @@ def cadastrar_curriculo(request):
                 elif aba_atual == 'habilidades':
                     habilidades_formset = HabilidadesFormSet(request.POST, instance=curriculo, prefix='habilidades')
                     if habilidades_formset.is_valid():
-                        habilidades_formset.save()
+                        habs = habilidades_formset.save(commit=False)
+                        for h in habs:
+                            h.atualizado_por = request.user
+                            if not h.criado_por:
+                                h.criado_por = request.user
+                            h.save()
+                        habilidades_formset.save_m2m()
                         messages.success(request, "Habilidades salvas com sucesso!")
                     else:
                         messages.error(request, "Erros nos campos de habilidades.")
@@ -105,7 +133,13 @@ def cadastrar_curriculo(request):
                     )
 
                     if mobilidade_formset.is_valid():
-                        mobilidade_formset.save()
+                        mobs = mobilidade_formset.save(commit=False)
+                        for m in mobs:
+                            m.atualizado_por = request.user
+                            if not m.criado_por:
+                                m.criado_por = request.user
+                            m.save()
+                        mobilidade_formset.save_m2m()
                         messages.success(request, "Mobilidade salva com sucesso!")
                     else:
                         # Debug detalhado
@@ -347,7 +381,7 @@ def detalhes_curriculo(request, id):
 
     return render(request, 'rhumanos/detalhes_curriculo.html', context)
 
-@login_required(login_url='login')  # Ajusta a URL de login
+@login_required(login_url='authors:login', redirect_field_name='next')  # Ajusta a URL de login
 def curriculo_search(request):
     """
     View para pesquisar e filtrar currículos usando CurriculoFilter.
@@ -388,6 +422,115 @@ def curriculo_search(request):
 
     return render(request, 'rhumanos/curriculo_search.html', context)
 
+@login_required(login_url='authors:login', redirect_field_name='next')
+def editar_curriculo(request, id):
+    funcionario = get_object_or_404(Funcionario, author=request.user)
+    # 🔒 Verifica se o utilizador pertence ao departamento de RH
+    if not funcionario.departamento or funcionario.departamento.nome != "Recursos Humanos":
+        messages.error(request, "🚫 Não tem permissões para editar currículos. Apenas o departamento de Recursos Humanos pode fazê-lo.")
+        print(funcionario.departamento.nome)
+        return redirect('rhumanos:listar_curriculos')
+
+    
+    curriculo = get_object_or_404(Curriculo, pk=id)
+    print(id)
+    form = CurriculoForm(request.POST or None, request.FILES or None, instance=curriculo)
+    formacao_formset = FormacaoFormSet(request.POST or None, instance=curriculo, prefix='formacao')
+    curso_formset = CursoFormSet(request.POST or None, instance=curriculo, prefix='curso')
+    competencias_formset = CompetenciasFormSet(request.POST or None, instance=curriculo, prefix='competencias')
+    habilidades_formset = HabilidadesFormSet(request.POST or None, instance=curriculo, prefix='habilidades')
+    mobilidade_formset = MobilidadeFormSet(request.POST or None, instance=curriculo, prefix='mobilidade')
+
+    aba_atual = request.POST.get('aba_atual', 'curriculo')
+
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+
+                if aba_atual == 'curriculo' and form.is_valid():
+                    curriculo = form.save(commit=False)
+                    curriculo.atualizado_por = request.user  # Auditoria
+                    if not curriculo.criado_por:
+                        curriculo.criado_por = request.user
+                    curriculo.save()
+                    idioma_ids = request.POST.getlist('idiomas')
+                    curriculo.idiomas.set(idioma_ids)
+                    messages.success(request, "Currículo atualizado com sucesso!")
+
+                elif aba_atual == 'formacao' and formacao_formset.is_valid():
+                    formacoes = formacao_formset.save(commit=False)
+                    for f in formacoes:
+                        f.atualizado_por = request.user
+                        if not f.criado_por:
+                            f.criado_por = request.user
+                        f.save()
+                    formacao_formset.save_m2m()
+                    messages.success(request, "Formações atualizadas com sucesso!")
+
+                elif aba_atual == 'curso' and curso_formset.is_valid():
+                    cursos = curso_formset.save(commit=False)
+                    for c in cursos:
+                        c.atualizado_por = request.user
+                        if not c.criado_por:
+                            c.criado_por = request.user
+                        c.save()
+                    curso_formset.save_m2m()
+                    messages.success(request, "Cursos atualizados com sucesso!")
+
+                elif aba_atual == 'competencias' and competencias_formset.is_valid():
+                    comps = competencias_formset.save(commit=False)
+                    for comp in comps:
+                        comp.atualizado_por = request.user
+                        if not comp.criado_por:
+                            comp.criado_por = request.user
+                        comp.save()
+                    competencias_formset.save_m2m()
+                    messages.success(request, "Competências atualizadas com sucesso!")
+
+                elif aba_atual == 'habilidades' and habilidades_formset.is_valid():
+                    habs = habilidades_formset.save(commit=False)
+                    for h in habs:
+                        h.atualizado_por = request.user
+                        if not h.criado_por:
+                            h.criado_por = request.user
+                        h.save()
+                    habilidades_formset.save_m2m()
+                    messages.success(request, "Habilidades atualizadas com sucesso!")
+
+                elif aba_atual == 'mobilidade' and mobilidade_formset.is_valid():
+                    mobs = mobilidade_formset.save(commit=False)
+                    for m in mobs:
+                        m.atualizado_por = request.user
+                        if not m.criado_por:
+                            m.criado_por = request.user
+                        m.save()
+                    mobilidade_formset.save_m2m()
+                    messages.success(request, "Mobilidade atualizada com sucesso!")
+
+                return redirect('rhumanos:editar_curriculo', id=curriculo.pk)
+
+        except Exception as e:
+            messages.error(request, f"Erro ao salvar as alterações: {e}")
+
+    idiomas = Idioma.objects.all()
+    selected_idiomas = curriculo.idiomas.values_list('id', flat=True)
+
+    context = {
+        'form': form,
+        'formsets': {
+            'formacoes': formacao_formset,
+            'cursos': curso_formset,
+            'competencias': competencias_formset,
+            'habilidades': habilidades_formset,
+            'mobilidade': mobilidade_formset,
+        },
+        'idiomas': idiomas,
+        'selected_idiomas': selected_idiomas,
+        'funcionario': funcionario,
+        'curriculo': curriculo,
+    }
+
+    return render(request, 'rhumanos/editar_curriculo.html', context)
 
 
 
@@ -470,3 +613,5 @@ def curriculo_search(request):
 #         criados += 1
 
 #     return JsonResponse({"message": f"{criados} currículos criados com sucesso!"})
+
+
