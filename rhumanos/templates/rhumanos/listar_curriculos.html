@@ -78,7 +78,7 @@
           <th scope="col">Formação + Recente</th>
           <th scope="col">Áreas de Interesse</th>
           <th scope="col">Data Registo</th>
-          <th scope="col" class="text-center">Ações</th>
+          <th scope="col" class="text-center">Acções</th>
         </tr>
       </thead>
       <tbody>
@@ -107,19 +107,17 @@
           </td>
           <td>{{ curriculo.areas_interesse|truncatechars:40|default:"-" }}</td>
           <td>{{ curriculo.data_registo|date:"d/m/Y H:i" }}</td>
-           <td class="text-center">
-            <a href="{% url 'rhumanos:detalhes_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i> Detalhes
-                                </a>
-            <a href="{% url 'rhumanos:editar_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
-              <i class="bi bi-pencil"></i>Editar
-            </a>
-           
-            {% comment %} <a href="{% url 'eliminar_curriculo' curriculo.id %}" class="btn btn-sm btn-outline-danger"
-               onclick="return confirm('Tem a certeza que deseja eliminar este currículo?');" title="Eliminar">
-              <i class="bi bi-trash"></i>
-            </a>  {% endcomment %}
-          </td> 
+           <td class="text-center d-flex justify-content-center gap-2">
+    <a href="{% url 'rhumanos:detalhes_curriculo' curriculo.id %}" 
+       class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-eye"></i> Detalhes
+    </a>
+
+    <a href="{% url 'rhumanos:editar_curriculo' curriculo.id %}" 
+       class="btn btn-sm btn-outline-warning">
+        <i class="bi bi-pencil"></i> Editar
+    </a>
+</td>
         </tr>
         {% empty %}
         <tr>
