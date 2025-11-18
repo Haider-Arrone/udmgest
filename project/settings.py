@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'rhumanos',
     'widget_tweaks',
     'ckeditor',
+    'calendario',
     # "dal",
     # "dal_select2",
 ]

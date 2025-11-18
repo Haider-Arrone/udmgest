@@ -1,0 +1,93 @@
+{% extends 'global/base.html' %}
+
+{% block content %}
+<h1 class="mb-4 text-center">Calendário Acadêmico</h1>
+{{events}}
+<div id="calendar" class="shadow rounded p-3" style="background-color: #ffffff;"></div>
+
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/locales/pt-br.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        themeSystem: 'bootstrap',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        buttonText: {
+            today: 'Hoje',
+            month: 'Mês',
+            week: 'Semana',
+            day: 'Dia'
+        },
+        height: 650,
+        aspectRatio: 1.5,
+
+        // Destacar sábados e domingos
+        dayCellClassNames: function(arg) {
+            const dia = arg.date.getDay();
+            if (dia === 0 || dia === 6) return ['weekend'];
+            return [];
+        },
+
+        // Eventos vindos do banco
+        events: {{ events|safe }}
+    });
+
+    calendar.render();
+});
+</script>
+
+<style>
+/* Estilo moderno */
+#calendar {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+}
+
+/* Título */
+.fc-toolbar-title {
+    font-weight: 600;
+    font-size: 1.8rem;
+}
+
+/* Botões */
+.fc .fc-button {
+    background-color: #0d6efd;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+}
+.fc .fc-button:hover {
+    background-color: #0b5ed7;
+}
+
+/* Eventos por tipo */
+.event-holiday { background-color: #dc3545 !important; } /* Feriado */
+.event-exam { background-color: #ffc107 !important; } /* Exame */
+.event-class { background-color: #198754 !important; } /* Aula */
+.event-break { background-color: #0dcaf0 !important; } /* Interrupção */
+
+/* Sábados e domingos */
+.weekend {
+    background-color: #f8d7da;
+    pointer-events: none;
+    opacity: 0.6;
+}
+</style>
+{% endblock %}

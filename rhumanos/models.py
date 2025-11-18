@@ -133,6 +133,8 @@ class FormacaoAcademica(AuditoriaBase):
         ('Mestrado', 'Mestrado'),
         ('Doutoramento', 'Doutoramento'),
         ('Técnico Médio', 'Técnico Médio'),
+        ('Ensino Secundário', 'Ensino Secundário'),
+        ('Ensino Básico', 'Ensino Básico'),
         ('Outro', 'Outro'),
     ]
 

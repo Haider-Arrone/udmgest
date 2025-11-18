@@ -183,12 +183,12 @@ class PontoAgenda(TimeStampedModel, SoftDeleteModel):
         null=True
     )
 
-    ordem = models.PositiveIntegerField(
-        default=0,
-        blank=True,
-        null=True,
-        help_text="Define a sequência de apresentação do ponto de agenda"
-    )
+    ordem = models.CharField(
+    max_length=5,
+    blank=True,
+    null=True,
+    help_text="Define a sequência usando letras (ex.: A, B, C...)"
+)
 
     departamento = models.ForeignKey(
         Departamento,

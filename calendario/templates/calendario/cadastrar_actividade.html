@@ -1,0 +1,33 @@
+{% extends 'global/base.html' %}
+
+
+{% block title %}Dashbord Expediente | {% endblock title %}
+
+{% block content %}
+<h2 align="center">Registar Actividade</h2>
+
+{% include 'global/partials/messages.html' %}
+
+
+
+
+
+<div>
+      {% include 'global/partials/form.html' %}
+      
+     
+</div>
+{% comment %} <input type="text" id="id_prazo" class="form-control" placeholder="Selecione a data">
+
+<script>
+    $(document).ready(function() {
+        $('#id_prazo').datepicker({
+            format: 'yyyy-mm-dd',   // Formato da data
+            autoclose: true,        // Fecha o calendário após selecionar a data
+            todayHighlight: true,   // Destaca a data atual
+            orientation: "bottom"   // Posição do calendário
+        });
+    });
+</script> {% endcomment %}
+     
+{% endblock content %}

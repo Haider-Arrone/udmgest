@@ -1,0 +1,12 @@
+{% extends 'global/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Cadastrar Evento</h2>
+    <form method="post" class="mt-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Salvar Evento</button>
+    </form>
+</div>
+{% endblock %}

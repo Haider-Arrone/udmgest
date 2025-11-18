@@ -1,0 +1,110 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Dashboard ({{ user }}) | {% endblock title %}
+
+{% block content %}
+
+{% include 'global/partials/messages.html' %}
+
+<div class="container mt-4">
+  <h2 class="text-center">Actividades Registadas</h2>
+  <br>
+
+  <!-- Formulário de Filtro -->
+  <form method="get" class="form-inline justify-content-center mb-4">
+    <div class="form-group mx-2">
+      <label for="departamento" class="mr-2">Filtrar por Departamento:</label>
+      <select name="departamento" id="departamento" class="form-control">
+        <option value="">-- Selecione um Departamento --</option>
+        {% for departamento in departamentos %}
+          <option value="{{ departamento.id }}"
+            {% if departamento_selecionado == departamento.id|stringformat:"s" %}selected{% endif %}>
+            {{ departamento.nome }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <br>
+    <button class="btn btn-primary ml-2" type="submit">
+      <i class="fas fa-filter"></i> Filtrar
+    </button>
+  </form>
+
+  <!-- Tabela de Atividades -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover text-center">
+      <thead class="thead-dark">
+        <tr>
+          <th>ID</th>
+          <th>Funcionário</th>
+          <th>Tipo de Actividade</th>
+          <th>Data</th>
+          <th>Status</th>
+          <th>Prazo</th>
+          <th>Prioridade</th>
+          <th>Dificuldade</th>
+          <th>Tempo Gasto</th>
+          <th>Observações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for actividade in actividades %}
+          <tr>
+            <td><a href="{% url 'actividades:detalhes_actividade' actividade.id %}" class="text-primary">{{ actividade.id }}</a></td>
+            <td>{{ actividade.funcionario.nome_completo }}</td>
+            <td>{{ actividade.tipo_atividade }}</td>
+            <td>{{ actividade.data|date:"d/m/Y" }}</td>
+            <td>{{ actividade.get_status_display}}</td>
+            <td>{{ actividade.prazo|date:"d/m/Y H:i" }}</td>
+            <td>{{ actividade.get_prioridade_display }}</td>
+            <td>{{ actividade.get_dificuldade_display }}</td>
+            <td>{{ actividade.tempo_gasto }}</td>
+            <td>{{ actividade.observacoes|default:"N/A" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="10" class="text-danger">Não há actividades registadas no momento.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  {% if actividades.has_other_pages %}
+    <nav aria-label="Paginação de Atividades">
+      <ul class="pagination justify-content-center mt-4">
+        {% if pagination_range.first_page_out_of_range %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1{{ additional_url_query }}">
+              <i class="fas fa-angle-double-left"></i> Primeira
+            </a>
+          </li>
+        {% endif %}
+
+        {% for page in pagination_range.pagination_range %}
+          {% if pagination_range.current_page == page %}
+            <li class="page-item active">
+              <span class="page-link">{{ page }}</span>
+            </li>
+          {% else %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page }}{{ additional_url_query }}">{{ page }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if pagination_range.last_page_out_of_range %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ pagination_range.total_pages }}{{ additional_url_query }}">
+              Última <i class="fas fa-angle-double-right"></i>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+
+</div>
+
+{% endblock content %}
