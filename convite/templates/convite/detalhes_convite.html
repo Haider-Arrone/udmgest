@@ -1,0 +1,72 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+{% include 'global/partials/messages.html' %}
+
+<div class="container mt-5">
+
+    <!-- TÍTULO -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">
+            <i class="bi bi-card-list"></i> Detalhes do Convite
+        </h2>
+
+        <a href="{% url 'convite:listar_convites' %}" class="btn btn-secondary shadow-sm">
+            <i class="bi bi-arrow-left-circle"></i> Voltar
+        </a>
+    </div>
+
+    <!-- EVENTO -->
+    {% if evento %}
+    <div class="alert alert-info d-flex align-items-center shadow-sm mb-4">
+        <i class="bi bi-calendar-event fs-4 me-3"></i>
+        <div>
+            <strong>{{ evento.titulo }}</strong><br>
+            <small>{{ evento.data|date:"d/m/Y" }} — {{ evento.local }}</small>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- DETALHES DO CONVITE -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <h5 class="fw-semibold mb-3">Informações do Convidado</h5>
+
+            <p><strong>Nome:</strong> {{ convite.nome_completo|default:"—" }}</p>
+            <p><strong>Contacto:</strong> {{ convite.contacto|default:"—" }}</p>
+            <p><strong>Lugares reservados:</strong> <span class="badge bg-secondary">{{ convite.lugares_reservados|default:"1" }}</span></p>
+
+            <p><strong>Status:</strong>
+                {% if convite.status == "pendente" %}
+                    <span class="badge bg-warning text-dark">
+                        <i class="bi bi-clock"></i> Pendente
+                    </span>
+                {% elif convite.status == "confirmado" %}
+                    <span class="badge bg-primary">
+                        <i class="bi bi-check2-circle"></i> Confirmado
+                    </span>
+                {% elif convite.status == "presente" %}
+                    <span class="badge bg-success">
+                        <i class="bi bi-person-check"></i> Presente
+                    </span>
+                {% else %}
+                    <span class="badge bg-danger">
+                        <i class="bi bi-x-circle"></i> Ausente
+                    </span>
+                {% endif %}
+            </p>
+
+            {% if convite.presente_em %}
+            <p><strong>Presente em:</strong> {{ convite.presente_em|date:"d/m/Y H:i" }}</p>
+            {% endif %}
+
+            <p><strong>Código do convite:</strong> {{ convite.codigo_convite|default:"—" }}</p>
+            <p><strong>Código de estudante:</strong> {{ convite.codigo_estudante|default:"—" }}</p>
+            <p><strong>Registrado em:</strong> {{ convite.criado_em|date:"d/m/Y H:i" }}</p>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

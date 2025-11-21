@@ -1,0 +1,137 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+{% include 'global/partials/messages.html' %}
+<div class="container mt-5">
+
+    <!-- TÍTULO -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">
+            <i class="bi bi-people-fill"></i> Lista de Convites
+        </h2>
+
+        <!-- Botão Criar Novo -->
+        <a href="{% url 'convite:gerar_convite' %}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle"></i> Gerar Código para o Convite
+        </a>
+    </div>
+
+    <!-- EVENTO (opcional caso já envies no contexto) -->
+    {% if evento %}
+    <div class="alert alert-info d-flex align-items-center shadow-sm">
+        <i class="bi bi-calendar-event fs-4 me-3"></i>
+        <div>
+            <strong>{{ evento.titulo }}</strong><br>
+            <small>{{ evento.data|date:"d/m/Y" }} — {{ evento.local }}</small>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- MENSAGENS -->
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success shadow-sm">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- TABELA -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <!-- Barra de pesquisa (opcional) -->
+            <form method="get" class="mb-3">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control"
+                           placeholder="Pesquisar por nome, contacto ou código..."
+                           value="{{ request.GET.q }}">
+                    <button class="btn btn-outline-primary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Nome</th>
+                            <th>Contacto</th>
+                            <th>Código de Estudante</th>
+                            <th>Código de Convite</th>
+                            <th>Status</th>
+                            <th>Registrado em</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for convite in convites %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="fw-semibold">{{ convite.nome_completo|default:"—" }}</td>
+                            <td>{{ convite.contacto|default:"—" }}</td>
+                            <td><span class="badge bg-secondary">{{ convite.codigo_estudante }}</span></td>
+                            <td><span class="badge bg-secondary">{{ convite.codigo_convite }}</span></td>
+
+                            <td>
+                                {% if convite.status == "pendente" %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-clock"></i> Pendente
+                                    </span>
+                                {% elif convite.status == "confirmado" %}
+                                    <span class="badge bg-primary">
+                                        <i class="bi bi-check2-circle"></i> Confirmado
+                                    </span>
+                                {% elif convite.status == "presente" %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-person-check"></i> Presente
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-x-circle"></i> Ausente
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ convite.criado_em|date:"d/m/Y H:i" }}
+                            </td>
+
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'convite:detalhes_convite' convite.id %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    <a href="" 
+                                       class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <a href="" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Tem certeza que deseja apagar?');">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-3"></i><br>
+                                Nenhum convite encontrado.
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
