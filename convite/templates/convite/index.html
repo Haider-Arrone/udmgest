@@ -117,8 +117,8 @@
 </div>
 
 <script>
-const url = "http://udmgest.udm.ac.mz:5000/convite/confirmarpresencaexterna/";
 
+const url = "http://udmgest.udm.ac.mz:5000/convite/confirmarpresencaexterna/";
 function mostrarMensagem(msg, tipo="success") {
     const div = document.getElementById("mensagens");
     div.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
@@ -142,22 +142,21 @@ function confirmarPresenca() {
     formData.append("nome_completo", nome);
     formData.append("contacto", contacto);
 
-    fetch(url, {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            mostrarMensagem(data.message, "success");
-            document.getElementById("codigo_convite").disabled = true;
-            document.getElementById("nome_completo").disabled = true;
-            document.getElementById("contacto").disabled = true;
-        } else {
-            mostrarMensagem(data.message, "danger");
-        }
-    })
-    .catch(err => mostrarMensagem("Erro na comunicação com o servidor.", "danger"));
+    fetch(url, { method: "POST", body: formData })
+  .then(res => res.json().then(data => ({ ok: res.ok, data })))
+  .then(({ ok, data }) => {
+      mostrarMensagem(data.message, data.success ? "success" : "danger");
+
+      if (data.success) {
+          document.getElementById("codigo_convite").disabled = true;
+          document.getElementById("nome_completo");
+          document.getElementById("contacto");
+      }
+  })
+  .catch(err => {
+      mostrarMensagem("Erro na comunicação com o servidor.", "danger");
+      console.error(err);
+  });
 }
 </script>
 

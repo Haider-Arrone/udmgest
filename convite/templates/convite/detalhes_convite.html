@@ -64,6 +64,7 @@
             <p><strong>Código do convite:</strong> {{ convite.codigo_convite|default:"—" }}</p>
             <p><strong>Código de estudante:</strong> {{ convite.codigo_estudante|default:"—" }}</p>
             <p><strong>Registrado em:</strong> {{ convite.criado_em|date:"d/m/Y H:i" }}</p>
+            <p><strong>Confirmado em:</strong> {{ convite.presente_em|date:"d/m/Y H:i"|default:"—" }}</p>
 
         </div>
     </div>

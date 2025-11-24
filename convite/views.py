@@ -36,75 +36,72 @@ def marcar_presenca_evento(request, evento_id):
 
 def confirmar_presenca(request, evento_id):
     """
-    Fluxo em 2 passos:
-      1) Usuario insere codigo_convite;
-      2) Se o codigo for valido e pertencer ao evento e nao estiver usado,
-         mostra o form para nome/contacto/lugares e permite confirmar.
+    Confirmação de presença para códigos que podem ter até 2 convites.
     """
-
     evento = get_object_or_404(Evento, id=evento_id)
     convite = None
     form = None
     step = request.POST.get('step') if request.method == 'POST' else None
 
-    # POST passo 1: validar codigo
     if request.method == 'POST' and step == 'check_code':
         codigo = request.POST.get('codigo_convite', '').strip().upper()
         if not codigo:
-            messages.error(request, "Por favor informe o código do convite.")
+            messages.error(request, "Informe o código do convite.")
         else:
-            try:
-                convite = Convite.objects.get(evento=evento, codigo_convite=codigo)
-            except Convite.DoesNotExist:
-                convite = None
-                messages.error(request, "Código inválido ou não pertence a este evento.")
-            else:
-                # convite encontrado
-                if convite.status == Convite.Status.PRESENTE or convite.status == Convite.Status.CONFIRMADO:
-                    messages.warning(request, "Este convite já foi utilizado.")
-                    # podemos ainda mostrar os dados do convite (readonly) se quiser
-                    convite = None
-                else:
-                    # prepara o form com a instancia do convite (preenche campos vazios)
-                    form = ConfirmarPresencaForm(instance=convite)
+            # Busca convites disponíveis (PENDENTE) para este código
+            convites_disponiveis = Convite.objects.filter(
+                evento=evento,
+                codigo_convite=codigo
+            ).exclude(status__in=[Convite.Status.CONFIRMADO, Convite.Status.PRESENTE])
 
-    # POST passo 2: confirmar o preenchimento (nome/contacto/lugares)
+            if not convites_disponiveis.exists():
+                messages.warning(request, "Todos os convites deste código já foram utilizados.")
+            else:
+                # Pega o primeiro convite disponível
+                convite = convites_disponiveis.first()
+                form = ConfirmarPresencaForm(instance=convite)
+
     elif request.method == 'POST' and step == 'confirm':
         codigo = request.POST.get('codigo_convite', '').strip().upper()
         if not codigo:
-            messages.error(request, "Código não informado. Volte a inserir o código.")
+            messages.error(request, "Código não informado.")
         else:
-            try:
-                convite = Convite.objects.get(evento=evento, codigo_convite=codigo)
-            except Convite.DoesNotExist:
-                messages.error(request, "Código inválido ou não pertence a este evento.")
-                convite = None
-            else:
-                if convite.status == Convite.Status.PRESENTE or convite.status == Convite.Status.CONFIRMADO:
-                    messages.warning(request, "Este convite já foi utilizado.")
-                    convite = None
-                else:
-                    # usa o form com instance=convite para validar e salvar
-                    form = ConfirmarPresencaForm(request.POST, instance=convite)
-                    if form.is_valid():
-                        convite = form.save(commit=False)
-                        convite.status = Convite.Status.CONFIRMADO
-                        # se preferir marcar presença imediata, usar marcar_presenca()
-                        # convite.marcar_presenca()
-                        convite.save()
-                        messages.success(request, "Sua presença foi registrada com sucesso!")
-                        # opcional: redirecionar para página de confirmação ou mostrar resumo aqui
-                        return redirect('convite:confirmar_presenca', evento_id=evento.id)
-                    else:
-                        messages.error(request, "Corrija os erros no formulário e tente novamente.")
+            convites_disponiveis = Convite.objects.filter(
+                evento=evento,
+                codigo_convite=codigo
+            ).exclude(status__in=[Convite.Status.CONFIRMADO, Convite.Status.PRESENTE])
 
-    # GET ou POST sem step válido -> mostra apenas o input de código
+            if not convites_disponiveis.exists():
+                messages.warning(request, "Todos os convites deste código já foram utilizados.")
+            else:
+                convite = convites_disponiveis.first()
+                form = ConfirmarPresencaForm(request.POST, instance=convite)
+                if form.is_valid():
+                    convite = form.save(commit=False)
+                    convite.status = Convite.Status.CONFIRMADO
+                    convite.save()
+                    messages.success(request, "Presença registrada com sucesso!")
+                    # Atualiza o convite e form para o próximo disponível (se houver)
+                    convites_disponiveis = Convite.objects.filter(
+                        evento=evento,
+                        codigo_convite=codigo
+                    ).exclude(status__in=[Convite.Status.CONFIRMADO, Convite.Status.PRESENTE])
+                    if convites_disponiveis.exists():
+                        convite = convites_disponiveis.first()
+                        form = ConfirmarPresencaForm(instance=convite)
+                    else:
+                        convite = None
+                        form = None
+                else:
+                    messages.error(request, "Corrija os erros no formulário e tente novamente.")
+
     context = {
         'evento': evento,
         'convite': convite,
         'form': form,
     }
     return render(request, 'convite/confirmar_presenca.html', context)
+
 
 @login_required(login_url='authors:login', redirect_field_name='next')
 def listar_convites(request, evento_id=None):
@@ -169,6 +166,7 @@ def detalhes_convite(request, convite_id):
     
     return render(request, "convite/detalhes_convite.html", context)
 
+
 @login_required(login_url='authors:login', redirect_field_name='next')
 def gerar_convite(request):
     funcionario = Funcionario.objects.select_related('departamento').filter(author=request.user).first()
@@ -192,15 +190,20 @@ def gerar_convite(request):
 
         evento = get_object_or_404(Evento, id=evento_id)
 
-        # 🔍 1 — Verificar se esse código já foi usado nesse mesmo evento
-        if Convite.objects.filter(evento=evento, codigo_estudante=codigo_estudante).exists():
+        # 🔍 Verificar se já tem convites
+        convites_existentes = Convite.objects.filter(
+            evento=evento,
+            codigo_estudante=codigo_estudante
+        )
+
+        if convites_existentes.exists():
             messages.error(
                 request,
-                "Este código de estudante já possui um convite associado a este evento."
+                "Este estudante já possui convites associados a este evento."
             )
             return redirect(request.path)
 
-        # 🔁 2 — Gerar um código de convite realmente único
+        # 🔁 Gerar código único
         def gerar_codigo_unico():
             while True:
                 codigo = str(uuid.uuid4()).split('-')[0].upper()
@@ -209,8 +212,15 @@ def gerar_convite(request):
 
         codigo_convite = gerar_codigo_unico()
 
-        # 📝 3 — Criar o convite
-        convite = Convite.objects.create(
+        # 📝 Criar os dois convites de uma vez
+        convite1 = Convite.objects.create(
+            evento=evento,
+            codigo_estudante=codigo_estudante,
+            codigo_convite=codigo_convite,
+            status=Convite.Status.PENDENTE
+        )
+
+        convite2 = Convite.objects.create(
             evento=evento,
             codigo_estudante=codigo_estudante,
             codigo_convite=codigo_convite,
@@ -219,15 +229,18 @@ def gerar_convite(request):
 
         messages.success(
             request,
-            f"Convite gerado com sucesso! Código do convite: {codigo_convite}"
+            f"Foram criados 2 convites! Código do convite: {codigo_convite}"
         )
 
-        return redirect("convite:detalhes_convite", convite_id=convite.id)
+        # Pode redirecionar para o primeiro, ou para uma lista
+        return redirect("convite:detalhes_convite", convite_id=convite1.id)
 
     return render(request, "convite/gerar_codigo_convite.html", {
         "eventos": eventos,
         'funcionario': funcionario,
     })
+
+
     
 @csrf_exempt
 def confirmar_presenca_externa(request):
@@ -240,7 +253,7 @@ def confirmar_presenca_externa(request):
     nome_completo = request.POST.get("nome_completo", "").strip()
     contacto = request.POST.get("contacto", "").strip()
     # lugares = request.POST.get("lugares_reservados", "1").strip()
-    print(codigo_convite)
+
     # --- Validar campos obrigatórios ---
     if not codigo_convite:
         return JsonResponse({"success": False, "message": "Código do convite é obrigatório."}, status=400)
@@ -248,43 +261,49 @@ def confirmar_presenca_externa(request):
     if not nome_completo or not contacto:
         return JsonResponse({"success": False, "message": "Nome e contacto são obrigatórios."}, status=400)
 
-    # --- Buscar convite ---
-    try:
-        convite = Convite.objects.get(codigo_convite=codigo_convite)
-    except Convite.DoesNotExist:
+    # --- Buscar convites pelo código (pode ter até 2) ---
+    convites = Convite.objects.filter(codigo_convite=codigo_convite).order_by('id')
+
+    if not convites.exists():
         return JsonResponse({"success": False, "message": "Código inválido."}, status=404)
 
-    # --- Verificar se já está usado ---
-    if convite.status in [Convite.Status.CONFIRMADO, Convite.Status.PRESENTE]:
+    # --- Encontrar o primeiro convite não utilizado ---
+    convite_para_confirmar = None
+    for c in convites:
+        if c.status not in [Convite.Status.CONFIRMADO, Convite.Status.PRESENTE]:
+            convite_para_confirmar = c
+            break
+
+    if not convite_para_confirmar:
         return JsonResponse({
             "success": False,
-            "message": "Este convite já foi utilizado."
+            "message": "Todos os convites desse código já foram utilizados."
         }, status=400)
 
     # --- Atualizar convite ---
-    convite.nome_completo = nome_completo
-    convite.contacto = contacto
-    # convite.lugares_reservados = int(lugares)
-    convite.status = Convite.Status.CONFIRMADO
-    convite.presente_em = timezone.now()
-    convite.save()
+    convite_para_confirmar.nome_completo = nome_completo
+    convite_para_confirmar.contacto = contacto
+    # convite_para_confirmar.lugares_reservados = int(lugares)
+    convite_para_confirmar.status = Convite.Status.CONFIRMADO
+    convite_para_confirmar.presente_em = timezone.now()
+    convite_para_confirmar.save()
 
     # --- Resposta ---
     return JsonResponse({
         "success": True,
         "message": "Presença confirmada com sucesso!",
         "convite": {
-            "codigo_convite": convite.codigo_convite,
-            "nome_completo": convite.nome_completo,
-            "contacto": convite.contacto,
-            "lugares_reservados": convite.lugares_reservados,
-            "status": convite.status,
-            "presente_em": convite.presente_em.isoformat(),
+            "codigo_convite": convite_para_confirmar.codigo_convite,
+            "nome_completo": convite_para_confirmar.nome_completo,
+            "contacto": convite_para_confirmar.contacto,
+            "lugares_reservados": convite_para_confirmar.lugares_reservados,
+            "status": convite_para_confirmar.status,
+            "presente_em": convite_para_confirmar.presente_em.isoformat(),
         },
         "evento": {
-            "titulo": convite.evento.titulo if convite.evento else None,
-            "data": convite.evento.data.isoformat() if convite.evento and convite.evento.data else None,
-            "local": convite.evento.local if convite.evento else None
+            "titulo": convite_para_confirmar.evento.titulo if convite_para_confirmar.evento else None,
+            "data": convite_para_confirmar.evento.data.isoformat() if convite_para_confirmar.evento and convite_para_confirmar.evento.data else None,
+            "local": convite_para_confirmar.evento.local if convite_para_confirmar.evento else None
         }
     })
     

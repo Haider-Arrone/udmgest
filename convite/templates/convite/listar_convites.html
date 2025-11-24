@@ -54,7 +54,7 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>#</th>
+                            <th>ID</th>
                             <th>Nome</th>
                             <th>Contacto</th>
                             <th>Código de Estudante</th>
@@ -68,11 +68,26 @@
 
                         {% for convite in convites %}
                         <tr>
-                            <td>{{ forloop.counter }}</td>
+                            {% comment %} <td>{{ forloop.counter }}</td> {% endcomment %}
+                          <td>  <a href="{% url 'convite:detalhes_convite' convite.id %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>{{ convite.id}}
+                                    </a></td>
                             <td class="fw-semibold">{{ convite.nome_completo|default:"—" }}</td>
                             <td>{{ convite.contacto|default:"—" }}</td>
-                            <td><span class="badge bg-secondary">{{ convite.codigo_estudante }}</span></td>
-                            <td><span class="badge bg-secondary">{{ convite.codigo_convite }}</span></td>
+                           
+    <td>
+    <span class="badge rounded-pill border border-secondary px-3 py-1" 
+          style="background-color: #f8f9fa; font-weight: 500; color: #dc3545;">
+        <i class="bi bi-person-badge me-1"></i>{{ convite.codigo_estudante }}
+    </span>
+</td>
+<td>
+    <span class="badge rounded-pill border border-secondary px-3 py-1" 
+          style="background-color: #f8f9fa; font-weight: 500; color: #dc3545;">
+        <i class="bi bi-key me-1"></i>{{ convite.codigo_convite }}
+    </span>
+</td>
 
                             <td>
                                 {% if convite.status == "pendente" %}
@@ -102,7 +117,7 @@
                                 <div class="btn-group">
                                     <a href="{% url 'convite:detalhes_convite' convite.id %}" 
                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye"></i>
+                                        <i class="bi bi-eye"></i>detalhes
                                     </a>
 
                                     <a href="" 
@@ -129,6 +144,38 @@
 
                     </tbody>
                 </table>
+
+                  {% if page_obj.has_other_pages %}
+<nav class="mt-3">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">&laquo; Anterior</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">&laquo; Anterior</span></li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Próximo &raquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Próximo &raquo;</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+
             </div>
 
         </div>
