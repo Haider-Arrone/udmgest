@@ -287,3 +287,6 @@ def confirmar_presenca_externa(request):
             "local": convite.evento.local if convite.evento else None
         }
     })
+    
+def pagina_simples(request):
+    return render(request, "convite/index.html")
