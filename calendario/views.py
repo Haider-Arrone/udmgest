@@ -4,9 +4,14 @@ from calendario.forms.evento_form import EventForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 import json
+from django.http import JsonResponse
+from datetime import timedelta
 # Create your views here.
 def calendar_view(request):
     return render(request, "calendario/calendar.html")
+
+def calendar_interno_view(request):
+    return render(request, "calendario/calendar_interno.html")
 
 # Lista de eventos
 def event_list(request):
@@ -32,3 +37,37 @@ def event_create(request):
     else:
         form = EventForm()
     return render(request, 'calendario/criar_calendario.html', {'form': form})
+
+
+def event_list_api(request):
+    events = Event.objects.all()
+    data = []
+
+    for event in events:
+        if event.start_date and event.end_date:
+            current_date = event.start_date
+            while current_date <= event.end_date:
+                if current_date.weekday() != 6:  # 6 = domingo
+                    data.append({
+                        "title": event.title,
+                        "start": str(current_date),
+                        "type": event.type,
+                        "semester": event.semester,
+                        "course": event.course,
+                        "turma": event.turma,
+                        "color": event.color, 
+                    })
+                current_date += timedelta(days=1)
+        else:
+            # caso o evento não tenha datas, ainda podemos adicioná-lo
+            data.append({
+                "title": event.title,
+                "start": str(event.start_date) if event.start_date else None,
+                "type": event.type,
+                "semester": event.semester,
+                "course": event.course,
+                "turma": event.turma,
+                "color": event.color, 
+            })
+
+    return JsonResponse(data, safe=False)

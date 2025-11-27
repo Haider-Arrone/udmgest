@@ -1,7 +1,13 @@
+
 {% block content %}
-<h1 class="calendario-titulo">
-    Calendário Académico
-</h1>
+<div class="d-flex align-items-center mb-3">
+    <a href="{% url 'expedient:home' %}" class="btn btn-outline-primary me-3">
+        ← Voltar
+    </a>
+    <h1 class="calendario-titulo mb-0">
+        Calendário Académico
+    </h1>
+</div>
 
 
 <div id="calendar" class="shadow-sm rounded p-2 bg-white"></div>

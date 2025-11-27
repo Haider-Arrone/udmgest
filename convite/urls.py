@@ -15,6 +15,7 @@ urlpatterns = [
     ),
     path('confirmarpresencaexterna/', views.confirmar_presenca_externa, name='confirmar_presenca_externa'),
     path('', views.pagina_simples, name='pagina_simples'),
+    path("convite/editar/<int:convite_id>/", views.editar_convite, name="editar_convite"),
     # path('', views.home, name="home"),
     # path('expedients/<int:id>/', views.expedient, name="expedient"),
     #  path('recipes/search/', views.search, name="search"),

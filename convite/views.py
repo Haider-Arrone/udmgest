@@ -309,3 +309,38 @@ def confirmar_presenca_externa(request):
     
 def pagina_simples(request):
     return render(request, "convite/index.html")
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def editar_convite(request, convite_id):
+    funcionario = Funcionario.objects.select_related('departamento').filter(author=request.user).first()
+    if not funcionario:
+        raise Http404("Funcionário não encontrado")
+
+    convite = get_object_or_404(Convite, id=convite_id)
+
+    if request.method == "POST":
+        # Capturar dados do POST manualmente
+        convite.nome_completo = request.POST.get("nome_completo")
+        convite.contacto = request.POST.get("contacto")
+        # convite.codigo_convite = request.POST.get("codigo_convite")
+        # convite.codigo_estudante = request.POST.get("codigo_estudante")
+        convite.lugares_reservados = request.POST.get("lugares_reservados")
+        convite.status = request.POST.get("status")
+          # FK
+
+        # Salvar
+        convite.save()
+
+        messages.success(request, "Convite atualizado com sucesso!")
+        return redirect("convite:listar_convites")
+
+    # Se GET → exibir formulário manualmente
+    eventos = Evento.objects.all().order_by("-data")
+
+    context = {
+        "funcionario": funcionario,
+        "convite": convite,
+        "eventos": eventos,
+    }
+
+    return render(request, "convite/editar_convite.html", context)
