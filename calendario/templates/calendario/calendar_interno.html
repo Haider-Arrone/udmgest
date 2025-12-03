@@ -45,6 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
         day: "Dia",
         list: "Lista"
     },
+    
+    titleFormat: function(date) {
+        const mes = date.date.marker.toLocaleDateString('pt-PT', { month: 'long' });
+        const mesFormatado = mes.charAt(0).toUpperCase() + mes.slice(1);
+        return mesFormatado + ' ' + date.date.year;
+    },
 
         // Buscar eventos
         events: function(fetchInfo, successCallback) {

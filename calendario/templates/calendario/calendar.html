@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', function() {
         list: "Lista"
     },
 
+titleFormat: function(date) {
+        const mes = date.date.marker.toLocaleDateString('pt-PT', { month: 'long' });
+        const mesFormatado = mes.charAt(0).toUpperCase() + mes.slice(1);
+        return mesFormatado + ' ' + date.date.year;
+    },
         // Buscar eventos
         events: function(fetchInfo, successCallback) {
             fetch("{% url 'calendario:event_list_api' %}")
@@ -95,6 +100,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     calendar.render();
+    // Força inicial maiúscula no nome do mês
+
+
+
 
     // LEGENDA: usa título → cor
     function renderLegend() {

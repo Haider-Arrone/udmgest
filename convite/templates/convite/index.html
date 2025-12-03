@@ -148,9 +148,14 @@ function confirmarPresenca() {
       mostrarMensagem(data.message, data.success ? "success" : "danger");
 
       if (data.success) {
-          document.getElementById("codigo_convite").disabled = true;
-          document.getElementById("nome_completo");
-          document.getElementById("contacto");
+          document.getElementById("codigo_convite").value = "";
+                document.getElementById("nome_completo").value = "";
+                document.getElementById("contacto").value = "";
+
+                // 🔒 Se deseja desativar após confirmar (opcional)
+                document.getElementById("codigo_convite").disabled = true;
+                document.getElementById("nome_completo").disabled = true;
+                document.getElementById("contacto").disabled = true;
       }
   })
   .catch(err => {
