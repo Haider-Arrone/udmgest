@@ -4,6 +4,28 @@
 {% block title %}Meu Currículo | {% endblock title %}
 
 {% block content %}
+<style>
+.perfil-foto-wrapper {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto;
+}
+
+.perfil-foto {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #dee2e6;
+}
+.foto-clickable:hover {
+    opacity: 0.85;
+    transform: scale(1.03);
+    transition: all 0.2s ease-in-out;
+}
+
+
+</style>
 <div class="container my-5">
     <h2 class="text-center mb-4">Meu Currículo</h2>
     {% include 'global/partials/messages.html' %}
@@ -21,6 +43,15 @@
             <li class="nav-item"><button class="nav-link" id="habilidades-tab" data-bs-toggle="pill" data-bs-target="#habilidades" type="button" role="tab">Habilidades e Talentos</button></li>
             <li class="nav-item"><button class="nav-link" id="mobilidade-tab" data-bs-toggle="pill" data-bs-target="#mobilidade" type="button" role="tab">Mobilidade Interna</button></li>
             <li class="nav-item"><button class="nav-link" id="ficheiro-tab" data-bs-toggle="pill" data-bs-target="#ficheiro" type="button" role="tab">Upload do CV</button></li>
+            <li class="nav-item">
+    <button class="nav-link" id="foto-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#foto"
+            type="button"
+            role="tab">
+        Foto de Perfil
+    </button>
+</li>
         </ul>
 
         <div class="tab-content border rounded shadow-sm p-4 bg-white">
@@ -227,6 +258,75 @@
                 </div>
             </div>
 
+
+            <!-- 🟢 8. Foto de Perfil -->
+<div class="tab-pane fade" id="foto">
+    <div class="card border-info shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-person-circle"></i> Foto de Perfil
+            </h5>
+        </div>
+
+        <div class="card-body text-center">
+            <!-- Foto atual -->
+            {% comment %} <div class="mb-3">
+                {% if form.instance.foto_perfil %}
+                    <img src="{{ form.instance.foto_perfil.url }}"
+                         class="rounded-circle border"
+                         style="width:160px;height:160px;object-fit:cover;">
+                {% else %}
+                    <img src="/media/expedient/images/iconperfil.png"
+                         class="rounded-circle border"
+                         style="width:160px;height:160px;object-fit:cover;">
+                {% endif %}
+            </div> {% endcomment %}
+            <div class="mb-3">
+    {% if form.instance.foto_perfil %}
+        <img src="{{ form.instance.foto_perfil.url }}"
+             class="rounded-circle border foto-clickable"
+             style="width:160px;height:160px;object-fit:cover;cursor:pointer;"
+             data-bs-toggle="modal"
+             data-bs-target="#modalFotoPerfil"
+             alt="Foto de Perfil">
+    {% else %}
+        <img src="/media/expedient/images/iconperfil.png"
+             class="rounded-circle border foto-clickable"
+             style="width:160px;height:160px;object-fit:cover;cursor:pointer;"
+             data-bs-toggle="modal"
+             data-bs-target="#modalFotoPerfil"
+             alt="Sem Foto">
+    {% endif %}
+</div>
+
+            <!-- Campo upload -->
+            <div class="mb-3">
+                {{ form.foto_perfil|add_class:"form-control" }}
+                <small class="text-muted">
+                    Formatos aceitos: JPG, PNG | Máx: 5MB
+                </small>
+            </div>
+
+            <!-- Remover foto -->
+            {% if form.instance.foto_perfil %}
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox"
+                           name="remover_foto" id="remover_foto">
+                    <label class="form-check-label" for="remover_foto">
+                        🗑️ Remover foto atual
+                    </label>
+                </div>
+            {% endif %}
+
+            <button type="submit"
+                    class="btn btn-success btn-salvar-aba"
+                    data-aba="foto">
+                <i class="bi bi-save"></i> Salvar Foto
+            </button>
+        </div>
+    </div>
+</div>
+
             <!-- 🟢 7. Upload -->
            <div class="tab-pane fade" id="ficheiro">
     <div class="card border-primary mb-4 shadow-sm">
@@ -344,6 +444,24 @@ document.querySelectorAll('input[name$="-DELETE"]').forEach(checkbox => {
 
 </script>
 
+<!-- 🔍 Modal Foto de Perfil -->
+<div class="modal fade" id="modalFotoPerfil" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 bg-transparent">
+            <div class="modal-body text-center p-0">
+                {% if form.instance.foto_perfil %}
+                    <img src="{{ form.instance.foto_perfil.url }}"
+                         class="img-fluid rounded shadow"
+                         alt="Foto de Perfil">
+                {% else %}
+                    <img src="/media/expedient/images/iconperfil.png"
+                         class="img-fluid rounded shadow"
+                         alt="Sem Foto">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
 
 

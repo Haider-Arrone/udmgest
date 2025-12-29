@@ -161,6 +161,21 @@ def cadastrar_curriculo(request):
 
                     curriculo.save()
                     messages.success(request, "CV enviado/atualizado com sucesso!")
+                    
+                # --- Foto de Perfil ---
+                elif aba_atual == 'foto' and form.is_valid():
+                    curriculo = form.save(commit=False)
+                    curriculo.user = request.user
+
+                    if 'foto_perfil' in request.FILES:
+                        curriculo.foto_perfil = request.FILES['foto_perfil']
+
+                    if request.POST.get('remover_foto') and curriculo.foto_perfil:
+                        curriculo.foto_perfil.delete(save=False)
+                        curriculo.foto_perfil = None
+
+                    curriculo.save()
+                    messages.success(request, "Foto de perfil atualizada com sucesso!")
 
                 else:
                     # se chegou aqui é porque a aba selecionada não passou validação
@@ -506,6 +521,35 @@ def editar_curriculo(request, id):
                         m.save()
                     mobilidade_formset.save_m2m()
                     messages.success(request, "Mobilidade atualizada com sucesso!")
+                    
+                # --- Ficheiro (upload) ---
+                elif aba_atual == 'ficheiro' and form.is_valid():
+                    curriculo = form.save(commit=False)
+                    # curriculo.user = request.user
+                    if 'ficheiro_cv' in request.FILES:
+                        curriculo.ficheiro_cv = request.FILES['ficheiro_cv']
+
+                    if request.POST.get('remover_cv') and curriculo.ficheiro_cv:
+                        curriculo.ficheiro_cv.delete(save=False)
+                        curriculo.ficheiro_cv = None
+
+                    curriculo.save()
+                    messages.success(request, "CV enviado/atualizado com sucesso!")
+                    
+                    
+                elif aba_atual == 'foto' and form.is_valid():
+                    curriculo = form.save(commit=False)
+                    # curriculo.user = request.user
+
+                    if 'foto_perfil' in request.FILES:
+                        curriculo.foto_perfil = request.FILES['foto_perfil']
+
+                    if request.POST.get('remover_foto') and curriculo.foto_perfil:
+                        curriculo.foto_perfil.delete(save=False)
+                        curriculo.foto_perfil = None
+
+                    curriculo.save()
+                    messages.success(request, "Foto de perfil atualizada com sucesso!")
 
                 return redirect('rhumanos:editar_curriculo', id=curriculo.pk)
 

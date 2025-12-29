@@ -116,6 +116,13 @@ class Curriculo(AuditoriaBase):
         auto_now_add=True,
         verbose_name="Data de Registo"
     )
+    
+    foto_perfil = models.ImageField(
+    upload_to='rhumanos/perfil/%Y/%m/%d/',
+    null=True,
+    blank=True,
+    verbose_name="Foto de Perfil"
+)
 
     class Meta:
         verbose_name = "Currículo"

@@ -69,7 +69,7 @@ class CurriculoAdmin(admin.ModelAdmin):
     filter_horizontal = ('idiomas',)
     fieldsets = (
         ('Informações Pessoais', {
-            'fields': ('user', 'cargo_actual', 'regime_contrato', 'data_nascimento', 'naturalidade', 'idiomas')
+            'fields': ('user', 'cargo_actual', 'regime_contrato', 'data_nascimento', 'naturalidade', 'idiomas', 'foto_perfil')
         }),
         ('Contato', {
             'fields': ('contacto_telefonico', 'endereco_electronico', 'endereco_fisico')
@@ -101,3 +101,5 @@ class CurriculoAdmin(admin.ModelAdmin):
 class IdiomaAdmin(admin.ModelAdmin):
     list_display = ('nome',)
     search_fields = ('nome',)
+    
+    

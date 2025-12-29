@@ -18,6 +18,7 @@ class CurriculoForm(forms.ModelForm):
             'endereco_fisico',
             'areas_interesse',
             'ficheiro_cv',
+            'foto_perfil',
         ]
         labels = {
             'cargo_actual': 'Cargo Actual',
@@ -30,6 +31,7 @@ class CurriculoForm(forms.ModelForm):
             'endereco_fisico': 'Endereço Físico',
             'areas_interesse': 'Áreas de Interesse',
             'ficheiro_cv': 'Ficheiro do CV',
+            'foto_perfil': 'Foto de Perfil',
         }
         widgets = {
             'cargo_actual': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Analista de Sistemas'}),
@@ -38,6 +40,7 @@ class CurriculoForm(forms.ModelForm):
     attrs={'class': 'form-control', 'type': 'date'},
     format='%Y-%m-%d'
 ),
+            
             'naturalidade': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Maputo'}),
             'idiomas': forms.CheckboxSelectMultiple(),
             'contacto_telefonico': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+258 82 000 0000'}),
@@ -45,6 +48,12 @@ class CurriculoForm(forms.ModelForm):
             'endereco_fisico': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Rua, Bairro, Cidade'}),
             'areas_interesse': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Digite suas áreas de interesse...'}),
             'ficheiro_cv': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'foto_perfil': forms.ClearableFileInput(
+        attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        }
+    ),
         }
 
 # Formsets para relacionamentos 1:N
