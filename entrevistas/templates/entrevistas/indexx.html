@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Entrevista do Estudante | UDM</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+body{
+    background: linear-gradient(135deg,#e0f2ff,#f8f9fa);
+    font-family:'Segoe UI',sans-serif;
+    padding:1rem;
+}
+.card{
+    max-width:900px;
+    margin:auto;
+    border-radius:1.5rem;
+    box-shadow:0 0.75rem 2rem rgba(0,0,0,.15);
+}
+.card-header{
+    background:linear-gradient(90deg,#0d6efd,#0dcaf0);
+    color:white;
+    font-weight:700;
+    text-align:center;
+    border-radius:1.5rem 1.5rem 0 0;
+    padding:1rem;
+}
+.section-title{
+    font-weight:700;
+    color:#0d6efd;
+    margin-top:2rem;
+    border-left:4px solid #0d6efd;
+    padding-left:.75rem;
+}
+.form-label{font-weight:600;}
+.table input[type="radio"] {transform: scale(1.2);}
+.table th, .table td {padding: 0.4rem; white-space: nowrap;}
+</style>
+</head>
+
+<body>
+
+
+<div class="card my-4">
+<div class="card-header">
+<i class="bi bi-mortarboard-fill"></i> Guião de Entrevista – Novos Ingressos
+</div>
+
+<div class="card-body p-4">
+<div id="mensagens" class="mb-3"></div>
+<form method="post" novalidate class="needs-validation">
+
+<!-- 1. Dados Básicos -->
+<label class="form-label">Nome Completo</label>
+<input type="text" name="nome" id="nome" class="form-control mb-3" required minlength="3" pattern="[A-Za-zÀ-ÿ\s]+">
+<div class="invalid-feedback">Informe o nome completo.</div>
+
+<label class="form-label">Curso</label>
+<input type="text" name="curso" id="curso" class="form-control mb-3" required minlength="2">
+<div class="invalid-feedback">Informe o curso.</div>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <label class="form-label">Género</label>
+    <select name="genero" id="genero" class="form-select" required>
+      <option value="">Seleccione</option>
+      <option value="F">Feminino</option>
+      <option value="M">Masculino</option>
+    </select>
+    <div class="invalid-feedback">Selecione o género.</div>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Faculdade</label>
+    <select name="faculdade" id="faculdade" class="form-select" required>
+      <option value="">Seleccione</option>
+      <option value="FCES">Faculdade de Ciências Económicas e Sociais</option>
+      <option value="FCJ">Faculdade de Ciências Jurídicas</option>
+      <option value="FCT">Faculdade de Ciências Tecnológicas</option>
+    </select>
+    <div class="invalid-feedback">Selecione a faculdade.</div>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Faixa Etária</label>
+    <select name="faixa_etaria" id="faixa_etaria" class="form-select" required>
+      <option value="">Seleccione</option>
+      <option value="16-35">16 – 35</option>
+      <option value="36-45">36 – 45</option>
+      <option value="46+">46+</option>
+    </select>
+    <div class="invalid-feedback">Selecione a faixa etária.</div>
+  </div>
+</div>
+
+<div class="row g-3 mt-2">
+  <div class="col-md-6">
+    <label class="form-label">Situação Profissional</label>
+    <select name="situacao_profissional" id="situacao_profissional" class="form-select" required>
+      <option value="">Seleccione</option>
+      <option value="ESTUDANTE">Estudante</option>
+      <option value="ESTUDANTE_TRABALHADOR">Estudante Trabalhador</option>
+    </select>
+    <div class="invalid-feedback">Selecione a situação profissional.</div>
+  </div>
+
+  <div class="col-md-3">
+    <label class="form-label">Semestre</label>
+    <select name="semestre" id="semestre" class="form-select" required>
+      <option value="">Seleccione</option>
+      <option value="1">1º</option><option value="2">2º</option>
+      <option value="3">3º</option><option value="4">4º</option>
+      <option value="5">5º</option><option value="6">6º</option>
+      <option value="7">7º</option><option value="8">8º</option>
+    </select>
+    <div class="invalid-feedback">Selecione o semestre.</div>
+  </div>
+
+  <div class="col-md-3">
+    <label class="form-label">Bairro de Residência</label>
+    <input type="text" name="bairro_residencia" id="bairro_residencia" class="form-control" required minlength="2">
+    <div class="invalid-feedback">Informe o bairro de residência.</div>
+  </div>
+</div>
+
+<!-- 2. Motivo da Escolha do Curso -->
+<div class="section-title">2. Motivo da Escolha do Curso</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_curso" id="motivo_escolha_curso" value="IDENTIFICACAO" id="motivo1" required>
+  <label class="form-check-label" for="motivo1">Identificação pessoal</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_curso" value="INFLUENCIA_FAMILIAR" id="motivo2">
+  <label class="form-check-label" for="motivo2">Influência familiar</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_curso" value="OPORTUNIDADE" id="motivo3">
+  <label class="form-check-label" for="motivo3">Oportunidade</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_curso" value="JA_TRABALHA_AREA" id="motivo4">
+  <label class="form-check-label" for="motivo4">Já trabalha na área</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_curso" value="LOCALIZACAO_UDM" id="motivo5">
+  <label class="form-check-label" for="motivo5">Localização da UDM</label>
+</div>
+<div class="form-check mt-2">
+  <input class="form-check-input" type="radio" name="motivo_escolha_curso" value="OUTRO" id="motivoOutro">
+  <label class="form-check-label" for="motivoOutro">Outro (especifique)</label>
+</div>
+<div class="mt-2">
+  <input type="text" name="motivo_outro" id="campoMotivoOutro" class="form-control" placeholder="Especifique o outro motivo" disabled>
+</div>
+
+<!-- 3. Motivo da Escolha da UDM -->
+<div class="section-title">3. Motivo da Escolha da UDM</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_udm" id="motivo_escolha_udm" value="IDENTIFICACAO" id="udm1" required>
+  <label class="form-check-label" for="udm1">Identificação com a instituição</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_udm" value="INDICACAO_FAMILIAR" id="udm2">
+  <label class="form-check-label" for="udm2">Indicação familiar</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_udm" value="VALOR_PROPINA" id="udm3">
+  <label class="form-check-label" for="udm3">Valor da propina</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_udm" value="SERVICOS" id="udm4">
+  <label class="form-check-label" for="udm4">Serviços disponibilizados</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="motivo_escolha_udm" value="LOCALIZACAO" id="udm5">
+  <label class="form-check-label" for="udm5">Localização</label>
+</div>
+<div class="form-check mt-2">
+  <input class="form-check-input" type="radio" name="motivo_escolha_udm" value="OUTRO" id="udmOutro">
+  <label class="form-check-label" for="udmOutro">Outro (especifique)</label>
+</div>
+<div class="mt-2">
+  <input type="text" name="escolha_udm_outro" id="campoUdmOutro" class="form-control" placeholder="Especifique o outro motivo" disabled>
+</div>
+
+<!-- 4. Como Conheceu a UDM -->
+<div class="section-title">4. Como Conheceu a UDM</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="como_conheceu_udm" id="como_conheceu_udm" value="PANFLETOS" id="conheceu1" required>
+  <label class="form-check-label" for="conheceu1">Panfletos</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="como_conheceu_udm" value="RADIO" id="conheceu2">
+  <label class="form-check-label" for="conheceu2">Rádio</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="como_conheceu_udm" value="TELEVISAO" id="conheceu3">
+  <label class="form-check-label" for="conheceu3">Televisão</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="como_conheceu_udm" value="JORNAL" id="conheceu4">
+  <label class="form-check-label" for="conheceu4">Jornal</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="como_conheceu_udm" value="PORTAL_UDM" id="conheceu5">
+  <label class="form-check-label" for="conheceu5">Portal da UDM</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="como_conheceu_udm" value="FACEBOOK_UDM" id="conheceu6">
+  <label class="form-check-label" for="conheceu6">Facebook da UDM</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="como_conheceu_udm" value="FAMILIAR_AMIGO" id="conheceu7">
+  <label class="form-check-label" for="conheceu7">Familiar / Amigo</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="como_conheceu_udm" value="SECRETARIA" id="conheceu8">
+  <label class="form-check-label" for="conheceu8">Secretaria Académica</label>
+</div>
+<div class="form-check mt-2">
+  <input class="form-check-input" type="radio" name="como_conheceu_udm" value="OUTRO" id="conheceuOutro">
+  <label class="form-check-label" for="conheceuOutro">Outro (especifique)</label>
+</div>
+<div class="mt-2">
+  <input type="text" name="conheceu_outro" id="campoConheceuOutro" class="form-control" placeholder="Indique outro meio de conhecimento" disabled>
+</div>
+
+<!-- 5. Suporte das Despesas -->
+<div class="section-title">5. Suporte das Despesas</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="radio"
+         name="suporte_despesas" id="despesa1"
+         value="PROPRIO" required>
+  <label class="form-check-label" for="despesa1">
+    Encargo Próprio
+  </label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="radio"
+         name="suporte_despesas" id="despesa2"
+         value="ENCARREGADO">
+  <label class="form-check-label" for="despesa2">
+    Encarregado
+  </label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="radio"
+         name="suporte_despesas" id="despesa3"
+         value="BOLSA">
+  <label class="form-check-label" for="despesa3">
+    Bolsa
+  </label>
+</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="radio"
+         name="suporte_despesas" id="despesa4"
+         value="EMPRESTIMO">
+  <label class="form-check-label" for="despesa4">
+    Empréstimo
+  </label>
+</div>
+
+<div class="form-check mt-2">
+  <input class="form-check-input" type="radio"
+         name="suporte_despesas" id="despesaOutro"
+         value="OUTRO">
+  <label class="form-check-label" for="despesaOutro">
+    Outro (especifique)
+  </label>
+</div>
+
+<div class="mt-2">
+  <input type="text" name="suporte_despesas_outro"
+         id="campoDespesaOutro"
+         class="form-control"
+         placeholder="Indique outra forma de suporte"
+         disabled>
+</div>
+
+<!-- 6. Expectativas e Receios -->
+<div class="section-title">6. Expectativas e Receios</div>
+<textarea name="expectativas_curso" id="expectativas_curso" class="form-control mb-3" rows="3" placeholder="Expectativas em relação ao curso" required></textarea>
+<div class="invalid-feedback">Informe suas expectativas.</div>
+<textarea name="receios_curso" id="receios_curso" class="form-control mb-3" rows="3" placeholder="Receios do estudante" required></textarea>
+<div class="invalid-feedback">Informe seus receios.</div>
+
+<!-- 7. Avaliação Geral -->
+<div class="section-title">7. Avaliação Geral</div>
+<div class="table-responsive">
+  <table class="table table-bordered text-center align-middle">
+    <thead class="table-light">
+      <tr>
+        <th class="text-start">Critério</th>
+        <th colspan="2">Inadequado</th>
+        <th colspan="2">Não satisfaz</th>
+        <th colspan="2">Satisfaz</th>
+        <th colspan="2">Acima da média</th>
+        <th colspan="2">Muito bom</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>1</th><th>2</th>
+        <th>3</th><th>4</th>
+        <th>5</th><th>6</th>
+        <th>7</th><th>8</th>
+        <th>9</th><th>10</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-start fw-semibold">Apresentação</td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="1" required></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="2"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="3"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="4"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="5"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="6"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="7"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="8"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="9"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="10"></td>
+      </tr>
+
+      <tr>
+        <td class="text-start fw-semibold">Conhecimento do Curso</td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="1" required></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="2"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="3"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="4"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="5"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="6"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="7"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="8"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="9"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="10"></td>
+      </tr>
+
+      <tr>
+        <td class="text-start fw-semibold">Conhecimento da UDM</td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="1" required></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="2"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="3"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="4"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="5"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="6"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="7"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="8"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="9"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="10"></td>
+      </tr>
+
+      <tr>
+        <td class="text-start fw-semibold">Fluência Comunicativa</td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="1" required></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="2"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="3"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="4"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="5"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="6"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="7"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="8"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="9"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="10"></td>
+      </tr>
+
+      <tr>
+        <td class="text-start fw-semibold">Objetivos Pessoais</td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="1" required></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="2"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="3"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="4"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="5"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="6"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="7"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="8"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="9"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="10"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- 8. Contactos do Estudante e Encarregado -->
+<div class="row g-3">
+  <div class="col-md-6">
+    <label class="form-label fw-semibold">Telefone do Estudante</label>
+    <input type="tel" name="contacto_estudante_telefone" id="contacto_estudante_telefone" class="form-control" placeholder="Ex: 82 / 84 / 86 XXXXXXX" required pattern="^(82|84|86|83|85|87)\s?\d{7}$">
+    <div class="invalid-feedback">Informe um número válido (Ex: 82 XXXXXXX).</div>
+
+    <label class="form-label fw-semibold mt-2">Email do Estudante</label>
+    <input type="email" name="contacto_estudante_email" id="contacto_estudante_email" class="form-control" placeholder="exemplo@email.com" required>
+    <div class="invalid-feedback">Informe um email válido.</div>
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label fw-semibold">Telefone do Encarregado de Educação</label>
+    <input type="tel" name="contacto_encarregado_telefone"  id="contacto_encarregado_telefone"  class="form-control" placeholder="Ex: 82 / 84 / 86 XXXXXXX" required pattern="^(82|84|86|83|85|87)\s?\d{7}$">
+    <div class="invalid-feedback">Informe um número válido (Ex: 82 XXXXXXX).</div>
+  </div>
+</div>
+
+<!-- 9. Observações -->
+<div class="section-title">9. Observações</div>
+<div class="row g-3">
+  <div class="col-12">
+    <label class="form-label fw-semibold">Observações</label>
+    <textarea name="observacoes" id="observacoes" class="form-control" rows="3" required minlength="5" placeholder="Digite suas observações aqui..."></textarea>
+    <div class="invalid-feedback">Informe suas observações (mínimo 5 caracteres).</div>
+  </div>
+  <div class="col-12 col-md-6">
+    <label class="form-label fw-semibold">Entrevistado por</label>
+    <input type="text" name="entrevistado_por" id="entrevistado_por" class="form-control" placeholder="Entrevistado por" required minlength="3">
+    <div class="invalid-feedback">Informe quem realizou a entrevista (mínimo 3 caracteres).</div>
+  </div>
+</div>
+
+<!-- Botão de envio -->
+ 
+<!---<div class="d-grid mt-4">
+  <button type="button" class="btn btn-success btn-lg rounded-pill" onclick="enviarEntrevista()">
+    <i class="bi bi-check-circle-fill"></i> Submeter Entrevista
+  </button>
+</div> --> 
+<div class="d-grid mt-4">
+  <button type="submit" class="btn btn-success btn-lg rounded-pill">
+    <i class="bi bi-check-circle-fill"></i> Submeter Entrevista
+  </button>
+</div>
+
+</form>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!--
+<script>
+(() => {
+  'use strict';
+
+  const form = document.querySelector('.needs-validation');
+
+  // Validação padrão Bootstrap
+  form.addEventListener('submit', event => {
+    if (!form.checkValidity()) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    form.classList.add('was-validated');
+  });
+
+  // Função para habilitar/desabilitar campos "Outro"
+  function toggleOutro(radioName, radioOutroId, campoId) {
+    document.querySelectorAll(`input[name="${radioName}"]`).forEach(radio => {
+      radio.addEventListener('change', () => {
+        const campo = document.getElementById(campoId);
+        if (document.getElementById(radioOutroId).checked) {
+          campo.disabled = false;
+          campo.required = true;
+          campo.focus();
+        } else {
+          campo.disabled = true;
+          campo.required = false;
+          campo.value = '';
+        }
+      });
+    });
+  }
+
+  // Aplicando "Outro" a todos os grupos
+  toggleOutro('motivo_escolha_curso','motivoOutro','campoMotivoOutro');
+  toggleOutro('motivo_escolha_udm','udmOutro','campoUdmOutro');
+  toggleOutro('como_conheceu_udm','conheceuOutro','campoConheceuOutro');
+  toggleOutro('suporte_despesas','despesaOutro','campoDespesaOutro');
+
+})();
+</script>-->
+<script>
+  function habilitarCampoOutro(radioName, idRadioOutro, idCampoOutro) {
+  const radios = document.querySelectorAll(`input[name="${radioName}"]`);
+  const radioOutro = document.getElementById(idRadioOutro);
+  const campoOutro = document.getElementById(idCampoOutro);
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radioOutro.checked) {
+        campoOutro.disabled = false;
+        campoOutro.required = true;
+        campoOutro.focus();
+      } else {
+        campoOutro.disabled = true;
+        campoOutro.required = false;
+        campoOutro.value = '';
+        campoOutro.classList.remove('is-invalid'); // remove erro se existir
+      }
+    });
+  });
+}
+
+// Ativar/desativar os "Outro"
+habilitarCampoOutro('motivo_escolha_curso','motivoOutro','campoMotivoOutro');
+habilitarCampoOutro('motivo_escolha_udm','udmOutro','campoUdmOutro');
+habilitarCampoOutro('como_conheceu_udm','conheceuOutro','campoConheceuOutro');
+habilitarCampoOutro('suporte_despesas','despesaOutro','campoDespesaOutro');
+
+</script>
+<script>
+  const form = document.querySelector('.needs-validation');
+
+form.addEventListener('submit', function(event) {
+  event.preventDefault(); // sempre prevenir envio padrão
+  event.stopPropagation();
+
+  // Forçar validação HTML5
+  if (!form.checkValidity()) {
+    form.classList.add('was-validated');
+    mostrarMensagem("Por favor, preencha todos os campos obrigatórios.", "warning");
+    return;
+  }
+
+  // Validar radios que usam "Outro" se estiverem selecionados
+  const outroCampos = [
+    {radio: "motivo_escolha_curso", campo: "campoMotivoOutro", idOutro: "motivoOutro"},
+    {radio: "motivo_escolha_udm", campo: "campoUdmOutro", idOutro: "udmOutro"},
+    {radio: "como_conheceu_udm", campo: "campoConheceuOutro", idOutro: "conheceuOutro"},
+    {radio: "suporte_despesas", campo: "campoDespesaOutro", idOutro: "despesaOutro"}
+  ];
+
+  for (const item of outroCampos) {
+    const radioOutro = document.getElementById(item.idOutro);
+    const campoOutro = document.getElementById(item.campo);
+    if (radioOutro.checked && !campoOutro.value.trim()) {
+      campoOutro.classList.add('is-invalid');
+      campoOutro.focus();
+      mostrarMensagem("Por favor, preencha o campo 'Outro' selecionado.", "warning");
+      return;
+    } else {
+      campoOutro.classList.remove('is-invalid');
+    }
+  }
+
+
+  
+
+
+
+  // Validar radios da Avaliação Geral (todos obrigatórios)
+  const avaliacao = [
+    "avaliacao_apresentacao",
+    "avaliacao_conhecimento_curso",
+    "avaliacao_conhecimento_udm",
+    "avaliacao_fluencia_comunicativa",
+    "avaliacao_objetivos_pessoais"
+  ];
+
+  for (const nome of avaliacao) {
+    if (!document.querySelector(`input[name="${nome}"]:checked`)) {
+      mostrarMensagem("Por favor, selecione todas as avaliações.", "warning");
+      return;
+    }
+  }
+
+  // Se chegou aqui, todos os campos obrigatórios foram preenchidos
+  enviarEntrevista();
+});
+
+</script>
+<script>
+
+const url = "http://udmgest.udm.ac.mz:5000/entrevistas/register/";
+//const url = "http://localhost:8000/entrevistas/register/";
+function mostrarMensagem(msg, tipo="success") {
+    const div = document.getElementById("mensagens");
+    div.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+        ${msg}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>`;
+}
+
+function enviarEntrevista() {
+    // === Coletar valores do formulário ===
+    const nome = document.getElementById("nome").value.trim();
+    const curso = document.getElementById("curso").value.trim();
+    const genero = document.getElementById("genero").value;
+    const faculdade = document.getElementById("faculdade").value;
+    const faixa_etaria = document.getElementById("faixa_etaria").value;
+    const situacao_profissional = document.getElementById("situacao_profissional").value;
+    const semestre = document.getElementById("semestre").value;
+    const bairro_residencia = document.getElementById("bairro_residencia").value.trim();
+
+    const motivo_escolha_curso =
+  document.querySelector('input[name="motivo_escolha_curso"]:checked')?.value || "";
+
+const motivo_outro =
+  document.getElementById("campoMotivoOutro")?.value.trim() || "";
+
+  const motivo_escolha_udm =
+  document.querySelector('input[name="motivo_escolha_udm"]:checked')?.value || "";
+
+const escolha_udm_outro =
+  document.getElementById("campoUdmOutro")?.value.trim() || "";
+
+  const como_conheceu_udm =
+  document.querySelector('input[name="como_conheceu_udm"]:checked')?.value || "";
+
+const conheceu_outro =
+  document.getElementById("campoConheceuOutro")?.value.trim() || "";
+
+    const expectativas_curso = document.getElementById("expectativas_curso").value.trim();
+    const receios_curso = document.getElementById("receios_curso").value.trim();
+
+
+    function getRadioValue(name) {
+  const radio = document.querySelector(`input[name="${name}"]:checked`);
+  return radio ? radio.value : "";
+}
+
+// Exemplo de uso:
+const avaliacao_apresentacao = getRadioValue("avaliacao_apresentacao");
+const avaliacao_conhecimento_curso = getRadioValue("avaliacao_conhecimento_curso");
+const avaliacao_conhecimento_udm = getRadioValue("avaliacao_conhecimento_udm");
+const avaliacao_fluencia_comunicativa = getRadioValue("avaliacao_fluencia_comunicativa");
+const avaliacao_objetivos_pessoais = getRadioValue("avaliacao_objetivos_pessoais");
+
+    const contacto_estudante_telefone =
+  document.getElementById("contacto_estudante_telefone").value.trim();
+
+const contacto_estudante_email =
+  document.getElementById("contacto_estudante_email").value.trim();
+
+const contacto_encarregado_telefone =
+  document.getElementById("contacto_encarregado_telefone").value.trim();
+
+    const observacoes = document.getElementById("observacoes").value.trim();
+    const entrevistado_por = document.getElementById("entrevistado_por").value.trim();
+
+    // const suporte_despesas = document.getElementById("suporte_despesas").value;
+   // const suporte_despesas_outro = document.getElementById("campoDespesaOutro").value; 
+    const suporteRadio =
+  document.querySelector('input[name="suporte_despesas"]:checked');
+
+let suporte_despesas = "";
+let suporte_despesas_outro = "";
+
+if (suporteRadio) {
+  suporte_despesas = suporteRadio.value;
+
+  if (suporte_despesas === "OUTRO") {
+    suporte_despesas_outro =
+      document.getElementById("campoDespesaOutro").value.trim();
+  }
+}
+
+
+    // === Validar campos obrigatórios ===
+    /*if (!nome || !curso) {
+        mostrarMensagem("Nome e Curso são obrigatórios.", "warning");
+        return;
+    }
+    */
+    console.log(bairro_residencia);
+
+    // === Criar FormData ===
+    const formData = new FormData();
+    formData.append("nome", nome);
+    formData.append("curso", curso);
+    formData.append("genero", genero);
+    formData.append("faculdade", faculdade);
+    formData.append("faixa_etaria", faixa_etaria);
+    formData.append("situacao_profissional", situacao_profissional);
+    formData.append("semestre", semestre);
+    formData.append("bairro_residencia", bairro_residencia);
+
+    formData.append("motivo_escolha_curso", motivo_escolha_curso);
+    formData.append("motivo_outro", motivo_outro);
+
+    formData.append("motivo_escolha_udm", motivo_escolha_udm);
+    formData.append("escolha_udm_outro", escolha_udm_outro);
+
+    formData.append("como_conheceu_udm", como_conheceu_udm);
+    formData.append("conheceu_outro", conheceu_outro);
+
+    formData.append("suporte_despesas", suporte_despesas);
+    formData.append("suporte_despesas_outro", suporte_despesas_outro);
+
+    formData.append("expectativas_curso", expectativas_curso);
+    formData.append("receios_curso", receios_curso);
+
+    formData.append("avaliacao_apresentacao", avaliacao_apresentacao);
+    formData.append("avaliacao_conhecimento_curso", avaliacao_conhecimento_curso);
+    formData.append("avaliacao_conhecimento_udm", avaliacao_conhecimento_udm);
+    formData.append("avaliacao_fluencia_comunicativa", avaliacao_fluencia_comunicativa);
+    formData.append("avaliacao_objetivos_pessoais", avaliacao_objetivos_pessoais);
+
+    formData.append(
+      "contacto_estudante_telefone",
+      contacto_estudante_telefone
+    );
+
+    formData.append(
+      "contacto_estudante_email",
+      contacto_estudante_email
+    );
+
+    formData.append(
+      "contacto_encarregado_telefone",
+      contacto_encarregado_telefone
+    );
+
+    formData.append("observacoes", observacoes);
+    formData.append("entrevistado_por", entrevistado_por);
+
+    // === Enviar para o servidor ===
+    fetch(url, { method: "POST", body: formData })
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+        mostrarMensagem(data.message, data.success ? "success" : "danger");
+        if (data.success) {
+            // Limpar campos
+            document.getElementById("nome").value = "";
+            document.getElementById("curso").value = "";
+            document.getElementById("genero").value = "";
+            document.getElementById("faculdade").value = "";
+            document.getElementById("faixa_etaria").value = "";
+            document.getElementById("situacao_profissional").value = "";
+            document.getElementById("semestre").value = "";
+            document.getElementById("bairro_residencia").value = "";
+
+            function limparRadios(name) {
+              document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                radio.checked = false;
+              });
+            }
+
+            // Exemplo ao enviar:
+            limparRadios("avaliacao_apresentacao");
+            limparRadios("avaliacao_conhecimento_curso");
+            limparRadios("avaliacao_conhecimento_udm");
+            limparRadios("avaliacao_fluencia_comunicativa");
+            limparRadios("avaliacao_objetivos_pessoais");
+
+            document.getElementById("observacoes").value = "";
+            document.getElementById("entrevistado_por").value = "";
+        }
+    })
+    .catch(err => {
+        mostrarMensagem("Erro na comunicação com o servidor.", "danger");
+        console.error(err);
+    });
+}
+</script>
+</body>
+</html>

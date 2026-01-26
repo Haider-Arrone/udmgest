@@ -31,6 +31,7 @@ urlpatterns = [
     path('rhumanos/', include('rhumanos.urls')),
     path('calendario/', include('calendario.urls')),
     path('convite/', include('convite.urls')),
+    path('entrevistas/', include('entrevistas.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

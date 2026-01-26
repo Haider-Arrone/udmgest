@@ -1,0 +1,25 @@
+from django.urls import path
+
+from . import views
+
+app_name = 'entrevistas'
+
+urlpatterns = [
+    #  path('evento/<int:evento_id>/presencas/', views.confirmar_presenca, name='confirmar_presenca'),
+    path("list/", views.listar_entrevistas, name="listar_entrevistas"),
+    path('<int:entrevista_id>/', views.detalhes_entrevista, name='detalhes_entrevista'),
+    # path(
+    #     'evento/gerarconvite/',
+    #     views.gerar_convite,
+    #     name='gerar_convite'
+    # ),
+    path('register/', views.cadastrar_entrevista, name='cadastrar_entrevista'),
+    path('', views.entrevista_externa, name='entrevista_externa'),
+    # path("convite/editar/<int:convite_id>/", views.editar_convite, name="editar_convite"),
+    # path('', views.home, name="home"),
+    # path('expedients/<int:id>/', views.expedient, name="expedient"),
+    #  path('recipes/search/', views.search, name="search"),
+    # path('recipes/category/<int:category_id>/', views.category, name="category"),
+    # path('recipes/<int:id>/', views.recipe, name="recipe"),
+
+]

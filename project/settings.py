@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'calendario',
     'convite',
+    'entrevistas',
     # "dal",
     # "dal_select2",
 ]

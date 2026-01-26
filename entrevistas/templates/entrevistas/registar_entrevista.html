@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Registo da Entrevista – UDM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .section-card {
+            border-radius: 12px;
+            border: none;
+        }
+        .section-title {
+            font-weight: 600;
+            color: #0d6efd;
+            margin-bottom: 1rem;
+        }
+        label {
+            font-weight: 500;
+            margin-bottom: .25rem;
+        }
+        .form-check-label {
+            font-weight: 400;
+        }
+        .btn-submit {
+            padding: 12px;
+            font-size: 1.05rem;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container py-4">
+
+    <!-- CABEÇALHO -->
+    <div class="text-center mb-4">
+        <h3 class="fw-bold">Guião de Entrevista</h3>
+        <p class="text-muted mb-0">
+            Universidade Técnica de Moçambique (UDM)
+        </p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- 1. DADOS DO ESTUDANTE -->
+        <div class="card section-card shadow-sm mb-4">
+            <div class="card-body">
+                <h6 class="section-title">1. Dados do Estudante</h6>
+
+                <div class="mb-3">
+                    {{ form.nome.label_tag }}
+                    {{ form.nome }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.curso.label_tag }}
+                    {{ form.curso }}
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        {{ form.genero.label_tag }}
+                        {{ form.genero }}
+                    </div>
+                    <div class="col-12 col-md-4">
+                        {{ form.faculdade.label_tag }}
+                        {{ form.faculdade }}
+                    </div>
+                    <div class="col-12 col-md-4">
+                        {{ form.faixa_etaria.label_tag }}
+                        {{ form.faixa_etaria }}
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-12 col-md-6">
+                        {{ form.situacao_profissional.label_tag }}
+                        {{ form.situacao_profissional }}
+                    </div>
+                    <div class="col-6 col-md-3">
+                        {{ form.semestre.label_tag }}
+                        {{ form.semestre }}
+                    </div>
+                    <div class="col-6 col-md-3">
+                        {{ form.bairro_residencia.label_tag }}
+                        {{ form.bairro_residencia }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MOTIVO DO CURSO -->
+        <div class="card section-card shadow-sm mb-4">
+            <div class="card-body">
+                <h6 class="section-title">2. Motivo da Escolha do Curso</h6>
+
+                <div class="form-check mb-2">
+                    {{ form.motivo_identificacao_curso }} {{ form.motivo_identificacao_curso.label_tag }}
+                </div>
+                <div class="form-check mb-2">
+                    {{ form.motivo_influencia_familiar }} {{ form.motivo_influencia_familiar.label_tag }}
+                </div>
+                <div class="form-check mb-2">
+                    {{ form.motivo_oportunidade }} {{ form.motivo_oportunidade.label_tag }}
+                </div>
+                <div class="form-check mb-2">
+                    {{ form.motivo_ja_trabalha_area }} {{ form.motivo_ja_trabalha_area.label_tag }}
+                </div>
+                <div class="form-check mb-3">
+                    {{ form.motivo_localizacao_udm }} {{ form.motivo_localizacao_udm.label_tag }}
+                </div>
+
+                {{ form.motivo_outro.label_tag }}
+                {{ form.motivo_outro }}
+            </div>
+        </div>
+
+        <!-- 3. EXPECTATIVAS -->
+        <div class="card section-card shadow-sm mb-4">
+            <div class="card-body">
+                <h6 class="section-title">3. Expectativas e Receios</h6>
+
+                <div class="mb-3">
+                    {{ form.expectativas_curso.label_tag }}
+                    {{ form.expectativas_curso }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.receios_curso.label_tag }}
+                    {{ form.receios_curso }}
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. CONTACTOS -->
+        <div class="card section-card shadow-sm mb-4">
+            <div class="card-body">
+                <h6 class="section-title">4. Contactos</h6>
+
+                <div class="mb-3">
+                    {{ form.contacto_estudante_telefone.label_tag }}
+                    {{ form.contacto_estudante_telefone }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.contacto_estudante_email.label_tag }}
+                    {{ form.contacto_estudante_email }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.contacto_encarregado_telefone.label_tag }}
+                    {{ form.contacto_encarregado_telefone }}
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. OBSERVAÇÕES -->
+        <div class="card section-card shadow-sm mb-4">
+            <div class="card-body">
+                <h6 class="section-title">5. Observações</h6>
+
+                <div class="mb-3">
+                    {{ form.observacoes }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.entrevistado_por.label_tag }}
+                    {{ form.entrevistado_por }}
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTÃO -->
+        <div class="d-grid mb-4">
+            <button type="submit" class="btn btn-success btn-submit">
+                Submeter Entrevista
+            </button>
+        </div>
+
+    </form>
+
+    <p class="text-center text-muted small">
+        © UDM – Sistema de Entrevistas
+    </p>
+
+</div>
+
+</body>
+</html>
