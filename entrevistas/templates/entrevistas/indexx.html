@@ -441,48 +441,7 @@ body{
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!--
-<script>
-(() => {
-  'use strict';
 
-  const form = document.querySelector('.needs-validation');
-
-  // Validação padrão Bootstrap
-  form.addEventListener('submit', event => {
-    if (!form.checkValidity()) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    form.classList.add('was-validated');
-  });
-
-  // Função para habilitar/desabilitar campos "Outro"
-  function toggleOutro(radioName, radioOutroId, campoId) {
-    document.querySelectorAll(`input[name="${radioName}"]`).forEach(radio => {
-      radio.addEventListener('change', () => {
-        const campo = document.getElementById(campoId);
-        if (document.getElementById(radioOutroId).checked) {
-          campo.disabled = false;
-          campo.required = true;
-          campo.focus();
-        } else {
-          campo.disabled = true;
-          campo.required = false;
-          campo.value = '';
-        }
-      });
-    });
-  }
-
-  // Aplicando "Outro" a todos os grupos
-  toggleOutro('motivo_escolha_curso','motivoOutro','campoMotivoOutro');
-  toggleOutro('motivo_escolha_udm','udmOutro','campoUdmOutro');
-  toggleOutro('como_conheceu_udm','conheceuOutro','campoConheceuOutro');
-  toggleOutro('suporte_despesas','despesaOutro','campoDespesaOutro');
-
-})();
-</script>-->
 <script>
   function habilitarCampoOutro(radioName, idRadioOutro, idCampoOutro) {
   const radios = document.querySelectorAll(`input[name="${radioName}"]`);
@@ -583,6 +542,10 @@ function mostrarMensagem(msg, tipo="success") {
         ${msg}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>`;
+     window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
 function enviarEntrevista() {
@@ -724,6 +687,22 @@ if (suporteRadio) {
     .then(({ ok, data }) => {
         mostrarMensagem(data.message, data.success ? "success" : "danger");
         if (data.success) {
+          mostrarMensagem(
+      "✅ Entrevista submetida com sucesso.",
+      "success"
+    );
+    
+
+    // Opcional: desativar botão para evitar duplo envio
+    document.querySelector('button[type="submit"]').disabled = true;
+
+    // Redirecionar para o Gmail após 2.5 segundos
+    setTimeout(() => {
+        window.location.href = "https://www.udm.ac.mz/";
+    }, 500);
+
+
+
             // Limpar campos
             document.getElementById("nome").value = "";
             document.getElementById("curso").value = "";

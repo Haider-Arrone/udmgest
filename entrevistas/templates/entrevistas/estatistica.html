@@ -1,0 +1,302 @@
+{% extends "global/base.html" %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+  <!-- TÍTULO -->
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="fw-bold text-primary">
+        Estatísticas das Entrevistas de Orientação
+      </h2>
+      <p class="text-muted">
+        Análise consolidada dos dados recolhidos junto dos estudantes
+      </p>
+    </div>
+  </div>
+
+  <!-- RESUMO GERAL -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-2">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Total de Entrevistas</h6>
+          <h3 class="fw-bold">{{ total_entrevistas }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Média Apresentação</h6>
+          <h3 class="fw-bold">{{ media_apresentacao|floatformat:1|default:"-" }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Média Conhecimento Curso</h6>
+          <h3 class="fw-bold">{{ media_conhecimento_curso|floatformat:1|default:"-" }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Média Conhecimento UDM</h6>
+          <h3 class="fw-bold">{{ media_conhecimento_udm|floatformat:1|default:"-" }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Média Fluência Comunicativa</h6>
+          <h3 class="fw-bold">{{ media_fluencia|floatformat:1|default:"-" }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Média Objetivos Pessoais</h6>
+          <h3 class="fw-bold">{{ media_objetivos|floatformat:1|default:"-" }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFIL DOS ESTUDANTES -->
+  <div class="row mb-4">
+    <div class="col">
+      <h5 class="fw-bold text-secondary">Perfil dos Estudantes</h5>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- GÊNERO -->
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-light fw-semibold">
+          Distribuição por Género
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for item in por_genero %}
+            <tr>
+              <td>{{ item.genero|default:"Não informado" }}</td>
+              <td class="text-end fw-bold">{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted">Sem dados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FAIXA ETÁRIA -->
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-light fw-semibold">
+          Faixa Etária
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for item in por_faixa_etaria %}
+            <tr>
+              <td>{{ item.faixa_etaria|default:"Não informado" }}</td>
+              <td class="text-end fw-bold">{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted">Sem dados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SITUAÇÃO PROFISSIONAL -->
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-light fw-semibold">
+          Situação Profissional
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for item in por_situacao_profissional %}
+            <tr>
+              <td>{{ item.situacao_profissional|default:"Não informado" }}</td>
+              <td class="text-end fw-bold">{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted">Sem dados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FACULDADE E CURSOS -->
+  <div class="row mt-5 g-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">
+          Distribuição por Faculdade
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for item in por_faculdade %}
+            <tr>
+              <td>{{ item.faculdade|default:"Não informado" }}</td>
+              <td class="text-end fw-bold">{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted">Sem dados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">
+          Cursos mais Escolhidos
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for item in por_curso %}
+            <tr>
+              <td>{{ item.curso|default:"Não informado" }}</td>
+              <td class="text-end fw-bold">{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted">Sem dados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESPESAS -->
+  <div class="row mt-5 g-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">
+          Suporte das Despesas
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for item in por_suporte_despesas %}
+            <tr>
+              <td>{{ item.suporte_despesas|default:"Não informado" }}</td>
+              <td class="text-end fw-bold">{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted">Sem dados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOTIVAÇÕES -->
+  <div class="row mt-5">
+    <div class="col">
+      <h5 class="fw-bold text-secondary">Motivações</h5>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">
+          Motivo da Escolha do Curso
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for item in motivo_escolha_curso %}
+            <tr>
+              <td>{{ item.motivo_escolha_curso|default:"Não informado" }}</td>
+              <td class="text-end fw-bold">{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted">Sem dados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">
+          Motivo da Escolha da UDM
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for item in motivo_escolha_udm %}
+            <tr>
+              <td>{{ item.motivo_escolha_udm|default:"Não informado" }}</td>
+              <td class="text-end fw-bold">{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted">Sem dados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">
+          Como Conheceu a UDM
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for item in como_conheceu_udm %}
+            <tr>
+              <td>{{ item.como_conheceu_udm|default:"Não informado" }}</td>
+              <td class="text-end fw-bold">{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted">Sem dados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

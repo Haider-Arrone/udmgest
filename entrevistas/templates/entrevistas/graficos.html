@@ -1,0 +1,114 @@
+{% extends "global/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container-fluid mt-4">
+
+  <h2 class="fw-bold text-primary mb-4">Estatísticas das Entrevistas (Gráficos)</h2>
+
+  <div class="row g-4">
+
+    <!-- Gênero -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">Distribuição por Gênero</div>
+        <div class="card-body">
+          <canvas id="graficoGenero"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Faixa Etária -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">Faixa Etária</div>
+        <div class="card-body">
+          <canvas id="graficoFaixa"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Situação Profissional -->
+    <div class="col-md-6 mt-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">Situação Profissional</div>
+        <div class="card-body">
+          <canvas id="graficoSituacao"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Faculdade -->
+    <div class="col-md-6 mt-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">Faculdades Mais Escolhidas</div>
+        <div class="card-body">
+          <canvas id="graficoFaculdade"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cursos -->
+    <div class="col-md-6 mt-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">Cursos Mais Escolhidos</div>
+        <div class="card-body">
+          <canvas id="graficoCurso"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suporte das Despesas -->
+    <div class="col-md-6 mt-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">Suporte das Despesas</div>
+        <div class="card-body">
+          <canvas id="graficoDespesas"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const corPalette = ['#007bff','#28a745','#ffc107','#dc3545','#17a2b8','#6c757d','#fd7e14','#6610f2','#20c997','#e83e8c'];
+
+// Função para criar gráficos
+function criarGrafico(id, labels, data, tipo='bar') {
+    const ctx = document.getElementById(id).getContext('2d');
+    new Chart(ctx, {
+        type: tipo,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '',
+                data: data,
+                backgroundColor: corPalette,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                y: { beginAtZero: true, precision:0 }
+            }
+        }
+    });
+}
+
+// Criar todos os gráficos
+criarGrafico('graficoGenero', {{ genero_labels|safe }}, {{ genero_values|safe }});
+criarGrafico('graficoFaixa', {{ faixa_labels|safe }}, {{ faixa_values|safe }});
+criarGrafico('graficoSituacao', {{ situacao_labels|safe }}, {{ situacao_values|safe }});
+criarGrafico('graficoFaculdade', {{ faculdade_labels|safe }}, {{ faculdade_values|safe }});
+criarGrafico('graficoCurso', {{ curso_labels|safe }}, {{ curso_values|safe }});
+criarGrafico('graficoDespesas', {{ despesas_labels|safe }}, {{ despesas_values|safe }});
+</script>
+{% endblock %}

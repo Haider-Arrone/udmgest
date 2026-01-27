@@ -8,11 +8,8 @@ urlpatterns = [
     #  path('evento/<int:evento_id>/presencas/', views.confirmar_presenca, name='confirmar_presenca'),
     path("list/", views.listar_entrevistas, name="listar_entrevistas"),
     path('<int:entrevista_id>/', views.detalhes_entrevista, name='detalhes_entrevista'),
-    # path(
-    #     'evento/gerarconvite/',
-    #     views.gerar_convite,
-    #     name='gerar_convite'
-    # ),
+    path("estatisticas/", views.estatisticas_entrevistas, name="estatisticas_entrevistas"),
+    path("graficos/", views.estatisticas_entrevistas_grafico, name="estatisticas_entrevistas_grafico"),
     path('register/', views.cadastrar_entrevista, name='cadastrar_entrevista'),
     path('', views.entrevista_externa, name='entrevista_externa'),
     # path("convite/editar/<int:convite_id>/", views.editar_convite, name="editar_convite"),

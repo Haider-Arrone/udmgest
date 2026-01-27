@@ -27,6 +27,7 @@ from django.utils import timezone
 import logging
 from django.http import Http404
 from .models import EntrevistaEstudante
+from django.db.models import Count, Avg
 
 logger = logging.getLogger(__name__)
 
@@ -289,3 +290,210 @@ def entrevista_externa(request):
         "entrevistas/indexx.html",
        
     )
+@login_required(login_url='authors:login', redirect_field_name='next')
+def estatisticas_entrevistas(request):
+    try:
+        funcionario = (
+            Funcionario.objects
+            .select_related('departamento')
+            .filter(author=request.user)
+            .first()
+        )
+
+        if not funcionario:
+            raise Http404("Funcionário não encontrado")
+
+        entrevistas = EntrevistaEstudante.objects.all()
+
+        # ======================
+        # MÉDIAS (com fallback)
+        # ======================
+        medias = entrevistas.aggregate(
+            media_apresentacao=Avg("avaliacao_apresentacao"),
+            media_conhecimento_curso=Avg("avaliacao_conhecimento_curso"),
+            media_conhecimento_udm=Avg("avaliacao_conhecimento_udm"),
+            media_fluencia=Avg("avaliacao_fluencia_comunicativa"),
+            media_objetivos=Avg("avaliacao_objetivos_pessoais"),
+        )
+
+        # Garantir que nenhuma média venha como None
+        for key, value in medias.items():
+            medias[key] = round(value, 1) if value else 0
+
+        context = {
+            "funcionario": funcionario,
+
+            # ======================
+            # GERAL
+            # ======================
+            "total_entrevistas": entrevistas.count(),
+
+            **medias,
+
+            # ======================
+            # PERFIL DO ESTUDANTE
+            # ======================
+            "por_genero": entrevistas.exclude(
+                genero__isnull=True
+            ).exclude(
+                genero=""
+            ).values("genero").annotate(total=Count("id")).order_by("-total"),
+
+            "por_faixa_etaria": entrevistas.exclude(
+                faixa_etaria__isnull=True
+            ).exclude(
+                faixa_etaria=""
+            ).values("faixa_etaria").annotate(total=Count("id")).order_by("-total"),
+
+            "por_situacao_profissional": entrevistas.exclude(
+                situacao_profissional__isnull=True
+            ).exclude(
+                situacao_profissional=""
+            ).values("situacao_profissional").annotate(total=Count("id")).order_by("-total"),
+
+            "por_faculdade": entrevistas.exclude(
+                faculdade__isnull=True
+            ).exclude(
+                faculdade=""
+            ).values("faculdade").annotate(total=Count("id")).order_by("-total"),
+
+            "por_curso": entrevistas.exclude(
+                curso__isnull=True
+            ).exclude(
+                curso=""
+            ).values("curso").annotate(total=Count("id")).order_by("-total")[:10],
+
+            # ======================
+            # DESPESAS
+            # ======================
+            "por_suporte_despesas": entrevistas.exclude(
+                suporte_despesas__isnull=True
+            ).exclude(
+                suporte_despesas=""
+            ).values("suporte_despesas").annotate(total=Count("id")).order_by("-total"),
+
+            # ======================
+            # MOTIVAÇÕES
+            # ======================
+            "motivo_escolha_curso": entrevistas.exclude(
+                motivo_escolha_curso__isnull=True
+            ).exclude(
+                motivo_escolha_curso=""
+            ).values("motivo_escolha_curso").annotate(total=Count("id")).order_by("-total"),
+
+            "motivo_escolha_udm": entrevistas.exclude(
+                motivo_escolha_udm__isnull=True
+            ).exclude(
+                motivo_escolha_udm=""
+            ).values("motivo_escolha_udm").annotate(total=Count("id")).order_by("-total"),
+
+            "como_conheceu_udm": entrevistas.exclude(
+                como_conheceu_udm__isnull=True
+            ).exclude(
+                como_conheceu_udm=""
+            ).values("como_conheceu_udm").annotate(total=Count("id")).order_by("-total"),
+        }
+
+        return render(request, "entrevistas/estatistica.html", context)
+
+    except Http404:
+        raise
+
+    except Exception as e:
+        logger.exception("Erro ao gerar estatísticas de entrevistas")
+        raise Http404("Não foi possível carregar as estatísticas no momento.")
+    
+    
+@login_required(login_url='authors:login', redirect_field_name='next')
+def estatisticas_entrevistas_grafico(request):
+    """
+    Exibe estatísticas das entrevistas com gráficos interativos.
+    """
+    try:
+        funcionario = (
+            Funcionario.objects
+            .select_related('departamento')
+            .filter(author=request.user)
+            .first()
+        )
+        if not funcionario:
+            raise Http404("Funcionário não encontrado")
+
+        entrevistas = EntrevistaEstudante.objects.all()
+
+        # ======================
+        # MÉDIAS
+        # ======================
+        medias = entrevistas.aggregate(
+            media_apresentacao=Avg("avaliacao_apresentacao"),
+            media_conhecimento_curso=Avg("avaliacao_conhecimento_curso"),
+            media_conhecimento_udm=Avg("avaliacao_conhecimento_udm"),
+            media_fluencia=Avg("avaliacao_fluencia_comunicativa"),
+            media_objetivos=Avg("avaliacao_objetivos_pessoais"),
+        )
+        # Garantir valores
+        for key, value in medias.items():
+            medias[key] = round(value, 1) if value else 0
+
+        # ======================
+        # DISTRIBUIÇÕES PARA GRÁFICOS
+        # ======================
+        def chart_data(queryset, field_name):
+            """
+            Retorna labels e valores para gráficos.
+            """
+            labels = []
+            values = []
+            for item in queryset:
+                labels.append(item[field_name] if item[field_name] else "Não informado")
+                values.append(item["total"])
+            return labels, values
+
+        # Perfil dos estudantes
+        por_genero = entrevistas.exclude(genero__isnull=True).exclude(genero="").values("genero").annotate(total=Count("id")).order_by("-total")
+        por_faixa_etaria = entrevistas.exclude(faixa_etaria__isnull=True).exclude(faixa_etaria="").values("faixa_etaria").annotate(total=Count("id")).order_by("-total")
+        por_situacao_profissional = entrevistas.exclude(situacao_profissional__isnull=True).exclude(situacao_profissional="").values("situacao_profissional").annotate(total=Count("id")).order_by("-total")
+        por_faculdade = entrevistas.exclude(faculdade__isnull=True).exclude(faculdade="").values("faculdade").annotate(total=Count("id")).order_by("-total")[:10]
+        por_curso = entrevistas.exclude(curso__isnull=True).exclude(curso="").values("curso").annotate(total=Count("id")).order_by("-total")[:10]
+        por_suporte_despesas = entrevistas.exclude(suporte_despesas__isnull=True).exclude(suporte_despesas="").values("suporte_despesas").annotate(total=Count("id")).order_by("-total")
+
+        # Dados para gráficos
+        genero_labels, genero_values = chart_data(por_genero, "genero")
+        faixa_labels, faixa_values = chart_data(por_faixa_etaria, "faixa_etaria")
+        situacao_labels, situacao_values = chart_data(por_situacao_profissional, "situacao_profissional")
+        faculdade_labels, faculdade_values = chart_data(por_faculdade, "faculdade")
+        curso_labels, curso_values = chart_data(por_curso, "curso")
+        despesas_labels, despesas_values = chart_data(por_suporte_despesas, "suporte_despesas")
+
+        context = {
+            "funcionario": funcionario,
+            "total_entrevistas": entrevistas.count(),
+            **medias,
+
+            # Dados gráficos
+            "genero_labels": genero_labels,
+            "genero_values": genero_values,
+
+            "faixa_labels": faixa_labels,
+            "faixa_values": faixa_values,
+
+            "situacao_labels": situacao_labels,
+            "situacao_values": situacao_values,
+
+            "faculdade_labels": faculdade_labels,
+            "faculdade_values": faculdade_values,
+
+            "curso_labels": curso_labels,
+            "curso_values": curso_values,
+
+            "despesas_labels": despesas_labels,
+            "despesas_values": despesas_values,
+        }
+
+        return render(request, "entrevistas/graficos.html", context)
+
+    except Http404:
+        raise
+    except Exception as e:
+        logger.exception("Erro ao gerar estatísticas em gráfico")
+        raise Http404("Não foi possível carregar as estatísticas no momento.")

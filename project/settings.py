@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'calendario',
     'convite',
     'entrevistas',
+    'django.contrib.humanize',
     # "dal",
     # "dal_select2",
 ]
