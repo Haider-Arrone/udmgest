@@ -59,6 +59,7 @@ class EntrevistaEstudanteAdmin(admin.ModelAdmin):
                 'situacao_profissional',
                 'semestre',
                 'bairro_residencia',
+                'escola',
             )
         }),
 
@@ -119,12 +120,16 @@ class EntrevistaEstudanteAdmin(admin.ModelAdmin):
             'fields': (
                 'observacoes',
                 'entrevistado_por',
+                'data_entrevista_por',
             ),
         }),
 
         ('Informação do Sistema', {
             'fields': (
                 'data_entrevista',
+                
+                'estado',
+                
             ),
         }),
     )
@@ -134,4 +139,5 @@ class EntrevistaEstudanteAdmin(admin.ModelAdmin):
     # ==================================================
     readonly_fields = (
         'data_entrevista',
+        'data_entrevista_por',
     )

@@ -1,6 +1,8 @@
 {% extends "global/base.html" %}
 
 {% block content %}
+
+{% include 'global/partials/messages.html' %}
 <div class="container mt-5">
 
     <!-- CABEÇALHO -->
@@ -10,15 +12,33 @@
         </h2>
 
         <div class="btn-group">
-            <a href="" class="btn btn-outline-secondary">
+            <a href="{% url 'entrevistas:listar_entrevistas' %}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Voltar
             </a>
-            <a href="" class="btn btn-outline-primary">
+            {% comment %} <a href="" class="btn btn-outline-primary">
                 <i class="bi bi-pencil"></i> Editar
-            </a>
+            </a> {% endcomment %}
         </div>
     </div>
 
+
+
+<!-- ESTADO -->
+<div class="mb-4">
+    {% if entrevista.estado == 'anulado' %}
+        <span class="badge bg-danger text-white fs-6 px-3 py-2 shadow">
+            <i class="bi bi-x-circle-fill me-1"></i> Anulado
+        </span>
+    {% elif entrevista.estado == 'pendente' %}
+        <span class="badge bg-success text-white fs-6 px-3 py-2 shadow">
+            <i class="bi bi-check-circle-fill me-1"></i> Pendente
+        </span>
+    {% else %}
+        <span class="badge bg-secondary text-white fs-6 px-3 py-2 shadow">
+            <i class="bi bi-question-circle-fill me-1"></i> {{ entrevista.estado|capfirst }}
+        </span>
+    {% endif %}
+</div>
     <!-- CARD PRINCIPAL -->
     <div class="card shadow-sm mb-4">
         <div class="card-body">
@@ -63,6 +83,10 @@
                     <div class="col-md-6">
                         <strong>Bairro de Residência:</strong><br>
                         {{ entrevista.bairro_residencia|default:"—" }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Escola de Proveniência:</strong><br>
+                        {{ entrevista.escola|default:"—" }}
                     </div>
                 </div>
             </div>
@@ -198,6 +222,10 @@
                 <p class="mt-3">
                     <strong>Entrevistado por:</strong>
                     {{ entrevista.entrevistado_por|default:"—" }}
+                </p>
+                <p class="mt-3">
+                    <strong>Data da avaliação da Entrevista:</strong>
+                    {{ entrevista.data_entrevista_por|default:"—" }}
                 </p>
             </div>
 

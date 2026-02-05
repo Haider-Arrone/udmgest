@@ -125,6 +125,11 @@ body{
     <input type="text" name="bairro_residencia" id="bairro_residencia" class="form-control" required minlength="2">
     <div class="invalid-feedback">Informe o bairro de residência.</div>
   </div>
+  <div class="mb-3">
+    <label class="form-label fw-semibold">Escola de Proveniência</label>
+    <input type="text" name="escola" id="escola" class="form-control" placeholder="Escola de Proveniência" required minlength="3">
+    <div class="invalid-feedback">Informe a Escola de Proveniência (mínimo 5 caracteres).</div>
+  </div>
 </div>
 
 <!-- 2. Motivo da Escolha do Curso -->
@@ -293,7 +298,7 @@ body{
 <div class="invalid-feedback">Informe seus receios.</div>
 
 <!-- 7. Avaliação Geral -->
-<div class="section-title">7. Avaliação Geral</div>
+{% comment %} <div class="section-title">7. Avaliação Geral</div>
 <div class="table-responsive">
   <table class="table table-bordered text-center align-middle">
     <thead class="table-light">
@@ -386,7 +391,7 @@ body{
       </tr>
     </tbody>
   </table>
-</div>
+</div> {% endcomment %}
 
 
 <!-- 8. Contactos do Estudante e Encarregado -->
@@ -416,11 +421,11 @@ body{
     <textarea name="observacoes" id="observacoes" class="form-control" rows="3" required minlength="5" placeholder="Digite suas observações aqui..."></textarea>
     <div class="invalid-feedback">Informe suas observações (mínimo 5 caracteres).</div>
   </div>
-  <div class="col-12 col-md-6">
+  {% comment %} <div class="col-12 col-md-6">
     <label class="form-label fw-semibold">Entrevistado por</label>
     <input type="text" name="entrevistado_por" id="entrevistado_por" class="form-control" placeholder="Entrevistado por" required minlength="3">
     <div class="invalid-feedback">Informe quem realizou a entrevista (mínimo 3 caracteres).</div>
-  </div>
+  </div> {% endcomment %}
 </div>
 
 <!-- Botão de envio -->
@@ -512,7 +517,7 @@ form.addEventListener('submit', function(event) {
 
 
   // Validar radios da Avaliação Geral (todos obrigatórios)
-  const avaliacao = [
+/*const avaliacao = [
     "avaliacao_apresentacao",
     "avaliacao_conhecimento_curso",
     "avaliacao_conhecimento_udm",
@@ -525,7 +530,7 @@ form.addEventListener('submit', function(event) {
       mostrarMensagem("Por favor, selecione todas as avaliações.", "warning");
       return;
     }
-  }
+  }*/
 
   // Se chegou aqui, todos os campos obrigatórios foram preenchidos
   enviarEntrevista();
@@ -558,7 +563,7 @@ function enviarEntrevista() {
     const situacao_profissional = document.getElementById("situacao_profissional").value;
     const semestre = document.getElementById("semestre").value;
     const bairro_residencia = document.getElementById("bairro_residencia").value.trim();
-
+    const escola = document.getElementById("escola").value.trim();
     const motivo_escolha_curso =
   document.querySelector('input[name="motivo_escolha_curso"]:checked')?.value || "";
 
@@ -587,12 +592,13 @@ const conheceu_outro =
 }
 
 // Exemplo de uso:
+/*
 const avaliacao_apresentacao = getRadioValue("avaliacao_apresentacao");
 const avaliacao_conhecimento_curso = getRadioValue("avaliacao_conhecimento_curso");
 const avaliacao_conhecimento_udm = getRadioValue("avaliacao_conhecimento_udm");
 const avaliacao_fluencia_comunicativa = getRadioValue("avaliacao_fluencia_comunicativa");
 const avaliacao_objetivos_pessoais = getRadioValue("avaliacao_objetivos_pessoais");
-
+*/
     const contacto_estudante_telefone =
   document.getElementById("contacto_estudante_telefone").value.trim();
 
@@ -603,7 +609,7 @@ const contacto_encarregado_telefone =
   document.getElementById("contacto_encarregado_telefone").value.trim();
 
     const observacoes = document.getElementById("observacoes").value.trim();
-    const entrevistado_por = document.getElementById("entrevistado_por").value.trim();
+    //const entrevistado_por = document.getElementById("entrevistado_por").value.trim();
 
     // const suporte_despesas = document.getElementById("suporte_despesas").value;
    // const suporte_despesas_outro = document.getElementById("campoDespesaOutro").value; 
@@ -641,6 +647,7 @@ if (suporteRadio) {
     formData.append("situacao_profissional", situacao_profissional);
     formData.append("semestre", semestre);
     formData.append("bairro_residencia", bairro_residencia);
+    formData.append("escola", escola);
 
     formData.append("motivo_escolha_curso", motivo_escolha_curso);
     formData.append("motivo_outro", motivo_outro);
@@ -656,13 +663,13 @@ if (suporteRadio) {
 
     formData.append("expectativas_curso", expectativas_curso);
     formData.append("receios_curso", receios_curso);
-
+/*
     formData.append("avaliacao_apresentacao", avaliacao_apresentacao);
     formData.append("avaliacao_conhecimento_curso", avaliacao_conhecimento_curso);
     formData.append("avaliacao_conhecimento_udm", avaliacao_conhecimento_udm);
     formData.append("avaliacao_fluencia_comunicativa", avaliacao_fluencia_comunicativa);
     formData.append("avaliacao_objetivos_pessoais", avaliacao_objetivos_pessoais);
-
+*/
     formData.append(
       "contacto_estudante_telefone",
       contacto_estudante_telefone
@@ -679,7 +686,7 @@ if (suporteRadio) {
     );
 
     formData.append("observacoes", observacoes);
-    formData.append("entrevistado_por", entrevistado_por);
+    //formData.append("entrevistado_por", entrevistado_por);
 
     // === Enviar para o servidor ===
     fetch(url, { method: "POST", body: formData })
@@ -712,6 +719,7 @@ if (suporteRadio) {
             document.getElementById("situacao_profissional").value = "";
             document.getElementById("semestre").value = "";
             document.getElementById("bairro_residencia").value = "";
+            document.getElementById("escola").value = "";
 
             function limparRadios(name) {
               document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
@@ -720,14 +728,9 @@ if (suporteRadio) {
             }
 
             // Exemplo ao enviar:
-            limparRadios("avaliacao_apresentacao");
-            limparRadios("avaliacao_conhecimento_curso");
-            limparRadios("avaliacao_conhecimento_udm");
-            limparRadios("avaliacao_fluencia_comunicativa");
-            limparRadios("avaliacao_objetivos_pessoais");
-
+            
             document.getElementById("observacoes").value = "";
-            document.getElementById("entrevistado_por").value = "";
+           // document.getElementById("entrevistado_por").value = "";
         }
     })
     .catch(err => {

@@ -18,14 +18,14 @@
     </div>
 
     <!-- MENSAGENS -->
-    {% if messages %}
+    {% comment %} {% if messages %}
         {% for message in messages %}
             <div class="alert alert-success shadow-sm">{{ message }}</div>
         {% endfor %}
-    {% endif %}
+    {% endif %} {% endcomment %}
 
     <!-- BARRA DE PESQUISA -->
-    <form method="get" class="mb-3">
+    {% comment %} <form method="get" class="mb-3">
         <div class="input-group">
             <input type="text" name="q" class="form-control"
                    placeholder="Pesquisar por nome, curso, faculdade ou contacto..."
@@ -34,7 +34,57 @@
                 <i class="bi bi-search"></i>
             </button>
         </div>
-    </form>
+    </form> {% endcomment %}
+    <form method="get" class="mb-3">
+    <div class="row g-2 align-items-end">
+
+        <!-- Pesquisa -->
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text"
+                       name="q"
+                       class="form-control"
+                       placeholder="Pesquisar por nome, curso, faculdade ou contacto..."
+                       value="{{ query }}">
+            </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="col-md-3">
+            <select name="faculdade" class="form-select">
+                <option value="">Todas as Faculdades</option>
+                {% for f in faculdades_opcoes %}
+                    <option value="{{ f }}" {% if faculdade_selecionada == f %}selected{% endif %}>
+                        {{ f }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="estado" class="form-select">
+                <option value="">Todos os Estados</option>
+                {% for e in estados_opcoes %}
+                    <option value="{{ e }}" {% if estado_selecionado == e %}selected{% endif %}>
+                        {{ e|capfirst }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Botão -->
+        <div class="col-md-1 d-grid">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-funnel">Pesquisar</i>
+            </button>
+        </div>
+
+    </div>
+</form>
+
 
     <!-- TABELA -->
     <div class="card shadow-sm">
@@ -84,14 +134,39 @@
                                        class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-eye"></i> detalhes
                                     </a>
-                                    <a href="" 
+                                    <!-- Botão avaliar só se o estado for pendente -->
+                                        {% if e.estado|lower == "pendente" %}
+                                        <a href="{% url 'entrevistas:editar_avaliacao_entrevista' e.id %}"  
+                                        class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i> avaliar
+                                        </a>
+                                        {% endif %}
+
+
+
+                                    {% comment %} <a href="{% url 'entrevistas:editar_avaliacao_entrevista' e.id %}"  
                                        class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-pencil"></i> editar
-                                    </a>
-                                    <a href="" class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Tem certeza que deseja apagar?');">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                        <i class="bi bi-pencil"></i> avaliar
+                                    </a> {% endcomment %}
+                                    {% comment %} <a href="{% url 'entrevistas:anular_entrevista' e.id %}" class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Tem certeza que deseja anular?');">
+                                        <i class="bi bi-trash"> anular</i>
+                                    </a> {% endcomment %}
+                                    {% if e.estado != "ANULADA" %}
+                                <form method="post"
+                                    action="{% url 'entrevistas:anular_entrevista' e.id %}"
+                                    class="d-inline"
+                                    onsubmit="return confirm('Tem certeza que deseja anular esta entrevista?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i> anular
+                                </button>
+                                </form>
+                                {% else %}
+                                <span class="btn btn-sm btn-danger disabled">
+                                    <i class="bi bi-x-circle"></i> anulada
+                                </span>
+                                {% endif %}
                                 </div>
                             </td>
                         </tr>

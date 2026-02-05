@@ -1,0 +1,305 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+
+{% include 'global/partials/messages.html' %}
+<div class="container mt-5">
+
+    <!-- CABEÇALHO -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">
+            <i class="bi bi-person-lines-fill"></i> Detalhes da Entrevista
+        </h2>
+
+        <div class="btn-group">
+            <a href="{% url 'entrevistas:listar_entrevistas' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            
+        </div>
+    </div>
+
+    <!-- CARD PRINCIPAL -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <!-- IDENTIFICAÇÃO -->
+            <div class="mb-4">
+                <h5 class="text-secondary border-bottom pb-2 mb-3">
+                    1. Identificação do Estudante
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <strong>Nome:</strong><br>
+                        {{ entrevista.nome|default:"—" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Curso:</strong><br>
+                        {{ entrevista.curso|default:"—" }}
+                    </div>
+
+                    <div class="col-md-3">
+                        <strong>Género:</strong><br>
+                        {{ entrevista.genero|default:"—" }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Faixa Etária:</strong><br>
+                        {{ entrevista.faixa_etaria|default:"—" }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Faculdade:</strong><br>
+                        {{ entrevista.faculdade|default:"—" }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Semestre:</strong><br>
+                        {{ entrevista.semestre|default:"—" }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <strong>Situação Profissional:</strong><br>
+                        {{ entrevista.situacao_profissional|default:"—" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Bairro de Residência:</strong><br>
+                        {{ entrevista.bairro_residencia|default:"—" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOTIVAÇÕES -->
+            <div class="mb-4">
+                <h5 class="text-secondary border-bottom pb-2 mb-3">
+                    2. Motivações
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <strong>Motivo da escolha do curso:</strong><br>
+                        {{ entrevista.motivo_escolha_curso|default:"—" }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Motivo da escolha da UDM:</strong><br>
+                        {{ entrevista.motivo_escolha_udm|default:"—" }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Como conheceu a UDM:</strong><br>
+                        {{ entrevista.como_conheceu_udm|default:"—" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- DESPESAS -->
+            <div class="mb-4">
+                <h5 class="text-secondary border-bottom pb-2 mb-3">
+                    3. Suporte das Despesas
+                </h5>
+
+                <p>
+                    <span class="badge bg-info text-dark px-3 py-2">
+                        {{ entrevista.suporte_despesas|default:"—" }}
+                    </span>
+                </p>
+            </div>
+
+            <!-- EXPECTATIVAS -->
+            <div class="mb-4">
+                <h5 class="text-secondary border-bottom pb-2 mb-3">
+                    4. Expectativas e Receios
+                </h5>
+
+                <div class="mb-3">
+                    <strong>Expectativas em relação ao curso:</strong>
+                    <div class="border rounded p-3 bg-light mt-1">
+                        {{ entrevista.expectativas_curso|default:"—" }}
+                    </div>
+                </div>
+
+                <div>
+                    <strong>Receios em relação ao curso:</strong>
+                    <div class="border rounded p-3 bg-light mt-1">
+                        {{ entrevista.receios_curso|default:"—" }}
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <!-- CONTACTOS -->
+            <div class="mb-4">
+                <h5 class="text-secondary border-bottom pb-2 mb-3">
+                    5. Contactos
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <strong>Telefone do Estudante:</strong><br>
+                        {{ entrevista.contacto_estudante_telefone|default:"—" }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Email do Estudante:</strong><br>
+                        {{ entrevista.contacto_estudante_email|default:"—" }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Telefone do Encarregado:</strong><br>
+                        {{ entrevista.contacto_encarregado_telefone|default:"—" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- OBSERVAÇÕES -->
+            <div class="mb-4">
+                <h5 class="text-secondary border-bottom pb-2 mb-3">
+                    6. Observações da Entrevista
+                </h5>
+
+                <div class="border rounded p-3 bg-light">
+                    {{ entrevista.observacoes|default:"—" }}
+                </div>
+
+                
+            </div>
+
+            <!-- METADADOS -->
+            <div class="text-muted text-end">
+                <small>
+                    Entrevista realizada em {{ entrevista.data_entrevista|date:"d/m/Y H:i" }}
+                </small>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container mt-4">
+
+  <div class="row mb-4">
+    <div class="col">
+      <h4 class="fw-bold text-primary">Avaliação da Entrevista</h4>
+      {% comment %} <p class="text-muted">
+        Entrevistado: <strong>{{ entrevista.nome }}</strong> |
+        Curso: <strong>{{ entrevista.curso }}</strong>
+      </p> {% endcomment %}
+    </div>
+  </div>
+
+<form method="post">
+  {% csrf_token %}
+<!-- 7. Avaliação Geral -->
+<h5 class="text-secondary border-bottom pb-2 mb-3">
+                    Avaliação Geral
+                </h5>
+<div class="table-responsive">
+  <table class="table table-bordered text-center align-middle">
+    <thead class="table-light">
+      <tr>
+        <th class="text-start">Critério</th>
+        <th colspan="2">Inadequado</th>
+        <th colspan="2">Não satisfaz</th>
+        <th colspan="2">Satisfaz</th>
+        <th colspan="2">Acima da média</th>
+        <th colspan="2">Muito bom</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>1</th><th>2</th>
+        <th>3</th><th>4</th>
+        <th>5</th><th>6</th>
+        <th>7</th><th>8</th>
+        <th>9</th><th>10</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-start fw-semibold">Apresentação</td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="1" required></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="2"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="3"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="4"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="5"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="6"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="7"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="8"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="9"></td>
+        <td><input type="radio" name="avaliacao_apresentacao" value="10"></td>
+      </tr>
+
+      <tr>
+        <td class="text-start fw-semibold">Conhecimento do Curso</td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="1" required></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="2"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="3"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="4"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="5"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="6"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="7"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="8"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="9"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_curso" value="10"></td>
+      </tr>
+
+      <tr>
+        <td class="text-start fw-semibold">Conhecimento da UDM</td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="1" required></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="2"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="3"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="4"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="5"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="6"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="7"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="8"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="9"></td>
+        <td><input type="radio" name="avaliacao_conhecimento_udm" value="10"></td>
+      </tr>
+
+      <tr>
+        <td class="text-start fw-semibold">Fluência Comunicativa</td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="1" required></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="2"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="3"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="4"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="5"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="6"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="7"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="8"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="9"></td>
+        <td><input type="radio" name="avaliacao_fluencia_comunicativa" value="10"></td>
+      </tr>
+
+      <tr>
+        <td class="text-start fw-semibold">Objetivos Pessoais</td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="1" required></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="2"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="3"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="4"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="5"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="6"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="7"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="8"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="9"></td>
+        <td><input type="radio" name="avaliacao_objetivos_pessoais" value="10"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+  <div class="mt-4">
+    <button type="submit" class="btn btn-primary">
+      Guardar Avaliação
+    </button>
+
+    <a href="{% url 'entrevistas:detalhes_entrevista' entrevista.id %}"
+       class="btn btn-secondary">
+      Cancelar
+    </a>
+  </div>
+</form>
+
+
+</div>
+{% endblock %}

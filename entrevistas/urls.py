@@ -12,6 +12,15 @@ urlpatterns = [
     path("graficos/", views.estatisticas_entrevistas_grafico, name="estatisticas_entrevistas_grafico"),
     path('register/', views.cadastrar_entrevista, name='cadastrar_entrevista'),
     path('', views.entrevista_externa, name='entrevista_externa'),
+    path("entrevistas/<int:entrevista_id>/editar-avaliacao/",
+    views.editar_avaliacao_entrevista,
+    name="editar_avaliacao_entrevista"
+),
+    path(
+    "entrevista/<int:entrevista_id>/anular/",
+    views.anular_entrevista,
+    name="anular_entrevista"
+),
     # path("convite/editar/<int:convite_id>/", views.editar_convite, name="editar_convite"),
     # path('', views.home, name="home"),
     # path('expedients/<int:id>/', views.expedient, name="expedient"),

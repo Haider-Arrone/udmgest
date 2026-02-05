@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import render, redirect
 from .forms.entrevista_form import EntrevistaEstudanteForm
-
+from django.contrib import messages
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponseBadRequest
@@ -63,6 +63,7 @@ def cadastrar_entrevista(request):
         faixa_etaria = request.POST.get("faixa_etaria", "").strip()
         situacao_profissional = request.POST.get("situacao_profissional", "").strip()
         bairro_residencia = request.POST.get("bairro_residencia", "").strip()
+        escola = request.POST.get("escola", "").strip()
 
         semestre_raw = request.POST.get("semestre", "").strip()
         semestre = int(semestre_raw) if semestre_raw.isdigit() else None
@@ -113,14 +114,14 @@ def cadastrar_entrevista(request):
         # =====================================================
         # AVALIAÇÕES (1–10)
         # =====================================================
-        def to_int(valor):
-            return int(valor) if valor and valor.isdigit() else None
+        # def to_int(valor):
+        #     return int(valor) if valor and valor.isdigit() else None
 
-        avaliacao_apresentacao = to_int(request.POST.get("avaliacao_apresentacao"))
-        avaliacao_conhecimento_curso = to_int(request.POST.get("avaliacao_conhecimento_curso"))
-        avaliacao_conhecimento_udm = to_int(request.POST.get("avaliacao_conhecimento_udm"))
-        avaliacao_fluencia_comunicativa = to_int(request.POST.get("avaliacao_fluencia_comunicativa"))
-        avaliacao_objetivos_pessoais = to_int(request.POST.get("avaliacao_objetivos_pessoais"))
+        # avaliacao_apresentacao = to_int(request.POST.get("avaliacao_apresentacao"))
+        # avaliacao_conhecimento_curso = to_int(request.POST.get("avaliacao_conhecimento_curso"))
+        # avaliacao_conhecimento_udm = to_int(request.POST.get("avaliacao_conhecimento_udm"))
+        # avaliacao_fluencia_comunicativa = to_int(request.POST.get("avaliacao_fluencia_comunicativa"))
+        # avaliacao_objetivos_pessoais = to_int(request.POST.get("avaliacao_objetivos_pessoais"))
 
         # =====================================================
         # CONTACTOS
@@ -133,14 +134,14 @@ def cadastrar_entrevista(request):
         # OBSERVAÇÕES
         # =====================================================
         observacoes = request.POST.get("observacoes", "").strip()
-        print(observacoes)
-        entrevistado_por = request.POST.get("entrevistado_por", "").strip()
+        # print(observacoes)
+        # entrevistado_por = request.POST.get("entrevistado_por", "").strip()
 
-        if not entrevistado_por:
-            return JsonResponse({
-                "success": False,
-                "message": "O campo 'Entrevistado por' é obrigatório."
-            }, status=400)
+        # if not entrevistado_por:
+        #     return JsonResponse({
+        #         "success": False,
+        #         "message": "O campo 'Entrevistado por' é obrigatório."
+        #     }, status=400)
 
         # =====================================================
         # CRIAÇÃO DO REGISTO
@@ -163,18 +164,20 @@ def cadastrar_entrevista(request):
             expectativas_curso=expectativas_curso,
             receios_curso=receios_curso,
 
-            avaliacao_apresentacao=avaliacao_apresentacao,
-            avaliacao_conhecimento_curso=avaliacao_conhecimento_curso,
-            avaliacao_conhecimento_udm=avaliacao_conhecimento_udm,
-            avaliacao_fluencia_comunicativa=avaliacao_fluencia_comunicativa,
-            avaliacao_objetivos_pessoais=avaliacao_objetivos_pessoais,
+            # avaliacao_apresentacao=avaliacao_apresentacao,
+            # avaliacao_conhecimento_curso=avaliacao_conhecimento_curso,
+            # avaliacao_conhecimento_udm=avaliacao_conhecimento_udm,
+            # avaliacao_fluencia_comunicativa=avaliacao_fluencia_comunicativa,
+            # avaliacao_objetivos_pessoais=avaliacao_objetivos_pessoais,
 
             contacto_estudante_telefone=contacto_estudante_telefone,
             contacto_estudante_email=contacto_estudante_email,
             contacto_encarregado_telefone=contacto_encarregado_telefone,
 
             observacoes=observacoes,
-            entrevistado_por=entrevistado_por,
+            estado='pendente',
+            escola=escola,
+            # entrevistado_por=entrevistado_por,
             data_entrevista=timezone.now()
         )
 
@@ -216,9 +219,10 @@ def listar_entrevistas(request):
         raise Http404("Funcionário não encontrado")
 
     entrevistas = EntrevistaEstudante.objects.all().order_by('-data_entrevista')
-
+    FACULDADES = ['FCT', 'FCJ', 'FCES']
+    ESTADOS = ['pendente', 'avaliado', 'anulada']
     # Pesquisa
-    query = request.GET.get("q")
+    query = request.GET.get("q", "")
     if query:
         entrevistas = entrevistas.filter(
             Q(nome__icontains=query) |
@@ -228,17 +232,34 @@ def listar_entrevistas(request):
             Q(contacto_estudante_telefone__icontains=query) |
             Q(contacto_estudante_email__icontains=query)
         )
+    
+    # 🎯 Filtro por estado
+    estado = request.GET.get("estado", "")
+    print(estado)
+    if estado:
+        print(estado)
+        entrevistas = entrevistas.filter(estado__iexact=estado)
+
+    # 🎓 Filtro por faculdade
+    faculdade = request.GET.get("faculdade", "")
+    if faculdade:
+        entrevistas = entrevistas.filter(faculdade=faculdade)
 
     # Paginação
     paginator = Paginator(entrevistas, 10)  # 20 por página
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
+    
 
     context = {
         "entrevistas": page_obj,
         "page_obj": page_obj,
         "query": query,
         "funcionario": funcionario,
+        "estado_selecionado": estado,
+        "faculdade_selecionada": faculdade,
+        "estados_opcoes": ESTADOS,
+        "faculdades_opcoes": FACULDADES,
     }
 
     return render(request, "entrevistas/listar_entrevistas.html", context)
@@ -497,3 +518,181 @@ def estatisticas_entrevistas_grafico(request):
     except Exception as e:
         logger.exception("Erro ao gerar estatísticas em gráfico")
         raise Http404("Não foi possível carregar as estatísticas no momento.")
+    
+    
+@login_required(login_url='authors:login', redirect_field_name='next')
+def editar_avaliacao_entrevista(request, entrevista_id):
+    """
+    Edita apenas os dados de avaliação da entrevista (template estático).
+    """
+
+    # =========================
+    # FUNCIONÁRIO LOGADO
+    # =========================
+    funcionario = (
+        Funcionario.objects
+        .filter(author=request.user)
+        .select_related("departamento")
+        .first()
+    )
+
+    if not funcionario:
+        messages.error(
+            request,
+            "Não foi possível identificar o funcionário associado à sua conta."
+        )
+        raise Http404("Funcionário não encontrado")
+
+    # =========================
+    # ENTREVISTA
+    # =========================
+    entrevista = get_object_or_404(
+        EntrevistaEstudante,
+        id=entrevista_id
+    )
+
+    # =========================
+    # SUBMISSÃO
+    # =========================
+    if request.method == "POST":
+        try:
+            # Campos esperados (escala 1–10)
+            campos_avaliacao = [
+                "avaliacao_apresentacao",
+                "avaliacao_conhecimento_curso",
+                "avaliacao_conhecimento_udm",
+                "avaliacao_fluencia_comunicativa",
+                "avaliacao_objetivos_pessoais",
+            ]
+
+            for campo in campos_avaliacao:
+                valor = request.POST.get(campo)
+
+                if valor:
+                    valor_int = int(valor)
+                    if valor_int < 1 or valor_int > 10:
+                        raise ValueError(
+                            f"Valor inválido para {campo}"
+                        )
+                    setattr(entrevista, campo, valor_int)
+                else:
+                    setattr(entrevista, campo, None)
+
+            # Quem realizou/atualizou a avaliação
+            entrevista.entrevistado_por = (
+                funcionario.author.get_full_name()
+                or funcionario.author.username
+            )
+            entrevista.estado = "avaliado"
+            entrevista.data_entrevista_por = timezone.now()
+
+            entrevista.save()
+
+            messages.success(
+                request,
+                "Avaliação da entrevista actualizada com sucesso."
+            )
+
+            return redirect(
+                "entrevistas:detalhes_entrevista",
+                entrevista_id=entrevista.id
+            )
+
+        except ValueError:
+            messages.error(
+                request,
+                "Foram detectados valores inválidos. "
+                "Certifique-se de que todas as avaliações estão entre 1 e 10."
+            )
+
+        except Exception:
+            messages.error(
+                request,
+                "Ocorreu um erro inesperado ao guardar a avaliação. "
+                "Por favor, tente novamente."
+            )
+
+    # =========================
+    # CONTEXTO
+    # =========================
+    context = {
+        "entrevista": entrevista,
+        "funcionario": funcionario,
+    }
+
+    return render(
+        request,
+        "entrevistas/avaliar_entrevista.html",
+        context
+    )
+    
+    
+@login_required(login_url='authors:login', redirect_field_name='next')
+def anular_entrevista(request, entrevista_id):
+    """
+    Marca a entrevista como ANULADA (soft delete).
+    """
+
+    funcionario = (
+        Funcionario.objects
+        .filter(author=request.user)
+        .first()
+    )
+
+    if not funcionario:
+        messages.error(
+            request,
+            "Não foi possível identificar o funcionário."
+        )
+        raise Http404("Funcionário não encontrado")
+
+    entrevista = get_object_or_404(
+        EntrevistaEstudante,
+        id=entrevista_id
+    )
+
+    # Evitar dupla anulação
+    if entrevista.estado == "ANULADA":
+        messages.warning(
+            request,
+            "Esta entrevista já se encontra anulada."
+        )
+        return redirect(
+            "entrevistas:detalhes_entrevista",
+            entrevista_id=entrevista.id
+        )
+
+    if request.method == "POST":
+        try:
+            entrevista.estado = "ANULADA"
+            entrevista.entrevistado_por = (
+                funcionario.author.get_full_name()
+                or funcionario.author.username
+            )
+            entrevista.save()
+
+            messages.success(
+                request,
+                "Entrevista anulada com sucesso."
+            )
+
+        except Exception:
+            messages.error(
+                request,
+                "Ocorreu um erro ao anular a entrevista. "
+                "Por favor, tente novamente."
+            )
+
+        return redirect(
+            "entrevistas:listar_entrevistas"
+        )
+
+    # Se alguém tentar aceder por GET
+    messages.error(
+        request,
+        "Operação inválida."
+    )
+    return redirect(
+        "entrevistas:detalhes_entrevista",
+        entrevista_id=entrevista.id
+    )
