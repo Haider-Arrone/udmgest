@@ -311,6 +311,20 @@ def entrevista_externa(request):
         "entrevistas/indexx.html",
        
     )
+    
+@csrf_exempt
+def entrevista_interna(request):
+    """
+    Abre o template para criação de uma nova entrevista.
+    """
+
+    
+
+    return render(
+        request,
+        "entrevistas/indexx_interno.html",
+       
+    )
 @login_required(login_url='authors:login', redirect_field_name='next')
 def estatisticas_entrevistas(request):
     try:

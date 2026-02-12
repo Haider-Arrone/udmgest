@@ -11,7 +11,9 @@ urlpatterns = [
     path("estatisticas/", views.estatisticas_entrevistas, name="estatisticas_entrevistas"),
     path("graficos/", views.estatisticas_entrevistas_grafico, name="estatisticas_entrevistas_grafico"),
     path('register/', views.cadastrar_entrevista, name='cadastrar_entrevista'),
+    #path('register/interna', views.cadastrar_entrevista, name='cadastrar_entrevista_interna'),
     path('', views.entrevista_externa, name='entrevista_externa'),
+    path('ri', views.entrevista_interna, name='entrevista_interna'),
     path("entrevistas/<int:entrevista_id>/editar-avaliacao/",
     views.editar_avaliacao_entrevista,
     name="editar_avaliacao_entrevista"
