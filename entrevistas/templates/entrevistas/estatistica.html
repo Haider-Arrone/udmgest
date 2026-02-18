@@ -16,6 +16,27 @@
     </div>
   </div>
 
+    <form method="get" class="row mb-4">
+  <div class="col-md-4">
+    <select name="faculdade" class="form-select">
+      <option value="">Todas as Faculdades</option>
+      {% for f in lista_faculdades %}
+        <option value="{{ f }}"
+          {% if f == faculdade_selecionada %}selected{% endif %}>
+          {{ f }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-primary">
+      Filtrar
+    </button>
+  </div>
+</form>
+
+
   <!-- RESUMO GERAL -->
   <div class="row g-3 mb-4">
     <div class="col-md-2">

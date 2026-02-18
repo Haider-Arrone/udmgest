@@ -339,6 +339,10 @@ def estatisticas_entrevistas(request):
             raise Http404("Funcionário não encontrado")
 
         entrevistas = EntrevistaEstudante.objects.all()
+        faculdade_filtro = request.GET.get("faculdade", "").strip()
+
+        if faculdade_filtro:
+            entrevistas = entrevistas.filter(faculdade__iexact=faculdade_filtro)
 
         # ======================
         # MÉDIAS (com fallback)
@@ -356,6 +360,13 @@ def estatisticas_entrevistas(request):
             medias[key] = round(value, 1) if value else 0
 
         context = {
+            "lista_faculdades": EntrevistaEstudante.objects.exclude(
+    faculdade__isnull=True
+).exclude(
+    faculdade=""
+).values_list("faculdade", flat=True).distinct().order_by("faculdade"),
+
+"faculdade_selecionada": faculdade_filtro,
             "funcionario": funcionario,
 
             # ======================
@@ -455,6 +466,11 @@ def estatisticas_entrevistas_grafico(request):
             raise Http404("Funcionário não encontrado")
 
         entrevistas = EntrevistaEstudante.objects.all()
+        
+        faculdade_filtro = request.GET.get("faculdade", "").strip()
+
+        if faculdade_filtro:
+            entrevistas = entrevistas.filter(faculdade__iexact=faculdade_filtro)
 
         # ======================
         # MÉDIAS
@@ -499,8 +515,17 @@ def estatisticas_entrevistas_grafico(request):
         faculdade_labels, faculdade_values = chart_data(por_faculdade, "faculdade")
         curso_labels, curso_values = chart_data(por_curso, "curso")
         despesas_labels, despesas_values = chart_data(por_suporte_despesas, "suporte_despesas")
+        
+        lista_faculdades = EntrevistaEstudante.objects.exclude(
+    faculdade__isnull=True
+).exclude(
+    faculdade=""
+).values_list("faculdade", flat=True).distinct().order_by("faculdade")
 
         context = {
+            "lista_faculdades": lista_faculdades,
+    "faculdade_selecionada": faculdade_filtro,
+            
             "funcionario": funcionario,
             "total_entrevistas": entrevistas.count(),
             **medias,
