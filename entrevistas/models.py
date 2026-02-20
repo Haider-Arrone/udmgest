@@ -133,7 +133,7 @@ class EntrevistaEstudante(models.Model):
     data_entrevista_por = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     
     estado = models.CharField(max_length=50, null=True, blank=True)
-    escola = models.CharField(max_length=50, null=True, blank=True)
+    escola = models.CharField(max_length=150, null=True, blank=True)
     
 
     # =========================
